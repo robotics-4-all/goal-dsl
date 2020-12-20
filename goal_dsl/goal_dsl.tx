@@ -1,38 +1,52 @@
 /*
-    An example textX language
+    Goal DSL
 */
 
-Program:
-    'begin'
-      commands*=Command    // *= operator means zero or more matches.
-      // commands will be
-      // a list of command objects
-    'end'
+Model:
+    goals*=Goal
 ;
 
-// this is an example of abstract rule. command class will never be instantiated
-// in the model.
-Command:
-    InitialCommand | MoveCommand
+
+Goal: DSVariable | DSCommand | PoseGoal | TrajectoryGoal | AvoidAreaGoal |
+ComplexGoal;
+
+ComplexGoal:
+    'ComplexGoal' name=ID '->' '{'
+        'combinationAlgorithm:' combinationAlgorithm=[GoalCombinationAlgorithm]
+        ';'
+        'accomblishedGoalsRequired:' accomblishedGoalsRequired=BOOL ';'
+        'bHasSequenceConstraints:' bHasSequenceConstraints=BOOL ';'
+        ''
+    '}'
 ;
 
-InitialCommand:
-    'initial' x=INT ',' y=INT
-;
 
-MoveCommand:
-    direction=Direction (steps=INT)?
-;
+GoalCombinationAlgorithm: 'ALL_ACCOMPLISHED' | 'NONE_ACCOMPLISHED' |
+'AT_LEAST_ONE' | 'EXACTLY_X_ACCOMPLISHED';
 
-// this is an example of a match rule
-// match rules has either string match, regex match or other match rule as
-// its alternatives (e.g. int, string... or some user match rule)
-// match rule is treated as a contained match. no class will get created.
-Direction:
-    "up"|"down"|"left"|"right"
-;
+ParamValueConstraintType: 'EXACT_VALUE' | 'WITHIN_RANGE' | 'OUT_OF_RANGE' |
+'EXISTS_IN_COLLECTION';
 
-// special rule for comments.
-Comment:
-    /\/\/.*$/
-;
+TimingConstraintType: 'FROM_APP_START' | 'WITHIN_PERIOD_FROM_APP_START' |
+'FROM_OTHER_GOAL_COMPLETION' | 'WITHIN_PERIOD_FROM_OTHER_GOAL_COMPLETION' |
+'FROM_GOAL_START';
+
+
+FQN: ID+['.'];
+FQNI: ID+['.']('.*')?;
+Import: 'import' importURI=FQNI ('as' name=ID)? ';';
+
+// Import Rule for models. Import other models from files or textx
+// global scope database.
+// https://textx.github.io/textX/stable/multimetamodel/#use-case-meta-model-sharing-with-the-importuri-feature
+
+Description: /\#(.*?)$/;
+
+// Special rule for comments. Comments start with //
+
+// Comments
+Comment: CommentLine | CommentBlock ;
+
+CommentLine: /\/\/.*?$/;
+
+CommentBlock: /\/\*(.|\n)*?\*\//;
