@@ -3,12 +3,12 @@
 */
 
 Model:
-    goals*=Goal
+    (goals*=Goal)
+    (tConstraints*=TimeConstraint)
 ;
 
 
-Goal: DSVariable | DSCommand | PoseGoal | TrajectoryGoal | AvoidAreaGoal |
-ComplexGoal;
+Goal: OrientationGoal | TrajectoryGoal | AvoidAreaGoal | ComplexGoal;
 
 AvoidAreaGoal: RectangleAreaGoal | CircularAreaGoal;
 
@@ -16,8 +16,7 @@ TrajectoryGoal: CrossStraightLineGoal;
 
 ComplexGoal:
     'ComplexGoal' name=ID '->' '{'
-        'combinationAlgorithm:' combinationAlgorithm=[GoalCombinationAlgorithm]
-        ';'
+        'combAlgorithm:' combAlgorithm=[GoalCombinationAlgorithm] ';'
         'accomblishedGoalsRequired:' accomblishedGoalsRequired=BOOL ';'
         'bHasSequenceConstraints:' bHasSequenceConstraints=BOOL ';'
         'goals: ' '[' goalRefs+=Goal[','] ']' ';'
@@ -26,27 +25,47 @@ ComplexGoal:
 
 RectangleAreaGoal:
     'RectangleAreaGoal' name=ID '->' '{'
-        'centerPoint:' centerPoint=Point3D ';'
-        'sideLength:' sideLength=FLOAT ';'
+    (
+        ('centerPoint:' centerPoint=Point ';')
+        ('sideLength:' sideLength=FLOAT ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint] ';')
+    )#  // Any order
     '}'
 ;
 
 CircularAreaGoal:
     'CircularAreaGoal' name=ID '->' '{'
-        'centerPoint:' centerPoint=Point3D ';'
-        'radius:' radius=FLOAT ';'
+    (
+        ('centerPoint:' centerPoint=Point3D ';')
+        ('radius:' radius=FLOAT ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint] ';')
+    )#
     '}'
 ;
 
 CrossStraightLineGoal:
     'CrossStraightLineGoal' name=ID '->' '{'
-        'startPoint:' centerPoint=Point3D ';'
-        'finishPoint:' centerPoint=Point3D ';'
-        'maxDeviation': maxDeviation=FLOAT ';'
+    (
+        ('startPoint:' centerPoint=Point ';')
+        ('finishPoint:' centerPoint=Point ';')
+        /* ('maxDeviation': maxDeviation=FLOAT ';') */
+        ('timeConstraint:' timeConstraint=[TimeConstraint] ';')
+    )#
     '}'
 ;
 
-Pose2D
+OrientationGoal:
+    'OrientationGoal' name=ID '->' '{'
+    (
+        ('orientation:' orientation=Orientation ';')
+        ('maxDeviation:' maxDeviation=FLOAT ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint] ';')
+    )#
+    '}'
+;
+
+Point: Point2D | Point3D;
+Orientation: Orientation2D | Orientation3D;
 
 Point2D:
     'Point2D' '(' xAxis=FLOAT ',' yAxis=FLOAT ')'
@@ -64,6 +83,15 @@ Orientation3D:
     'Orientation3D' '(' xAxis=FLOAT ',' yAxis=FLOAT ',' zAxis=FLOAT ')'
 ;
 
+TimeConstraint:
+    'TConstraint' name=ID '->' '{'
+    (
+        ('type:' type=TimingConstraintType ';')
+        ('minDuration:' minDuration=FLOAT ';')
+        ('maxDuration:' maxDuration=FLOAT ';')
+    )#
+    '}'
+;
 
 GoalCombinationAlgorithm: 'ALL_ACCOMPLISHED' | 'NONE_ACCOMPLISHED' |
 'AT_LEAST_ONE' | 'EXACTLY_X_ACCOMPLISHED';
