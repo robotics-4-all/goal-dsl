@@ -10,14 +10,58 @@ Model:
 Goal: DSVariable | DSCommand | PoseGoal | TrajectoryGoal | AvoidAreaGoal |
 ComplexGoal;
 
+AvoidAreaGoal: RectangleAreaGoal | CircularAreaGoal;
+
+TrajectoryGoal: CrossStraightLineGoal;
+
 ComplexGoal:
     'ComplexGoal' name=ID '->' '{'
         'combinationAlgorithm:' combinationAlgorithm=[GoalCombinationAlgorithm]
         ';'
         'accomblishedGoalsRequired:' accomblishedGoalsRequired=BOOL ';'
         'bHasSequenceConstraints:' bHasSequenceConstraints=BOOL ';'
-        ''
+        'goals: ' '[' goalRefs+=Goal[','] ']' ';'
     '}'
+;
+
+RectangleAreaGoal:
+    'RectangleAreaGoal' name=ID '->' '{'
+        'centerPoint:' centerPoint=Point3D ';'
+        'sideLength:' sideLength=FLOAT ';'
+    '}'
+;
+
+CircularAreaGoal:
+    'CircularAreaGoal' name=ID '->' '{'
+        'centerPoint:' centerPoint=Point3D ';'
+        'radius:' radius=FLOAT ';'
+    '}'
+;
+
+CrossStraightLineGoal:
+    'CrossStraightLineGoal' name=ID '->' '{'
+        'startPoint:' centerPoint=Point3D ';'
+        'finishPoint:' centerPoint=Point3D ';'
+        'maxDeviation': maxDeviation=FLOAT ';'
+    '}'
+;
+
+Pose2D
+
+Point2D:
+    'Point2D' '(' xAxis=FLOAT ',' yAxis=FLOAT ')'
+;
+
+Point3D:
+    'Point3D' '(' xAxis=FLOAT ',' yAxis=FLOAT ',' zAxis=FLOAT ')'
+;
+
+Orientation2D:
+    'Orientation2D' '(' xAxis=FLOAT ',' yAxis=FLOAT ')'
+;
+
+Orientation3D:
+    'Orientation3D' '(' xAxis=FLOAT ',' yAxis=FLOAT ',' zAxis=FLOAT ')'
 ;
 
 
