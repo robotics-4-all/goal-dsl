@@ -10,6 +10,7 @@ def get_mm(debug=False, global_scope=True):
     """
     mm= metamodel_from_file(
         join(this_dir, 'goal_dsl.tx'),
+        global_repository=global_scope,
         debug=debug
     )
 

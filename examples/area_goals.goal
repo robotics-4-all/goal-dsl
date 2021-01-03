@@ -1,0 +1,9 @@
+RectangleAreaGoal GoalA -> {
+    centerPoint: Point2D(2.0, 6.0);
+    sideLength: 3.0;
+}
+
+CircularAreaGoal GoalB -> {
+    centerPoint: Point2D(2.0, 6.0);
+    radius: 3.0;
+}

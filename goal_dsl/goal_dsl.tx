@@ -3,32 +3,64 @@
 */
 
 Model:
+    imports*=Import
     (goals*=Goal)
     (tConstraints*=TimeConstraint)
 ;
 
 
-Goal: OrientationGoal | TrajectoryGoal | AvoidAreaGoal | ComplexGoal;
+Goal: TopicGoal | AreaGoal | PoseGoal | TrajectoryGoal | ComplexGoal;
 
-AvoidAreaGoal: RectangleAreaGoal | CircularAreaGoal;
+AreaGoal: RectangleAreaGoal | CircularAreaGoal | StraightLineAreaGoal;
 
-TrajectoryGoal: CrossStraightLineGoal;
+PoseGoal: OrientationGoal | PointGoal | PoseGoal;
+
+TopicGoal: TopicMessageReceivedGoal | TopicMessageParamGoal;
+
+TrajectoryGoal: StraightLineTrajectoryGoal | CustomPointsTrajectoryGoal;
 
 ComplexGoal:
     'ComplexGoal' name=ID '->' '{'
-        'combAlgorithm:' combAlgorithm=[GoalCombinationAlgorithm] ';'
-        'accomblishedGoalsRequired:' accomblishedGoalsRequired=BOOL ';'
-        'bHasSequenceConstraints:' bHasSequenceConstraints=BOOL ';'
-        'goals: ' '[' goalRefs+=Goal[','] ']' ';'
+    (
+        ('algorithm:' algorithm=[ComplexGoalAlgorithmType] ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('addGoal(' goals+=[Goal|FQN] ')' ';')*
+    )#
     '}'
 ;
+
+// TOPIC GOALS ----------------------------------------------------->
+
+TopicMessageReceivedGoal:
+    'TopicMsgReceivedGoal' name=ID '->' '{'
+    (
+        ('topic:' param=STRING ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+    )#
+;
+
+TopicMessageParamGoal:
+    'TopicMsgParamGoal' name=ID '->' '{'
+    (
+        ('topic:' param=STRING ';')
+        ('param:' param=STRING ';')
+        ('epxression:' expression=STRING ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+    )#
+    '}'
+;
+
+// <-----------------------------------------------------------------
+
+// AREA GOALS ------------------------------------------------------>
 
 RectangleAreaGoal:
     'RectangleAreaGoal' name=ID '->' '{'
     (
         ('centerPoint:' centerPoint=Point ';')
         ('sideLength:' sideLength=FLOAT ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint] ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('listening:' listeningTopic=STRING ';')?
     )#  // Any order
     '}'
 ;
@@ -36,20 +68,63 @@ RectangleAreaGoal:
 CircularAreaGoal:
     'CircularAreaGoal' name=ID '->' '{'
     (
-        ('centerPoint:' centerPoint=Point3D ';')
+        ('centerPoint:' centerPoint=Point ';')
         ('radius:' radius=FLOAT ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint] ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('listening:' listeningTopic=STRING ';')?
     )#
     '}'
 ;
 
-CrossStraightLineGoal:
-    'CrossStraightLineGoal' name=ID '->' '{'
+StraightLineAreaGoal:
+    'StraightLineAreaGoal' name=ID '->' '{'
     (
-        ('startPoint:' centerPoint=Point ';')
-        ('finishPoint:' centerPoint=Point ';')
-        /* ('maxDeviation': maxDeviation=FLOAT ';') */
-        ('timeConstraint:' timeConstraint=[TimeConstraint] ';')
+        ('startPoint:' startPoint=Point ';')
+        ('finishPoint:' finishPoint=Point ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('listening:' listeningTopic=STRING ';')?
+    )#
+    '}'
+;
+
+// <-----------------------------------------------------------------
+
+// TRAJECTORY GOALS ------------------------------------------------>
+
+StraightLineTrajectoryGoal:
+    'StraightLineTrajGoal' name=ID '->' '{'
+    (
+        ('startPoint:' startPoint=Point ';')
+        ('finishPoint:' finishPoint=Point ';')
+        ('maxDeviation:' maxDeviation=FLOAT ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('listening:' listeningTopic=STRING ';')?
+    )#
+    '}'
+;
+
+CustomPointsTrajectoryGoal:
+    'CustomPointsTrajectoryGoal' name=ID '->' '{'
+    (
+        ('startPoint:' startPoint=Point ';')
+        ('finishPoint:' finishPoint=Point ';')
+        ('trajectoryPoints:' '[' points+=Point[','] ']' ';')
+        ('maxDeviation:' maxDeviation=FLOAT ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('listening:' listeningTopic=STRING ';')?
+    )#
+    '}'
+;
+// <----------------------------------------------------------------
+
+PoseGoal:
+    'PoseGoal' name=ID '->' '{'
+    (
+        ('orientation:' orientation=Orientation ';')
+        ('position:' position=Point ';')
+        ('maxDeviation:' maxDeviation=FLOAT ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('listening:' listeningTopic=STRING ';')?
     )#
     '}'
 ;
@@ -59,7 +134,19 @@ OrientationGoal:
     (
         ('orientation:' orientation=Orientation ';')
         ('maxDeviation:' maxDeviation=FLOAT ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint] ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('listening:' listeningTopic=STRING ';')?
+    )#
+    '}'
+;
+
+PointGoal:
+    'PointGoal' name=ID '->' '{'
+    (
+        ('point:' point=Point ';')
+        ('maxDeviation:' maxDeviation=FLOAT ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('listening:' listeningTopic=STRING ';')?
     )#
     '}'
 ;
@@ -93,7 +180,9 @@ TimeConstraint:
     '}'
 ;
 
-GoalCombinationAlgorithm: 'ALL_ACCOMPLISHED' | 'NONE_ACCOMPLISHED' |
+AreaGoalType: 'AVOID' | 'REACH';
+
+ComplexGoalAlgorithmType: 'ALL_ACCOMPLISHED' | 'NONE_ACCOMPLISHED' |
 'AT_LEAST_ONE' | 'EXACTLY_X_ACCOMPLISHED';
 
 ParamValueConstraintType: 'EXACT_VALUE' | 'WITHIN_RANGE' | 'OUT_OF_RANGE' |
@@ -103,16 +192,8 @@ TimingConstraintType: 'FROM_APP_START' | 'WITHIN_PERIOD_FROM_APP_START' |
 'FROM_OTHER_GOAL_COMPLETION' | 'WITHIN_PERIOD_FROM_OTHER_GOAL_COMPLETION' |
 'FROM_GOAL_START';
 
-
-FQN: ID+['.'];
-FQNI: ID+['.']('.*')?;
-Import: 'import' importURI=FQNI ('as' name=ID)? ';';
-
-// Import Rule for models. Import other models from files or textx
-// global scope database.
-// https://textx.github.io/textX/stable/multimetamodel/#use-case-meta-model-sharing-with-the-importuri-feature
-
-Description: /\#(.*?)$/;
+FQN: ID('.'ID)*;
+Import: 'import' importURI=FQN ('as' name=ID)? ';';
 
 // Special rule for comments. Comments start with //
 
