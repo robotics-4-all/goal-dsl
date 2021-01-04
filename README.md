@@ -133,17 +133,23 @@ definition.
 - **AT_LEAST_ONE**
 - **EXACTLY_X_ACCOMPLISHED**
 
-## Goal Sequence
+```
+ComplexGoal GoalC -> {
+    algorithm: ALL_ACCOMPLISHED;
+    addGoal(GoalA);
+    addGoal(GoalB);
+}
+```
+
+### Goal Sequence
 
 A number of Goals which have to be accomplished in sequence.
 
 ```
-import complex_goals.goal as complex_goals;
-
 Sequence S1 -> {
-    addGoal(complex_goals.GoalC);
-    addGoal(complex_goals.GoalD);
-    addGoal(complex_goals.GoalE);
+    addGoal(GoalC);
+    addGoal(GoalD);
+    addGoal(GoalE);
 }
 ```
 
