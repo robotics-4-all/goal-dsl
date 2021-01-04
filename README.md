@@ -325,6 +325,33 @@ TopicMsgParamGoal TopicGoalB -> {
 TopicGoalB.timeConstraint = TC1
 ```
 
+### Anti-Goals
+
+Support setting every Goal in Anti-Goal mode, meaning that it **MUST NOT BE
+ACCOMPLISED**. This can be defined as an optional property of all **Goal** classes.
+Or define an AntiGoal class that will wrap all Goal classes and make the
+anti-goals.
+
+```
+TopicMsgReceivedGoal TopicGoalA -> {
+    topic: "robot.opts.face_detection.detected";
+    antiGoal: True;
+}
+
+```
+
+```
+TopicMsgReceivedGoal TopicGoalA -> {
+    topic: "robot.opts.face_detection.detected";
+}
+
+AntiGoal AntiTopicGoalA(TopicGoalA);
+
+```
+
+
+**Note**: Currently, Area Goals can be set to 'AVOID' or 'REACHED' mode.
+
 ## Examples
 
 An example that covers the complete list of features and of the language can
