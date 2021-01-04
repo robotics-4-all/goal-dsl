@@ -1,7 +1,0 @@
-import area_goals.goal as area_goals;
-
-ComplexGoal GoalC -> {
-    algorithm: ALL_ACCOMPLISHED;
-    addGoal(area_goals.GoalA);
-    addGoal(area_goals.GoalB);
-}

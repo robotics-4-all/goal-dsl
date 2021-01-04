@@ -2,7 +2,7 @@
 set namespaceSeparator .
 
 
-class goal_dsl.Model  {
+class goal_dsl.GoalDSLModel  {
 }
 
 
@@ -29,9 +29,20 @@ class goal_dsl.TrajectoryGoal <<abstract>> {
 }
 
 
+class goal_dsl.Target  {
+  name : ID
+}
+
+
+class goal_dsl.GoalSequence  {
+  name : ID
+}
+
+
 class goal_dsl.ComplexGoal  {
   name : ID
   algorithm : ComplexGoalAlgorithmType
+  xAccomplished : INT
 }
 
 
@@ -51,6 +62,7 @@ class goal_dsl.TopicMessageParamGoal  {
 class goal_dsl.RectangleAreaGoal  {
   name : ID
   sideLength : FLOAT
+  type : AreaGoalType
   listeningTopic : STRING
 }
 
@@ -58,12 +70,14 @@ class goal_dsl.RectangleAreaGoal  {
 class goal_dsl.CircularAreaGoal  {
   name : ID
   radius : FLOAT
+  type : AreaGoalType
   listeningTopic : STRING
 }
 
 
 class goal_dsl.StraightLineAreaGoal  {
   name : ID
+  type : AreaGoalType
   listeningTopic : STRING
 }
 
@@ -133,8 +147,8 @@ class goal_dsl.Orientation3D  {
 class goal_dsl.TimeConstraint  {
   name : ID
   type : TimingConstraintType
-  minDuration : FLOAT
-  maxDuration : FLOAT
+  time : FLOAT
+  deviation : FLOAT
 }
 
 
@@ -144,14 +158,16 @@ class goal_dsl.Import  {
 }
 
 
-goal_dsl.Model *-- "0..*" goal_dsl.Import
-goal_dsl.Model *-- "0..*" goal_dsl.Goal
-goal_dsl.Model *-- "0..*" goal_dsl.TimeConstraint
+goal_dsl.GoalDSLModel *-- "0..*" goal_dsl.Import
+goal_dsl.GoalDSLModel *-- "0..*" goal_dsl.Target
+goal_dsl.GoalDSLModel *-- "0..*" goal_dsl.Goal
+goal_dsl.GoalDSLModel *-- "0..*" goal_dsl.TimeConstraint
 goal_dsl.Goal <|-- goal_dsl.TopicGoal
 goal_dsl.Goal <|-- goal_dsl.AreaGoal
 goal_dsl.Goal <|-- goal_dsl.PoseGoal
 goal_dsl.Goal <|-- goal_dsl.TrajectoryGoal
 goal_dsl.Goal <|-- goal_dsl.ComplexGoal
+goal_dsl.Goal <|-- goal_dsl.GoalSequence
 goal_dsl.AreaGoal <|-- goal_dsl.RectangleAreaGoal
 goal_dsl.AreaGoal <|-- goal_dsl.CircularAreaGoal
 goal_dsl.AreaGoal <|-- goal_dsl.StraightLineAreaGoal
@@ -162,6 +178,9 @@ goal_dsl.TopicGoal <|-- goal_dsl.TopicMessageReceivedGoal
 goal_dsl.TopicGoal <|-- goal_dsl.TopicMessageParamGoal
 goal_dsl.TrajectoryGoal <|-- goal_dsl.StraightLineTrajectoryGoal
 goal_dsl.TrajectoryGoal <|-- goal_dsl.CustomPointsTrajectoryGoal
+goal_dsl.Target o-- "0..*" goal_dsl.Goal
+goal_dsl.GoalSequence o-- "1..*" goal_dsl.Goal
+goal_dsl.GoalSequence o-- goal_dsl.TimeConstraint
 goal_dsl.ComplexGoal o-- goal_dsl.TimeConstraint
 goal_dsl.ComplexGoal o-- "1..*" goal_dsl.Goal
 goal_dsl.TopicMessageReceivedGoal o-- goal_dsl.TimeConstraint
@@ -192,14 +211,14 @@ goal_dsl.Orientation <|-- goal_dsl.Orientation3D
 legend
   Match rules:
   |= Name  |= Rule details |
-  | ComplexGoalAlgorithmType | ALL_ACCOMPLISHED\|NONE_ACCOMPLISHED\|AT_LEAST_ONE\|EXACTLY_X_ACCOMPLISHED |
-  | FQN | ID (. ID)* |
-  | Comment |  |
-  | AreaGoalType | AVOID\|REACH |
-  | TimingConstraintType | FROM_APP_START\|WITHIN_PERIOD_FROM_APP_START\|FROM_OTHER_GOAL_COMPLETION\|WITHIN_PERIOD_FROM_OTHER_GOAL_COMPLETION\|FROM_GOAL_START |
-  | ParamValueConstraintType | EXACT_VALUE\|WITHIN_RANGE\|OUT_OF_RANGE\|EXISTS_IN_COLLECTION |
+  | TimingConstraintType | FROM_APP_START\|FROM_GOAL_START |
   | CommentBlock | \\/\\*(.\|\\n)*\?\\*\\/ |
+  | ComplexGoalAlgorithmType | ALL_ACCOMPLISHED\|NONE_ACCOMPLISHED\|AT_LEAST_ONE\|EXACTLY_X_ACCOMPLISHED\|ALL_ACCOMPLISHED_ORDERED |
   | CommentLine | \\/\\/.*\?$ |
+  | AreaGoalType | AVOID\|REACH |
+  | Comment |  |
+  | ParamValueConstraintType | EXACT_VALUE\|WITHIN_RANGE\|OUT_OF_RANGE\|EXISTS_IN_COLLECTION |
+  | FQN | ID (. ID)* |
 end legend
 
 @enduml

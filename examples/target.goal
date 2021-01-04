@@ -1,0 +1,6 @@
+import sequence_goal.goal as seq;
+import complex_goals.goal as complex;
+
+Target MyAppTarget -> [complex.GoalC, complex.GoalD, complex.GoalE];
+
+Target MyApp2Target -> [seq.S2];

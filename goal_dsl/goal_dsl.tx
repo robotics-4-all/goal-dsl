@@ -2,14 +2,18 @@
     Goal DSL
 */
 
-Model:
+GoalDSLModel:
     imports*=Import
-    (goals*=Goal)
-    (tConstraints*=TimeConstraint)
+    (
+        (target*=Target)
+        (goals*=Goal)
+        (tConstraints*=TimeConstraint)
+    )#  // Any order
 ;
 
 
-Goal: TopicGoal | AreaGoal | PoseGoal | TrajectoryGoal | ComplexGoal;
+Goal: TopicGoal | AreaGoal | PoseGoal | TrajectoryGoal | ComplexGoal |
+GoalSequence;
 
 AreaGoal: RectangleAreaGoal | CircularAreaGoal | StraightLineAreaGoal;
 
@@ -19,11 +23,25 @@ TopicGoal: TopicMessageReceivedGoal | TopicMessageParamGoal;
 
 TrajectoryGoal: StraightLineTrajectoryGoal | CustomPointsTrajectoryGoal;
 
+Target:
+    'Target' name=ID '->' '[' goals*=[Goal|FQN][','] ']' ';'
+;
+
+GoalSequence:
+    'Sequence' name=ID '->' '{'
+    (
+        ('addGoal(' goals+=[Goal|FQN] ')' ';')*
+        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+    )#
+    '}'
+;
+
 ComplexGoal:
     'ComplexGoal' name=ID '->' '{'
     (
         ('algorithm:' algorithm=[ComplexGoalAlgorithmType] ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('xAccomplished:' xAccomplished=INT ';')?
         ('addGoal(' goals+=[Goal|FQN] ')' ';')*
     )#
     '}'
@@ -34,17 +52,18 @@ ComplexGoal:
 TopicMessageReceivedGoal:
     'TopicMsgReceivedGoal' name=ID '->' '{'
     (
-        ('topic:' param=STRING ';')
+        ('topic:' topic=STRING ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
     )#
+    '}'
 ;
 
 TopicMessageParamGoal:
     'TopicMsgParamGoal' name=ID '->' '{'
     (
-        ('topic:' param=STRING ';')
+        ('topic:' topic=STRING ';')
         ('param:' param=STRING ';')
-        ('epxression:' expression=STRING ';')
+        ('expression:' expression=STRING ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
     )#
     '}'
@@ -59,6 +78,7 @@ RectangleAreaGoal:
     (
         ('centerPoint:' centerPoint=Point ';')
         ('sideLength:' sideLength=FLOAT ';')
+        ('type:' type=[AreaGoalType] ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#  // Any order
@@ -70,6 +90,7 @@ CircularAreaGoal:
     (
         ('centerPoint:' centerPoint=Point ';')
         ('radius:' radius=FLOAT ';')
+        ('type:' type=[AreaGoalType] ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
@@ -81,6 +102,7 @@ StraightLineAreaGoal:
     (
         ('startPoint:' startPoint=Point ';')
         ('finishPoint:' finishPoint=Point ';')
+        ('type:' type=[AreaGoalType] ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
@@ -174,8 +196,8 @@ TimeConstraint:
     'TConstraint' name=ID '->' '{'
     (
         ('type:' type=TimingConstraintType ';')
-        ('minDuration:' minDuration=FLOAT ';')
-        ('maxDuration:' maxDuration=FLOAT ';')
+        ('time:' time=FLOAT ';')
+        ('deviation:' deviation=FLOAT ';')?
     )#
     '}'
 ;
@@ -183,14 +205,12 @@ TimeConstraint:
 AreaGoalType: 'AVOID' | 'REACH';
 
 ComplexGoalAlgorithmType: 'ALL_ACCOMPLISHED' | 'NONE_ACCOMPLISHED' |
-'AT_LEAST_ONE' | 'EXACTLY_X_ACCOMPLISHED';
+'AT_LEAST_ONE' | 'EXACTLY_X_ACCOMPLISHED' | 'ALL_ACCOMPLISHED_ORDERED';
 
 ParamValueConstraintType: 'EXACT_VALUE' | 'WITHIN_RANGE' | 'OUT_OF_RANGE' |
 'EXISTS_IN_COLLECTION';
 
-TimingConstraintType: 'FROM_APP_START' | 'WITHIN_PERIOD_FROM_APP_START' |
-'FROM_OTHER_GOAL_COMPLETION' | 'WITHIN_PERIOD_FROM_OTHER_GOAL_COMPLETION' |
-'FROM_GOAL_START';
+TimingConstraintType: 'FROM_APP_START' | 'FROM_GOAL_START';
 
 FQN: ID('.'ID)*;
 Import: 'import' importURI=FQN ('as' name=ID)? ';';
