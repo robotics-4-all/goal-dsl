@@ -47,6 +47,26 @@ ComplexGoal:
     '}'
 ;
 
+/* ComplexExpressionRule: */
+    
+/* ; */
+
+PrimitiveExpressionRule: StringExpressionRule | NumericExpressionRule;
+
+StringExpressionRule:
+    param=ID operation=[StringOperationType] val=STRING
+;
+
+NumericExpressionRule:
+    param=ID operation=[NumericOperationType] val=NUMBER
+;
+
+StringOperationType: '~' | '!~' | '==' | '!=';
+
+NumericOperationType: '>' | '<' | '==' | '!=';
+
+BooleanOperationType: 'AND' | 'OR' | 'NOT' | 'XOR' | 'NOR' | 'XNOR' | 'NAND';
+
 // TOPIC GOALS ----------------------------------------------------->
 
 TopicMessageReceivedGoal:
@@ -62,7 +82,6 @@ TopicMessageParamGoal:
     'TopicMsgParamGoal' name=ID '->' '{'
     (
         ('topic:' topic=STRING ';')
-        ('param:' param=STRING ';')
         ('expression:' expression=STRING ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
     )#
@@ -77,13 +96,26 @@ RectangleAreaGoal:
     'RectangleAreaGoal' name=ID '->' '{'
     (
         ('centerPoint:' centerPoint=Point ';')
-        ('sideLength:' sideLength=FLOAT ';')
+        ('lengthX:' lengthX=FLOAT ';')
+        ('lengthY:' lengthY=FLOAT ';')
         ('type:' type=[AreaGoalType] ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#  // Any order
     '}'
 ;
+
+PolylineAreaGoal:
+    'PolylineAreaGoal' name=ID '->' '{'
+    (
+        ('points:' '[' points+=Point[','] ']' ';')
+        ('type:' type=[AreaGoalType] ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('listening:' listeningTopic=STRING ';')?
+    )#  // Any order
+    '}'
+;
+
 
 CircularAreaGoal:
     'CircularAreaGoal' name=ID '->' '{'
@@ -128,8 +160,6 @@ StraightLineTrajectoryGoal:
 CustomPointsTrajectoryGoal:
     'CustomPointsTrajectoryGoal' name=ID '->' '{'
     (
-        ('startPoint:' startPoint=Point ';')
-        ('finishPoint:' finishPoint=Point ';')
         ('trajectoryPoints:' '[' points+=Point[','] ']' ';')
         ('maxDeviation:' maxDeviation=FLOAT ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
@@ -202,10 +232,14 @@ TimeConstraint:
     '}'
 ;
 
-AreaGoalType: 'AVOID' | 'REACH';
+// Follow this: https://github.com/textX/textX/blob/master/tests/functional/test_scoping/test_reference_to_buildin_attribute.py
+/* Assignment: goalRef=[Goal|FQN].goalParam */
+
+AreaGoalType: 'ENTER' | 'EXIT' | 'AVOID' | 'STEP';
 
 ComplexGoalAlgorithmType: 'ALL_ACCOMPLISHED' | 'NONE_ACCOMPLISHED' |
-'AT_LEAST_ONE' | 'EXACTLY_X_ACCOMPLISHED' | 'ALL_ACCOMPLISHED_ORDERED';
+'AT_LEAST_ONE' | 'EXACTLY_X_ACCOMPLISHED' | 'ALL_ACCOMPLISHED_ORDERED' |
+'EXACTLY_X_ACCOMPLISHED_ORDERED';
 
 ParamValueConstraintType: 'EXACT_VALUE' | 'WITHIN_RANGE' | 'OUT_OF_RANGE' |
 'EXISTS_IN_COLLECTION';
