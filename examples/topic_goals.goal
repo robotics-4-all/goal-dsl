@@ -15,3 +15,8 @@ TopicMsgParamGoal TopicGoalC -> {
     topic: "robot.sensor.motion.speed";
     expression: "angVel" == 10;
 }
+
+TopicMsgParamGoal TopicGoalE -> {
+    topic: "robot.sensor.qr.detected";
+    expression: "msg" == "R4A";
+}
