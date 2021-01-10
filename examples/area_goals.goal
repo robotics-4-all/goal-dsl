@@ -1,11 +1,12 @@
 RectangleAreaGoal GoalA -> {
-    centerPoint: Point2D(2.0, 6.0);
-    sideLength: 3.0;
-    type: REACH;
+    center: Point2D(2.0, 6.0);
+    lengthX: 3.0;
+    lengthY: 4.0;
+    type: ENTER;
 }
 
 CircularAreaGoal GoalB -> {
-    centerPoint: Point2D(2.0, 6.0);
+    center: Point2D(2.0, 6.0);
     radius: 3.0;
     type: AVOID;
 }

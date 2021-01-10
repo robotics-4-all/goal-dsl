@@ -5,7 +5,7 @@
 GoalDSLModel:
     imports*=Import
     (
-        (target*=Target)
+        (target=Target)?
         (goals*=Goal)
         (tConstraints*=TimeConstraint)
     )#  // Any order
@@ -15,13 +15,14 @@ GoalDSLModel:
 Goal: TopicGoal | AreaGoal | PoseGoal | TrajectoryGoal | ComplexGoal |
 GoalSequence;
 
-AreaGoal: RectangleAreaGoal | CircularAreaGoal | StraightLineAreaGoal;
+AreaGoal: RectangleAreaGoal | CircularAreaGoal | StraightLineAreaGoal |
+MovingAreaGoal;
 
 PoseGoal: OrientationGoal | PointGoal | PoseGoal;
 
 TopicGoal: TopicMessageReceivedGoal | TopicMessageParamGoal;
 
-TrajectoryGoal: StraightLineTrajectoryGoal | CustomPointsTrajectoryGoal;
+TrajectoryGoal: StraightLineTrajectoryGoal | WaypointTrajectoryGoal;
 
 Target:
     'Target' name=ID '->' '[' goals*=[Goal|FQN][','] ']' ';'
@@ -54,11 +55,11 @@ ComplexGoal:
 PrimitiveExpressionRule: StringExpressionRule | NumericExpressionRule;
 
 StringExpressionRule:
-    param=ID operation=[StringOperationType] val=STRING
+    param=STRING operation=StringOperationType val=STRING
 ;
 
 NumericExpressionRule:
-    param=ID operation=[NumericOperationType] val=NUMBER
+    param=STRING operation=NumericOperationType val=NUMBER
 ;
 
 StringOperationType: '~' | '!~' | '==' | '!=';
@@ -82,7 +83,7 @@ TopicMessageParamGoal:
     'TopicMsgParamGoal' name=ID '->' '{'
     (
         ('topic:' topic=STRING ';')
-        ('expression:' expression=STRING ';')
+        ('expression:' expression=PrimitiveExpressionRule ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
     )#
     '}'
@@ -95,7 +96,7 @@ TopicMessageParamGoal:
 RectangleAreaGoal:
     'RectangleAreaGoal' name=ID '->' '{'
     (
-        ('centerPoint:' centerPoint=Point ';')
+        ('center:' centerPoint=Point ';')
         ('lengthX:' lengthX=FLOAT ';')
         ('lengthY:' lengthY=FLOAT ';')
         ('type:' type=[AreaGoalType] ';')
@@ -116,11 +117,22 @@ PolylineAreaGoal:
     '}'
 ;
 
+MovingAreaGoal:
+    'MovingAreaGoal' name=ID '->' '{'
+    (
+        ('radius:' type=FLOAT ';')
+        ('type:' type=[AreaGoalType] ';')
+        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('listening:' listeningTopic=STRING ';')?
+    )#  // Any order
+    '}'
+;
+
 
 CircularAreaGoal:
     'CircularAreaGoal' name=ID '->' '{'
     (
-        ('centerPoint:' centerPoint=Point ';')
+        ('center:' centerPoint=Point ';')
         ('radius:' radius=FLOAT ';')
         ('type:' type=[AreaGoalType] ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
@@ -157,10 +169,10 @@ StraightLineTrajectoryGoal:
     '}'
 ;
 
-CustomPointsTrajectoryGoal:
-    'CustomPointsTrajectoryGoal' name=ID '->' '{'
+WaypointTrajectoryGoal:
+    'WaypointTrajectoryGoal' name=ID '->' '{'
     (
-        ('trajectoryPoints:' '[' points+=Point[','] ']' ';')
+        ('points:' '[' points+=Point[','] ']' ';')
         ('maxDeviation:' maxDeviation=FLOAT ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
@@ -222,18 +234,23 @@ Orientation3D:
     'Orientation3D' '(' xAxis=FLOAT ',' yAxis=FLOAT ',' zAxis=FLOAT ')'
 ;
 
-TimeConstraint:
-    'TConstraint' name=ID '->' '{'
+TimeConstraint: TimeConstraintDuration;
+
+TimeConstraintDuration:
+    'TCDuration' name=ID '->' '{'
     (
         ('type:' type=TimingConstraintType ';')
-        ('time:' time=FLOAT ';')
-        ('deviation:' deviation=FLOAT ';')?
+        ('duration:' time=FLOAT ';')
+        ('deviation:' deviation=FLOAT ';')
     )#
     '}'
 ;
 
+
 // Follow this: https://github.com/textX/textX/blob/master/tests/functional/test_scoping/test_reference_to_buildin_attribute.py
 /* Assignment: goalRef=[Goal|FQN].goalParam */
+
+TSComparatorType: '>' | '<' | '==';
 
 AreaGoalType: 'ENTER' | 'EXIT' | 'AVOID' | 'STEP';
 

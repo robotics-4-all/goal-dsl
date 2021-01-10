@@ -2,18 +2,16 @@ TopicMsgReceivedGoal TopicGoalA -> {
     topic: "robot.opts.face_detection.detected";
 }
 
+TopicMsgReceivedGoal TopicGoalD -> {
+    topic: "env.door.kitchen.opened";
+}
+
 TopicMsgParamGoal TopicGoalB -> {
     topic: "robot.sensor.motion.speed";
-    param: "linVel";
-    expression: "> 10";
+    expression: "linVel" > 10;
 }
 
 TopicMsgParamGoal TopicGoalC -> {
     topic: "robot.sensor.motion.speed";
-    param: "angVel";
-    expression: "> 10";
-}
-
-TopicMsgReceivedGoal TopicGoalD -> {
-    topic: "env.door.kitchen.opened";
+    expression: "angVel" == 10;
 }

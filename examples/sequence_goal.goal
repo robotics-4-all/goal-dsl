@@ -13,6 +13,6 @@ Sequence S1 -> {
 Sequence S2 -> {
     addGoal(topic_goals.TopicGoalA);
     addGoal(topic_goals.TopicGoalB);
-    addGoal(topic_goals.TopicGoalC);
+    /* addGoal(topic_goals.TopicGoalC); */
     addGoal(topic_goals.TopicGoalD);
 }

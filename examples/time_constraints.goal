@@ -1,5 +1,5 @@
-TConstraint TC1 -> {
+TCDuration TC1 -> {
     type: FROM_GOAL_START;
-    time:  10.0;
+    duration:  10.0;
     deviation: 1.0;
 }
