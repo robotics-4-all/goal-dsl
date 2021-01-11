@@ -1,4 +1,5 @@
 import area_goals.goal as area_goals;
+import pose_goals.goal as pose_goals;
 import time_constraints.goal as tc;
 
 ComplexGoal GoalC -> {

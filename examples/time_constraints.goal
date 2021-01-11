@@ -1,5 +1,4 @@
 TCDuration TC1 -> {
     type: FROM_GOAL_START;
-    duration:  10.0;
-    deviation: 1.0;
+    time: > 10.0;
 }

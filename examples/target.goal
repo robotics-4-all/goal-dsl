@@ -1,4 +1,16 @@
 import sequence_goal.goal as seq;
 import complex_goals.goal as complex;
 
-Target MyAppTarget -> [complex.GoalC, complex.GoalD, complex.GoalE];
+
+RedisBroker MyMiddleware -> {
+    host: 'localhost';
+    port: 6379;
+    db: 0;
+    auth: AuthPlain('', '');  // AuthPlain(username, password)
+}
+
+
+Target MyAppTarget -> {
+    goals: [complex.GoalC, complex.GoalD, complex.GoalE];
+    middleware: MyMiddleware;
+}

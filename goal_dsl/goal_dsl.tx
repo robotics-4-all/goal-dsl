@@ -8,24 +8,73 @@ GoalDSLModel:
         (target=Target)?
         (goals*=Goal)
         (tConstraints*=TimeConstraint)
+        (middleware*=CommunicationMiddleware)
     )#  // Any order
 ;
 
 
-Goal: TopicGoal | AreaGoal | PoseGoal | TrajectoryGoal | ComplexGoal |
+Goal: TopicGoal | AreaGoal | MotionGoal | TrajectoryGoal | ComplexGoal |
 GoalSequence;
 
 AreaGoal: RectangleAreaGoal | CircularAreaGoal | StraightLineAreaGoal |
-MovingAreaGoal;
+MovingAreaGoal | PolylineAreaGoal;
 
-PoseGoal: OrientationGoal | PointGoal | PoseGoal;
+MotionGoal: OrientationGoal | PositionGoal | PoseGoal;
 
 TopicGoal: TopicMessageReceivedGoal | TopicMessageParamGoal;
 
 TrajectoryGoal: StraightLineTrajectoryGoal | WaypointTrajectoryGoal;
 
+CommunicationMiddleware: AMQPBroker | MQTTBroker | RedisBroker;
+
+BrokerAuth: BrokerAuthPlain;
+
+BrokerAuthPlain:
+    'AuthPlain' '(' username=STRING ',' password=STRING ')'
+;
+
+AMQPBroker:
+    'AMQPBroker' name=ID '->' '{'
+    (
+        ('host:' host=STRING ';')
+        ('port:' port=INT ';')
+        ('vhost:' vhost=STRING ';')
+        ('exchange:' exchange=STRING ';')?
+        ('username:' username=STRING ';')?
+        ('password:' password=STRING ';')?
+    )#
+    '}'
+;
+
+MQTTBroker:
+    'MQTTBroker' name=ID '->' '{'
+    (
+        ('host:' host=STRING ';')
+        ('port:' port=INT ';')
+        ('username:' username=STRING ';')?
+        ('password:' password=STRING ';')?
+    )#
+    '}'
+;
+
+RedisBroker:
+    'RedisBroker' name=ID '->' '{'
+    (
+        ('host:' host=STRING ';')
+        ('port:' port=INT ';')
+        ('db:' db=INT ';')?
+        ('auth:' auth=BrokerAuth ';')
+    )#
+    '}'
+;
+
 Target:
-    'Target' name=ID '->' '[' goals*=[Goal|FQN][','] ']' ';'
+    'Target' name=ID '->' '{'
+    (
+        ('goals:' '[' goals*=[Goal|FQN][','] ']' ';')
+        ('middleware:' middleware=[CommunicationMiddleware] ';')
+    )#
+    '}'
 ;
 
 GoalSequence:
@@ -48,18 +97,19 @@ ComplexGoal:
     '}'
 ;
 
-/* ComplexExpressionRule: */
-    
-/* ; */
+ExpressionGroup:
+    '(' r1=PrimitiveExpressionRule ')' operator=BooleanOperationType '('
+    r2=PrimitiveExpressionRule ')'
+;
 
 PrimitiveExpressionRule: StringExpressionRule | NumericExpressionRule;
 
 StringExpressionRule:
-    param=STRING operation=StringOperationType val=STRING
+    param=STRING operator=StringOperationType val=STRING
 ;
 
 NumericExpressionRule:
-    param=STRING operation=NumericOperationType val=NUMBER
+    param=STRING operator=NumericOperationType val=NUMBER
 ;
 
 StringOperationType: '~' | '!~' | '==' | '!=';
@@ -97,9 +147,9 @@ RectangleAreaGoal:
     'RectangleAreaGoal' name=ID '->' '{'
     (
         ('center:' centerPoint=Point ';')
-        ('lengthX:' lengthX=FLOAT ';')
-        ('lengthY:' lengthY=FLOAT ';')
-        ('type:' type=[AreaGoalType] ';')
+        ('lengthX:' lengthX=NUMBER ';')
+        ('lengthY:' lengthY=NUMBER ';')
+        ('type:' type=AreaGoalType ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#  // Any order
@@ -110,7 +160,7 @@ PolylineAreaGoal:
     'PolylineAreaGoal' name=ID '->' '{'
     (
         ('points:' '[' points+=Point[','] ']' ';')
-        ('type:' type=[AreaGoalType] ';')
+        ('type:' type=AreaGoalType ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#  // Any order
@@ -120,8 +170,8 @@ PolylineAreaGoal:
 MovingAreaGoal:
     'MovingAreaGoal' name=ID '->' '{'
     (
-        ('radius:' type=FLOAT ';')
-        ('type:' type=[AreaGoalType] ';')
+        ('radius:' radius=NUMBER ';')
+        ('type:' type=AreaGoalType ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#  // Any order
@@ -133,8 +183,8 @@ CircularAreaGoal:
     'CircularAreaGoal' name=ID '->' '{'
     (
         ('center:' centerPoint=Point ';')
-        ('radius:' radius=FLOAT ';')
-        ('type:' type=[AreaGoalType] ';')
+        ('radius:' radius=NUMBER ';')
+        ('type:' type=AreaGoalType ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
@@ -145,8 +195,8 @@ StraightLineAreaGoal:
     'StraightLineAreaGoal' name=ID '->' '{'
     (
         ('startPoint:' startPoint=Point ';')
-        ('finishPoint:' finishPoint=Point ';')
-        ('type:' type=[AreaGoalType] ';')
+        ('endPoint:' endPoint=Point ';')
+        ('type:' type=AreaGoalType ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
@@ -162,7 +212,7 @@ StraightLineTrajectoryGoal:
     (
         ('startPoint:' startPoint=Point ';')
         ('finishPoint:' finishPoint=Point ';')
-        ('maxDeviation:' maxDeviation=FLOAT ';')
+        ('maxDeviation:' maxDeviation=NUMBER ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
@@ -173,7 +223,7 @@ WaypointTrajectoryGoal:
     'WaypointTrajectoryGoal' name=ID '->' '{'
     (
         ('points:' '[' points+=Point[','] ']' ';')
-        ('maxDeviation:' maxDeviation=FLOAT ';')
+        ('maxDeviation:' maxDeviation=NUMBER ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
@@ -186,7 +236,8 @@ PoseGoal:
     (
         ('orientation:' orientation=Orientation ';')
         ('position:' position=Point ';')
-        ('maxDeviation:' maxDeviation=FLOAT ';')
+        ('maxDeviationPos:' maxDeviationPos=NUMBER ';')
+        ('maxDeviationOri:' maxDeviationOri=NUMBER ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
@@ -197,18 +248,18 @@ OrientationGoal:
     'OrientationGoal' name=ID '->' '{'
     (
         ('orientation:' orientation=Orientation ';')
-        ('maxDeviation:' maxDeviation=FLOAT ';')
+        ('maxDeviation:' maxDeviation=NUMBER ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
     '}'
 ;
 
-PointGoal:
-    'PointGoal' name=ID '->' '{'
+PositionGoal:
+    'PositionGoal' name=ID '->' '{'
     (
-        ('point:' point=Point ';')
-        ('maxDeviation:' maxDeviation=FLOAT ';')
+        ('position:' point=Point ';')
+        ('maxDeviation:' maxDeviation=NUMBER ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
@@ -219,19 +270,19 @@ Point: Point2D | Point3D;
 Orientation: Orientation2D | Orientation3D;
 
 Point2D:
-    'Point2D' '(' xAxis=FLOAT ',' yAxis=FLOAT ')'
+    'Point2D' '(' xAxis=NUMBER ',' yAxis=NUMBER ')'
 ;
 
 Point3D:
-    'Point3D' '(' xAxis=FLOAT ',' yAxis=FLOAT ',' zAxis=FLOAT ')'
+    'Point3D' '(' xAxis=NUMBER ',' yAxis=NUMBER ',' zAxis=NUMBER ')'
 ;
 
 Orientation2D:
-    'Orientation2D' '(' xAxis=FLOAT ',' yAxis=FLOAT ')'
+    'Orientation2D' '(' zAxis=NUMBER ')'
 ;
 
 Orientation3D:
-    'Orientation3D' '(' xAxis=FLOAT ',' yAxis=FLOAT ',' zAxis=FLOAT ')'
+    'Orientation3D' '(' xAxis=NUMBER ',' yAxis=NUMBER ',' zAxis=NUMBER ')'
 ;
 
 TimeConstraint: TimeConstraintDuration;
@@ -240,8 +291,7 @@ TimeConstraintDuration:
     'TCDuration' name=ID '->' '{'
     (
         ('type:' type=TimingConstraintType ';')
-        ('duration:' time=FLOAT ';')
-        ('deviation:' deviation=FLOAT ';')
+        ('time:' comparator=TCExpressionComparator time=NUMBER ';')
     )#
     '}'
 ;
@@ -250,7 +300,7 @@ TimeConstraintDuration:
 // Follow this: https://github.com/textX/textX/blob/master/tests/functional/test_scoping/test_reference_to_buildin_attribute.py
 /* Assignment: goalRef=[Goal|FQN].goalParam */
 
-TSComparatorType: '>' | '<' | '==';
+TCExpressionComparator: '>' | '<' | '==';
 
 AreaGoalType: 'ENTER' | 'EXIT' | 'AVOID' | 'STEP';
 

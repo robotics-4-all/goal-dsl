@@ -41,19 +41,22 @@ TopicMsgReceivedGoal TopicGoalD -> {
 
 #### TopicMessageParamGoal
 Set this Goal for cases where you want to filter messages arrived at a topic
-based on the value of a param (using an expression).
+based on an exppression.
 
 ```
 TopicMsgParamGoal TopicGoalB -> {
-    topic: 'robot.sensor.motion.speed';
-    param: 'linVel';
-    expression: '> 10';
+    topic: "robot.sensor.motion.speed";
+    expression: "linVel" > 10;
 }
 
 TopicMsgParamGoal TopicGoalC -> {
-    topic: 'robot.sensor.motion.speed';
-    param: 'angVel';
-    expression: '> 10';
+    topic: "robot.sensor.motion.speed";
+    expression: "angVel" == 10;
+}
+
+TopicMsgParamGoal TopicGoalE -> {
+    topic: "robot.sensor.qr.detected";
+    expression: "msg" == "R4A";
 }
 ```
 
@@ -69,42 +72,92 @@ or avoided.
 
 ```
 RectangleAreaGoal GoalA -> {
-    centerPoint: Point2D(2.0, 6.0);
-    sideLength: 3.0;
-    type: REACH;
+    center: Point2D(2.0, 6.0);
+    lengthX: 3.0;
+    lengthY: 4.0;
+    type: ENTER;
 }
 ```
 
 #### CircularAreaGoal
-A circular area defined by (centerPoint, radius) that has to be either reached
-or avoided.
+A circular area defined by (centerPoint, radius).
 
 ```
 CircularAreaGoal GoalB -> {
-    centerPoint: Point2D(2.0, 6.0);
+    center: Point2D(2.0, 6.0);
     radius: 3.0;
     type: AVOID;
 }
 ```
 
+#### PolylineAreaGoal
+A polyline area defined by a list of Points.
+
+```
+PolylineAreaGoal PolylineAreaExample -> {
+    points: [Point2D(0.0, 0.0), Point2D(2.0, 4.0), Point2D(4.0,  0.0)];
+    type: AVOID;
+}
+```
+
 #### StraightLineAreaGoal
-A straight line defined by (startPoint, finishPoint) that has to be either
-reached or avoided.
+A straight line in the environment, defined by (startPoint, finishPoint) that has to be either reached or avoided.
+
+```
+StraightLineAreaGoal StraightLineAreaExample -> {
+    startPoint: Point2D(2.0, 7.6);
+    endPoint: Point2D(2.0, 7.6);
+    type: AVOID;
+}
+```
+
+#### MovingAreaGoal
+This type of Goal can be used for mobile objects, such as robots.
+
+```
+MovingAreaGoal MyRobotAvoid -> {
+    radius: 46;  // 46cm
+    type: AVOID;
+}
+```
+
 
 ### Pose Goals
 
 Pose goals are those related to the pose of a specific thing.
 Mostly used in mobile robot applications.
 
-#### PointGoal
-Reach a specific point in space.
+#### PositionGoal
+Reach a specific position in space.
+
+```
+PositionGoal ExamplePositionGoal -> {
+    position: Point2D(0.0, 0.0);
+    maxDeviation: 1;  // cm
+}
+```
 
 #### OrientationGoal
 Reach a specific orientation in space.
 
+```
+OrientationGoal ExampleOrientationGoal -> {
+    orientation: Orientation2D(1.0);  // rad?
+    maxDeviation: 0.2; // rad
+}
+```
+
 #### PoseGoal
 Reach a specific pose (orientation, position) in space.
 
+```
+PoseGoal ExamplePoseGoal -> {
+    position: Point2D(0.0, 0.0);
+    orientation: Orientation2D(1.0);  // rad?
+    maxDeviationPos: 0.2;
+    maxDeviationOri: 0.2;
+}
+```
 
 ### Trajectory Goals
 
@@ -132,6 +185,7 @@ definition.
 - **NONE_ACCOMPLISHED**
 - **AT_LEAST_ONE**
 - **EXACTLY_X_ACCOMPLISHED**
+- **EXACTLY_X_ACCOMPLISHED_ORDERED**
 
 ```
 ComplexGoal GoalC -> {
@@ -156,23 +210,32 @@ Sequence S1 -> {
 ## Time Constraints for Goals
 
 Goals can have time constraints, like maximum duration from previous goal.
-For this reason we introduce the **TimeConstraint** concept that allows the
-definition of the following types of time constraints.
+For this reason we introduce the **TimeConstraint** concept and furthermore the
+**TCDuration** class, which allows the definition of time duration constraints.
+
+Each TimeConstraint can have measure time relative to either the start of
+the application or the start of the current goal. This can be defined using the
+`type` property of **TimeConstraint** classes and can have one of the following
+values.
 
 - **FROM_APP_START**
 - **FROM_GOAL_START**
 
-An example constraint definition:
+An example TCDuration constraint definition is:
 
 ```
-TConstraint TC1 -> {
+TCDuration TC1 -> {
     type: FROM_GOAL_START;
-    time:  10.0;
-    deviation: 1.0;
+    time: < 10.0;  // seconds
 }
 ```
 
-Assign time constraint to a goal.
+The `time` property value is an expression and can have one of the values `>`,
+    `<` and `==`. The syntex is `<comparator> <Number>`. In the above example
+    the constraint indicates that **The duration of the Goal must not exceed 10
+    seconds.
+
+TimeConstraint instances can be referened by any number of Goals.
 
 ```
 ComplexGoal GoalC -> {
@@ -182,23 +245,65 @@ ComplexGoal GoalC -> {
     addGoal(area_goals.GoalB);
 }
 
+...
+
+ComplexGoal GoalD -> {
+    timeConstraint: tc.TC1;
+    algorithm: ALL_ACCOMPLISHED;
+    addGoal(pose_goals.ExamplePoseGoal);
+    addGoal(pose_goals.ExampleOrientationGoal);
+}
 ```
 
 ## Target
 
 **Target** defines a set of goals which are assigned to be executed for a
-specific target/application.
+specific target/application. A target needs to be linked to a specific
+middleware (message broker). Each model can have **ONLY ONE** target.
 
-A **Target** is defined by a list of Goals.
+Currently, three types of **CommunicationMiddleware** are supported by the DSL.
+These are listed below among with their properties.
+
+- AMQPBroker
+  - host (str): Hostname to connect to
+  - port (int): AMQP port to connect
+  - vhost (str): Vhost to connect
+  - exchange (str): Exchange to use for Topic-based pubsub communication
+  - auth
+    - Plain Authentication: AuthPlain(username, password)
+- MQTTBroker
+  - host (str): Hostname to connect to
+  - port (int): Redis port to connect
+  - auth
+    - Plain Authentication: AuthPlain(username, password)
+- RedisBroker
+  - host (str): Hostname to connect to
+  - port (int): Redis port to connect
+  - db (int): Redis database instance to connect
+  - auth
+    - Plain Authentication: AuthPlain(username, password)
+
+Below is an example of a RedisBroker definition.
 
 ```
-import sequence_goal.goal as seq;
+RedisBroker MyMiddleware -> {
+    host: 'localhost';
+    port: 6379;
+    db: 0;
+    auth: AuthPlain('', '');  // AuthPlain(username, password)
+}
+```
+
+A **Target** is defined by a list of Goals and a communication middleware. 
+
+```
 import complex_goals.goal as complex;
+...
 
-Target MyAppTarget -> [complex.GoalC, complex.GoalD, complex.GoalE];
-
-Target MyApp2Target -> [seq.S2];
-
+Target MyAppTarget -> {
+    goals: [complex.GoalC, complex.GoalD, complex.GoalE];
+    middleware: MyMiddleware;  // Reference a previously defined Middleware
+}
 ```
 
 
@@ -249,7 +354,7 @@ of models defined in other files.
 RectangleAreaGoal GoalA -> {
     centerPoint: Point2D(2.0, 6.0);
     sideLength: 3.0;
-    type: REACH;
+    type: ENTER;
 }
 
 CircularAreaGoal GoalB -> {
