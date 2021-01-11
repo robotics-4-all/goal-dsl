@@ -2,27 +2,27 @@ RectangleAreaGoal GoalA -> {
     center: Point2D(2.0, 6.0);
     lengthX: 3.0;
     lengthY: 4.0;
-    type: ENTER;
+    tag: ENTER;
 }
 
 CircularAreaGoal GoalB -> {
     center: Point2D(2.0, 6.0);
     radius: 3.0;
-    type: AVOID;
+    tag: AVOID;
 }
 
 PolylineAreaGoal PolylineAreaExample -> {
     points: [Point2D(0.0, 0.0), Point2D(2.0, 4.0), Point2D(4.0,  0.0)];
-    type: AVOID;
+    tag: AVOID;
 }
 
 StraightLineAreaGoal StraightLineAreaExample -> {
     startPoint: Point2D(2.0, 7.6);
     endPoint: Point2D(2.0, 7.6);
-    type: AVOID;
+    tag: AVOID;
 }
 
 MovingAreaGoal MyRobotAvoid -> {
     radius: 46;  // 46cm
-    type: AVOID;
+    tag: AVOID;
 }

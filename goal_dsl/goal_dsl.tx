@@ -149,7 +149,7 @@ RectangleAreaGoal:
         ('center:' centerPoint=Point ';')
         ('lengthX:' lengthX=NUMBER ';')
         ('lengthY:' lengthY=NUMBER ';')
-        ('type:' type=AreaGoalType ';')
+        ('tag:' type=AreaGoalTag ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#  // Any order
@@ -160,7 +160,7 @@ PolylineAreaGoal:
     'PolylineAreaGoal' name=ID '->' '{'
     (
         ('points:' '[' points+=Point[','] ']' ';')
-        ('type:' type=AreaGoalType ';')
+        ('tag:' type=AreaGoalTag ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#  // Any order
@@ -171,7 +171,7 @@ MovingAreaGoal:
     'MovingAreaGoal' name=ID '->' '{'
     (
         ('radius:' radius=NUMBER ';')
-        ('type:' type=AreaGoalType ';')
+        ('tag:' type=AreaGoalTag ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#  // Any order
@@ -184,7 +184,7 @@ CircularAreaGoal:
     (
         ('center:' centerPoint=Point ';')
         ('radius:' radius=NUMBER ';')
-        ('type:' type=AreaGoalType ';')
+        ('tag:' type=AreaGoalTag ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
@@ -196,7 +196,7 @@ StraightLineAreaGoal:
     (
         ('startPoint:' startPoint=Point ';')
         ('endPoint:' endPoint=Point ';')
-        ('type:' type=AreaGoalType ';')
+        ('tag:' type=AreaGoalTag ';')
         ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
@@ -291,7 +291,7 @@ TimeConstraintDuration:
     'TCDuration' name=ID '->' '{'
     (
         ('type:' type=TimingConstraintType ';')
-        ('time:' comparator=TCExpressionComparator time=NUMBER ';')
+        ('time:' comparator=TCComparator time=NUMBER ';')
     )#
     '}'
 ;
@@ -300,16 +300,16 @@ TimeConstraintDuration:
 // Follow this: https://github.com/textX/textX/blob/master/tests/functional/test_scoping/test_reference_to_buildin_attribute.py
 /* Assignment: goalRef=[Goal|FQN].goalParam */
 
-TCExpressionComparator: '>' | '<' | '==';
+TCComparator: '>' | '<' | '==';
 
-AreaGoalType: 'ENTER' | 'EXIT' | 'AVOID' | 'STEP';
+AreaGoalTag: 'ENTER' | 'EXIT' | 'AVOID' | 'STEP';
 
 ComplexGoalAlgorithmType: 'ALL_ACCOMPLISHED' | 'NONE_ACCOMPLISHED' |
 'AT_LEAST_ONE' | 'EXACTLY_X_ACCOMPLISHED' | 'ALL_ACCOMPLISHED_ORDERED' |
 'EXACTLY_X_ACCOMPLISHED_ORDERED';
 
-ParamValueConstraintType: 'EXACT_VALUE' | 'WITHIN_RANGE' | 'OUT_OF_RANGE' |
-'EXISTS_IN_COLLECTION';
+/* ParamValueConstraintType: 'EXACT_VALUE' | 'WITHIN_RANGE' | 'OUT_OF_RANGE' | */
+/* 'EXISTS_IN_COLLECTION'; */
 
 TimingConstraintType: 'FROM_APP_START' | 'FROM_GOAL_START';
 

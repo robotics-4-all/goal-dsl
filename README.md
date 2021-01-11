@@ -62,9 +62,20 @@ TopicMsgParamGoal TopicGoalE -> {
 
 ### Area Goals
 
-An **AreaGoal** can be of type `AVOID` (DANGER ZONE) or `REACH` (HAPPY ZONE).
+An **AreaGoal** is related areas in the environment which have a meaning for an
+application. An example would be the avoidance of specific areas. All Area Goals
+have a tag that gives a meaning to the goal
+
+**AreaGoalTags**
+- AVOID
+- ENTER
+- EXIT
+- STEP
+
+
 The first defines area goals which have to be avoided by mobile things, while
-the latter have to be reached. The type is a property of all area goals.
+the latter an area that has to be "entered". All Area Goals have a `tag`
+property.
 
 #### RectangleAreaGoal
 A rectangle area defined by (centerPoint, radius) that has to either be reached
@@ -75,7 +86,7 @@ RectangleAreaGoal GoalA -> {
     center: Point2D(2.0, 6.0);
     lengthX: 3.0;
     lengthY: 4.0;
-    type: ENTER;
+    tag: ENTER;
 }
 ```
 
@@ -86,7 +97,7 @@ A circular area defined by (centerPoint, radius).
 CircularAreaGoal GoalB -> {
     center: Point2D(2.0, 6.0);
     radius: 3.0;
-    type: AVOID;
+    tag: AVOID;
 }
 ```
 
@@ -96,7 +107,7 @@ A polyline area defined by a list of Points.
 ```
 PolylineAreaGoal PolylineAreaExample -> {
     points: [Point2D(0.0, 0.0), Point2D(2.0, 4.0), Point2D(4.0,  0.0)];
-    type: AVOID;
+    tag: AVOID;
 }
 ```
 
@@ -107,7 +118,7 @@ A straight line in the environment, defined by (startPoint, finishPoint) that ha
 StraightLineAreaGoal StraightLineAreaExample -> {
     startPoint: Point2D(2.0, 7.6);
     endPoint: Point2D(2.0, 7.6);
-    type: AVOID;
+    tag: AVOID;
 }
 ```
 
@@ -117,7 +128,7 @@ This type of Goal can be used for mobile objects, such as robots.
 ```
 MovingAreaGoal MyRobotAvoid -> {
     radius: 46;  // 46cm
-    type: AVOID;
+    tag: AVOID;
 }
 ```
 
@@ -330,7 +341,7 @@ In order to be able to define the orientation of things in 2D and 3D space,
 The syntax for defining a Point.
 
 ```
-Orientation2D(x, y)
+Orientation2D(z)  // In 2D space only zAxes rotation is allowed.
 
 Orientation3D(x, y, z)
 ```
