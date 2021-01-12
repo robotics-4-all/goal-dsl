@@ -46,17 +46,22 @@ based on an exppression.
 ```
 TopicMsgParamGoal TopicGoalB -> {
     topic: "robot.sensor.motion.speed";
-    expression: "linVel" > 10;
+    condition: "linVel" > 10;
 }
 
 TopicMsgParamGoal TopicGoalC -> {
     topic: "robot.sensor.motion.speed";
-    expression: "angVel" == 10;
+    condition: "angVel" == 10;
 }
 
 TopicMsgParamGoal TopicGoalE -> {
     topic: "robot.sensor.qr.detected";
-    expression: "msg" == "R4A";
+    condition: "msg" == "R4A";
+}
+
+TopicMsgParamGoal TopicGoalF -> {
+    topic: "robot.sensor.qr.detected";
+    condition: ("linVel" > 10) AND ("angVel" < 0.5);
 }
 ```
 
@@ -241,7 +246,7 @@ TCDuration TC1 -> {
 }
 ```
 
-The `time` property value is an expression and can have one of the values `>`,
+The `time` property value is an condition and can have one of the values `>`,
     `<` and `==`. The syntex is `<comparator> <Number>`. In the above example
     the constraint indicates that **The duration of the Goal must not exceed 10
     seconds.
@@ -260,7 +265,7 @@ ComplexGoal GoalC -> {
 
 ComplexGoal GoalD -> {
     timeConstraint: tc.TC1;
-    algorithm: ALL_ACCOMPLISHED;
+    algorithm: NONE_ACCOMPLISHED;
     addGoal(pose_goals.ExamplePoseGoal);
     addGoal(pose_goals.ExampleOrientationGoal);
 }
@@ -405,12 +410,12 @@ Assign score metrics/weights/etc on goals.
 Scores can be defined when defining the "Target" goals (Goals which will be used
     for a target).
 
-### Better in-language expressions for TopicMessageParamGoal
+### Better in-language conditions for TopicMessageParamGoal
 
 Currently a string is passed to the parser.
 
 ```
-expression: '> 10';
+condition: '> 10';
 ```
 
 ### Post assignment of TimeConstraint to Goals
@@ -434,8 +439,7 @@ Sequence S2 -> {
 ```
 TopicMsgParamGoal TopicGoalB -> {
     topic: 'robot.sensor.motion.speed';
-    param: 'linVel';
-    expression: '> 10';
+    condition: '> 10';
 }
 
 TopicGoalB.timeConstraint = TC1

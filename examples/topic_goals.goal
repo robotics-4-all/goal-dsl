@@ -8,15 +8,20 @@ TopicMsgReceivedGoal TopicGoalD -> {
 
 TopicMsgParamGoal TopicGoalB -> {
     topic: "robot.sensor.motion.speed";
-    expression: "linVel" > 10;
+    condition: "linVel" > 10;
 }
 
 TopicMsgParamGoal TopicGoalC -> {
     topic: "robot.sensor.motion.speed";
-    expression: "angVel" == 10;
+    condition: "angVel" == 10;
 }
 
 TopicMsgParamGoal TopicGoalE -> {
     topic: "robot.sensor.qr.detected";
-    expression: "msg" == "R4A";
+    condition: "msg" == "R4A";
+}
+
+TopicMsgParamGoal TopicGoalF -> {
+    topic: "robot.sensor.qr.detected";
+    condition: (("linVel" > 10) AND ("angVel" < 0.5)) AND ("error" == "");
 }
