@@ -40,8 +40,7 @@ AMQPBroker:
         ('port:' port=INT ';')
         ('vhost:' vhost=STRING ';')
         ('exchange:' exchange=STRING ';')?
-        ('username:' username=STRING ';')?
-        ('password:' password=STRING ';')?
+        ('auth:' auth=BrokerAuth ';')
     )#
     '}'
 ;
@@ -51,8 +50,7 @@ MQTTBroker:
     (
         ('host:' host=STRING ';')
         ('port:' port=INT ';')
-        ('username:' username=STRING ';')?
-        ('password:' password=STRING ';')?
+        ('auth:' auth=BrokerAuth ';')
     )#
     '}'
 ;
