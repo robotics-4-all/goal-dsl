@@ -21,7 +21,13 @@ to require definition of Goals related to the Pose of the robot, or to follow a 
 - Complex Goal
 - Goal Sequence
 
+
 ## Goal Types
+
+All subclasses of Goal, except TopicGoals have the following **Optional** properties:
+
+- listening: Listening Topic URI
+- timeConstraint: Time constraint for the Goal
 
 ### Topic Goals
 
@@ -64,6 +70,44 @@ TopicMsgParamGoal TopicGoalF -> {
     condition: ("linVel" > 10) AND ("angVel" < 0.5);
 }
 ```
+
+Conditions syntax is defined by the following grammar:
+
+```
+Condition: ConditionGroup | PrimitiveCondition;
+
+ConditionGroup:
+    '(' c1=Condition ')' operator=BooleanOperatorType '('
+    c2=Condition ')'
+;
+
+PrimitiveCondition: StringCondition | NumericCondition;
+
+StringCondition:
+    param=STRING operator=StringOperatorType val=STRING
+;
+
+NumericCondition:
+    param=STRING operator=NumericOperatorType val=NUMBER
+;
+
+StringOperatorType: '~' | '!~' | '==' | '!=';
+NumericOperatorType: '>' | '<' | '==' | '!=';
+BooleanOperatorType: 'AND' | 'OR' | 'NOT' | 'XOR' | 'NOR' | 'XNOR' | 'NAND';
+```
+
+Now lets try to strip things down. First of all, a Condition can be either a
+PrimitiveCondition or a ConditionGroup. The first is a condition for primitive
+data types, such as strings (StringCondition) and numbers (NumericCondition).
+ConditionGroup is used to apply boolean operations, e.g:
+
+```
+(("linVel" > 10) AND ("angVel" < 0.5)) AND ("error" == "");
+```
+
+Furthermore, ConditionGroup has two Conditions, which means that nested
+Conditions can be crafted based on boolean operations.
+
 
 ### Area Goals
 
