@@ -1,0 +1,26 @@
+TopicMsgReceivedGoal TopicGoalA -> {
+    topic: "robot.opts.face_detection.detected";
+}
+
+TopicMsgParamGoal TopicGoalE -> {
+    topic: "robot.sensor.qr.detected";
+    condition: "msg" == "R4A";
+}
+
+TopicMsgParamGoal TopicGoalF -> {
+    topic: "robot.sensor.qr.detected";
+    condition: (("linVel" > 10) AND ("angVel" < 0.5)) AND ("error" == "");
+}
+
+RedisBroker MyMiddleware -> {
+    host: 'localhost';
+    port: 6379;
+    db: 0;
+    auth: AuthPlain('', '');  // AuthPlain(username, password)
+}
+
+
+Target MyAppTarget -> {
+    goals: [TopicGoalA, TopicGoalF];
+    middleware: MyMiddleware;
+}
