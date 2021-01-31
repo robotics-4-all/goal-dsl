@@ -98,8 +98,7 @@ ComplexGoal:
 Condition: ConditionGroup | PrimitiveCondition;
 
 ConditionGroup:
-    '(' r1=Condition ')' operator=BooleanOperatorType '('
-    r2=Condition ')'
+    '(' r1=Condition ')' operator=BooleanOperatorType '(' r2=Condition ')'
 ;
 
 PrimitiveCondition: StringCondition | NumericCondition;
