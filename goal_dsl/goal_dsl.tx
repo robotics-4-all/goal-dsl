@@ -123,7 +123,7 @@ TopicMessageReceivedGoal:
     'TopicMsgReceivedGoal' name=ID '->' '{'
     (
         ('topic:' topic=STRING ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
     )#
     '}'
 ;
@@ -133,7 +133,7 @@ TopicMessageParamGoal:
     (
         ('topic:' topic=STRING ';')
         ('condition:' condition=Condition ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
     )#
     '}'
 ;
@@ -237,7 +237,7 @@ PoseGoal:
         ('position:' position=Point ';')
         ('maxDeviationPos:' maxDeviationPos=NUMBER ';')
         ('maxDeviationOri:' maxDeviationOri=NUMBER ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('timeConstraints:' '[' timeConstraints*=[TimeConstraint][','] ']' ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
     '}'
@@ -248,7 +248,7 @@ OrientationGoal:
     (
         ('orientation:' orientation=Orientation ';')
         ('maxDeviation:' maxDeviation=NUMBER ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('timeConstraints:' '[' timeConstraints*=[TimeConstraint][','] ']' ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
     '}'
@@ -259,7 +259,7 @@ PositionGoal:
     (
         ('position:' point=Point ';')
         ('maxDeviation:' maxDeviation=NUMBER ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('timeConstraints:' '[' timeConstraints*=[TimeConstraint][','] ']' ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
     '}'
@@ -286,13 +286,9 @@ Orientation3D:
 
 TimeConstraint: TimeConstraintDuration;
 
+
 TimeConstraintDuration:
-    'TCDuration' name=ID '->' '{'
-    (
-        ('type:' type=TimingConstraintType ';')
-        ('time:' comparator=TCComparator time=NUMBER ';')
-    )#
-    '}'
+    type=TimingConstraintType '(' comparator=TCComparator time=FLOAT ')'
 ;
 
 
