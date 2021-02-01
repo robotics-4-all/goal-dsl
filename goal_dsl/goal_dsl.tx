@@ -16,7 +16,7 @@ GoalDSLModel:
 Goal: TopicGoal | AreaGoal | MotionGoal | TrajectoryGoal | ComplexGoal |
 GoalSequence;
 
-AreaGoal: RectangleAreaGoal | CircularAreaGoal | StraightLineAreaGoal |
+AreaGoal: RectangleAreaGoal | CircularAreaGoal | CrossStraightLineGoal |
 MovingAreaGoal | PolylineAreaGoal;
 
 MotionGoal: OrientationGoal | PositionGoal | PoseGoal;
@@ -149,7 +149,7 @@ RectangleAreaGoal:
         ('lengthX:' lengthX=NUMBER ';')
         ('lengthY:' lengthY=NUMBER ';')
         ('tag:' type=AreaGoalTag ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#  // Any order
     '}'
@@ -160,7 +160,7 @@ PolylineAreaGoal:
     (
         ('points:' '[' points+=Point[','] ']' ';')
         ('tag:' type=AreaGoalTag ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#  // Any order
     '}'
@@ -171,7 +171,7 @@ MovingAreaGoal:
     (
         ('radius:' radius=NUMBER ';')
         ('tag:' type=AreaGoalTag ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#  // Any order
     '}'
@@ -184,19 +184,19 @@ CircularAreaGoal:
         ('center:' centerPoint=Point ';')
         ('radius:' radius=NUMBER ';')
         ('tag:' type=AreaGoalTag ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
     '}'
 ;
 
-StraightLineAreaGoal:
-    'StraightLineAreaGoal' name=ID '->' '{'
+CrossStraightLineGoal:
+    'CrossStraightLineGoal' name=ID '->' '{'
     (
         ('startPoint:' startPoint=Point ';')
         ('endPoint:' endPoint=Point ';')
         ('tag:' type=AreaGoalTag ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
     '}'
@@ -212,7 +212,7 @@ StraightLineTrajectoryGoal:
         ('startPoint:' startPoint=Point ';')
         ('finishPoint:' finishPoint=Point ';')
         ('maxDeviation:' maxDeviation=NUMBER ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
     '}'
@@ -223,7 +223,7 @@ WaypointTrajectoryGoal:
     (
         ('points:' '[' points+=Point[','] ']' ';')
         ('maxDeviation:' maxDeviation=NUMBER ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
     '}'
@@ -237,7 +237,7 @@ PoseGoal:
         ('position:' position=Point ';')
         ('maxDeviationPos:' maxDeviationPos=NUMBER ';')
         ('maxDeviationOri:' maxDeviationOri=NUMBER ';')
-        ('timeConstraints:' '[' timeConstraints*=[TimeConstraint][','] ']' ';')?
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
     '}'
@@ -248,7 +248,7 @@ OrientationGoal:
     (
         ('orientation:' orientation=Orientation ';')
         ('maxDeviation:' maxDeviation=NUMBER ';')
-        ('timeConstraints:' '[' timeConstraints*=[TimeConstraint][','] ']' ';')?
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
     '}'
@@ -259,7 +259,7 @@ PositionGoal:
     (
         ('position:' point=Point ';')
         ('maxDeviation:' maxDeviation=NUMBER ';')
-        ('timeConstraints:' '[' timeConstraints*=[TimeConstraint][','] ']' ';')?
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
     '}'
@@ -288,7 +288,7 @@ TimeConstraint: TimeConstraintDuration;
 
 
 TimeConstraintDuration:
-    type=TimingConstraintType '(' comparator=TCComparator time=FLOAT ')'
+    type=TimeConstraintType '(' comparator=TCComparator time=FLOAT ')'
 ;
 
 
@@ -306,7 +306,7 @@ ComplexGoalAlgorithmType: 'ALL_ACCOMPLISHED' | 'NONE_ACCOMPLISHED' |
 /* ParamValueConstraintType: 'EXACT_VALUE' | 'WITHIN_RANGE' | 'OUT_OF_RANGE' | */
 /* 'EXISTS_IN_COLLECTION'; */
 
-TimingConstraintType: 'FROM_APP_START' | 'FROM_GOAL_START';
+TimeConstraintType: 'FROM_APP_START' | 'FROM_GOAL_START';
 
 FQN: ID('.'ID)*;
 Import: 'import' importURI=FQN ('as' name=ID)? ';';

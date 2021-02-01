@@ -270,10 +270,18 @@ Sequence S1 -> {
 ## Time Constraints for Goals
 
 Goals can have time constraints, like maximum duration from previous goal.
-For this reason we introduce the **TimeConstraint** concept and furthermore the
-**TCDuration** class, which allows the definition of time duration constraints.
+For this reason we introduce the **TimeConstraint** concept, which allows the definition of time constraints.
 
-Each TimeConstraint can have measure time relative to either the start of
+```
+TimeConstraint: TimeConstraintDuration;
+
+
+TimeConstraintDuration:
+    type=TimingConstraintType '(' comparator=TCComparator time=FLOAT ')'
+;
+```
+
+Each TimeConstraint can measure time relative to either the start of
 the application or the start of the current goal. This can be defined using the
 `type` property of **TimeConstraint** classes and can have one of the following
 values.
@@ -281,39 +289,20 @@ values.
 - **FROM_APP_START**
 - **FROM_GOAL_START**
 
-An example TCDuration constraint definition is:
+The `comparator` can have one of the values `>`,
+`<` and `==`.
+
+An example time constraint::
 
 ```
-TCDuration TC1 -> {
-    type: FROM_GOAL_START;
-    time: < 10.0;  // seconds
+TopicMsgReceivedGoal TopicGoalA -> {
+    topic: "robot.opts.face_detection.detected";
+    timeConstraints: [FROM_GOAL_START(< 10.0)];
 }
 ```
 
-The `time` property value is an condition and can have one of the values `>`,
-    `<` and `==`. The syntex is `<comparator> <Number>`. In the above example
-    the constraint indicates that **The duration of the Goal must not exceed 10
-    seconds.
-
-TimeConstraint instances can be referened by any number of Goals.
-
-```
-ComplexGoal GoalC -> {
-    timeConstraint: tc.TC1;
-    algorithm: ALL_ACCOMPLISHED;
-    addGoal(area_goals.GoalA);
-    addGoal(area_goals.GoalB);
-}
-
-...
-
-ComplexGoal GoalD -> {
-    timeConstraint: tc.TC1;
-    algorithm: NONE_ACCOMPLISHED;
-    addGoal(pose_goals.ExamplePoseGoal);
-    addGoal(pose_goals.ExampleOrientationGoal);
-}
-```
+In the above example the constraint indicates that **The duration of the Goal must not exceed 10
+seconds.
 
 ## Target
 
