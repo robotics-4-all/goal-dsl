@@ -145,7 +145,7 @@ TopicMessageParamGoal:
 RectangleAreaGoal:
     'RectangleAreaGoal' name=ID '->' '{'
     (
-        ('center:' centerPoint=Point ';')
+        ('bottomLeftEdge:' bottomLeftEdge=Point ';')
         ('lengthX:' lengthX=NUMBER ';')
         ('lengthY:' lengthY=NUMBER ';')
         ('tag:' type=AreaGoalTag ';')

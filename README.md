@@ -132,7 +132,7 @@ or avoided.
 
 ```
 RectangleAreaGoal GoalA -> {
-    center: Point2D(2.0, 6.0);
+    bottomLeftEdge: Point2D(2.0, 6.0);
     lengthX: 3.0;
     lengthY: 4.0;
     tag: ENTER;
