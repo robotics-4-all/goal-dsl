@@ -71,6 +71,7 @@ Target:
     (
         ('goals:' '[' goals*=[Goal|FQN][','] ']' ';')
         ('middleware:' middleware=[CommunicationMiddleware] ';')
+        ('concurrent:' concurrent=BOOL ';')?
     )#
     '}'
 ;
