@@ -81,7 +81,7 @@ GoalSequence:
     'Sequence' name=ID '->' '{'
     (
         ('addGoal(' goals+=[Goal|FQN] ')' ';')*
-        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
     )#
     '}'
 ;
@@ -90,7 +90,7 @@ ComplexGoal:
     'ComplexGoal' name=ID '->' '{'
     (
         ('algorithm:' algorithm=[ComplexGoalAlgorithmType] ';')
-        ('timeConstraint:' timeConstraint=[TimeConstraint|FQN] ';')?
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
         ('xAccomplished:' xAccomplished=INT ';')?
         ('addGoal(' goals+=[Goal|FQN] ')' ';')*
     )#

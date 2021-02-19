@@ -1,0 +1,19 @@
+import area_goals.goal as area_goals;
+
+ComplexGoal GoalC -> {
+    algorithm: ALL_ACCOMPLISHED;
+    addGoal(area_goals.GoalA);
+    addGoal(area_goals.GoalB);
+}
+
+ComplexGoal GoalD -> {
+    algorithm: NONE_ACCOMPLISHED;
+    addGoal(area_goals.GoalA);
+    addGoal(area_goals.GoalB);
+}
+
+ComplexGoal GoalE -> {
+    algorithm: ALL_ACCOMPLISHED_ORDERED;
+    addGoal(area_goals.GoalA);
+    addGoal(area_goals.GoalB);
+}
