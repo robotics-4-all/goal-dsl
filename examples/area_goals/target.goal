@@ -11,5 +11,5 @@ RedisBroker MyMiddleware -> {
 Target MyAppTarget -> {
     goals: [goals.GoalA, goals.GoalB, goals.MyRobotAvoid];
     middleware: MyMiddleware;
-    concurrent: True;
+    concurrent: False;
 }
