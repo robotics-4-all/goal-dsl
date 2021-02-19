@@ -183,7 +183,7 @@ MovingAreaGoal:
 CircularAreaGoal:
     'CircularAreaGoal' name=ID '->' '{'
     (
-        ('center:' centerPoint=Point ';')
+        ('center:' center=Point ';')
         ('radius:' radius=NUMBER ';')
         ('tag:' type=AreaGoalTag ';')
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
@@ -271,19 +271,19 @@ Point: Point2D | Point3D;
 Orientation: Orientation2D | Orientation3D;
 
 Point2D:
-    'Point2D' '(' xAxis=NUMBER ',' yAxis=NUMBER ')'
+    'Point2D' '(' x=NUMBER ',' y=NUMBER ')'
 ;
 
 Point3D:
-    'Point3D' '(' xAxis=NUMBER ',' yAxis=NUMBER ',' zAxis=NUMBER ')'
+    'Point3D' '(' x=NUMBER ',' y=NUMBER ',' z=NUMBER ')'
 ;
 
 Orientation2D:
-    'Orientation2D' '(' zAxis=NUMBER ')'
+    'Orientation2D' '(' z=NUMBER ')'
 ;
 
 Orientation3D:
-    'Orientation3D' '(' xAxis=NUMBER ',' yAxis=NUMBER ',' zAxis=NUMBER ')'
+    'Orientation3D' '(' x=NUMBER ',' y=NUMBER ',' z=NUMBER ')'
 ;
 
 TimeConstraint: TimeConstraintDuration;
