@@ -3,12 +3,14 @@ RectangleAreaGoal GoalA -> {
     lengthX: 3.0;
     lengthY: 4.0;
     tag: ENTER;
+    timeConstraints: [FROM_GOAL_START(>0), FROM_GOAL_START(<10)];
 }
 
 CircularAreaGoal GoalB -> {
     center: Point2D(2.0, 6.0);
     radius: 3.0;
     tag: AVOID;
+    timeConstraints: [FROM_GOAL_START(>0), FROM_GOAL_START(<10)];
 }
 
 PolylineAreaGoal PolylineAreaExample -> {
