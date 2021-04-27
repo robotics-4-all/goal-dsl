@@ -179,7 +179,6 @@ MovingAreaGoal:
     '}'
 ;
 
-
 CircularAreaGoal:
     'CircularAreaGoal' name=ID '->' '{'
     (

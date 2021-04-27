@@ -304,11 +304,13 @@ TopicMsgReceivedGoal TopicGoalA -> {
 In the above example the constraint indicates that **The duration of the Goal must not exceed 10
 seconds.
 
-## Target
 
-**Target** defines a set of goals which are assigned to be executed for a
-specific target/application. A target needs to be linked to a specific
-middleware (message broker). Each model can have **ONLY ONE** target.
+## Communication Middleware / Message Broker
+
+In GoalDSL it is possible to define the communication middleware to use, built
+on to of message broker technologies. This
+is relevant to the same communication middleware the under-investigation
+application uses.
 
 Currently, three types of **CommunicationMiddleware** are supported by the DSL.
 These are listed below among with their properties.
@@ -342,6 +344,13 @@ RedisBroker MyMiddleware -> {
     auth: AuthPlain('', '');  // AuthPlain(username, password)
 }
 ```
+
+
+## Target
+
+**Target** defines a set of goals which are assigned to be executed for a
+specific target/application. A target needs to be linked to a specific
+middleware (message broker). Each model can have **ONLY ONE** target.
 
 A **Target** is defined by a list of Goals and a communication middleware. 
 
@@ -442,41 +451,6 @@ means that the environment must be semantically annotated.
 Assign score metrics/weights/etc on goals.
 Scores can be defined when defining the "Target" goals (Goals which will be used
     for a target).
-
-### Better in-language conditions for TopicMessageParamGoal
-
-Currently a string is passed to the parser.
-
-```
-condition: '> 10';
-```
-
-### Post assignment of TimeConstraint to Goals
-
-Now time constraints can be statically assigned as a property of each goal.
-It would be better to assign these dynamically.
-
-This can be achieved using two approaches:
-
-- Define a GoalContainer for adding to the GoalSequence. GoalContainer will
-have a reference to a Goal and a ref to a TimeConstraint. e.g.
-
-```
-Sequence S2 -> {
-    addGoal(TopicGoalA, TC1);
-}
-
-```
-
-- Dynamic assignment that the language must support. e.g.
-```
-TopicMsgParamGoal TopicGoalB -> {
-    topic: 'robot.sensor.motion.speed';
-    condition: '> 10';
-}
-
-TopicGoalB.timeConstraint = TC1
-```
 
 ### Anti-Goals
 
