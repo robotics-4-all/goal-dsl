@@ -55,7 +55,7 @@ RedisBroker MyMiddleware -> {
 
 Target MyAppTarget -> {
     goals: [TopicGoalA, TopicGoalB, TopicGoalC, TopicGoalD, TopicGoalE,
-               TopicGoalF, TopicGoalG, TopicGoalH];
+            TopicGoalF, TopicGoalG, TopicGoalH];
     middleware: MyMiddleware;
     concurrent: True;
 }
