@@ -255,6 +255,11 @@ ComplexGoal GoalC -> {
 }
 ```
 
+In case of Ordered algorithms, which is the cases of `ALL_ACCOMPLISHED_ORDERED`,
+`EXACTLY_X_ACCOMPLISHED_ORDERED`, the execution of inner Goals is sequential.
+Otherwise Goals defined using the `addGoal()` buildin will be executed
+cuncurrently.
+
 ### Goal Sequence
 
 A number of Goals which have to be accomplished in sequence.
@@ -359,10 +364,16 @@ import complex_goals.goal as complex;
 ...
 
 Target MyAppTarget -> {
-    goals: [complex.GoalC, complex.GoalD, complex.GoalE];
+    goals: [complex.GoalA, complex.GoalB, complex.GoalC, complex.GoalD];
     middleware: MyMiddleware;  // Reference a previously defined Middleware
+    scoreWeights: [0,2, 0,3, 0.3, 0.2];  // Score weights for Goals
+    concurrent: True;  // Select between sequential and concurrent execution
 }
 ```
+
+A Target can have multiple Goals, which are executed concurrently or in a sequential
+order.
+Goals are defined in a list using the above syntax.
 
 
 ## Other Concepts
