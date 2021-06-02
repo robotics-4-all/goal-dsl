@@ -25,6 +25,15 @@ to require definition of Goals related to the Pose of the robot, or to follow a 
 10. [Examples](#examples)
 
 
+## Installation
+
+Download this repository and simply install using `pip` package manager.
+
+```
+git clone https://github.com/robotics-4-all/goal-dsl
+cd goal-dsl
+pip install .
+```
 
 
 ## Classification of Goals <a name="goalclasses"></a>
