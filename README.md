@@ -12,6 +12,22 @@ topic-related Goals, it is useful to be able to define environment-related Goals
 for mobile things, such as robots. For example, in robotics it is common
 to require definition of Goals related to the Pose of the robot, or to follow a trajectory.
 
+# Table of contents
+1. [Installation](#installation)
+2. [Classification of Goals](#goalclasses)
+3. [Time Constraints for Goals](#timeconstraints)
+4. [Communication Middleware / Message Broker](#middleware)
+5. [Target](#target)
+6. [Other Concepts of the Language](#other)
+7. [Multiple model files -  Import models](#multifile)
+8. [Validation](#validation)
+9. [Metamodel](#metamodel)
+10. [Examples](#examples)
+
+
+
+
+## Classification of Goals <a name="goalclasses"></a>
 
 **Goal Types**:
 - Topic Goals
@@ -33,13 +49,6 @@ to require definition of Goals related to the Pose of the robot, or to follow a 
 - Complex Goal
 - Goal Sequence
 
-
-## Goal Types
-
-All subclasses of Goal, except TopicGoals have the following **Optional** properties:
-
-- listening: Listening Topic URI
-- timeConstraint: Time constraint for the Goal
 
 ### Topic Goals
 
@@ -284,7 +293,7 @@ Sequence S1 -> {
 }
 ```
 
-## Time Constraints for Goals
+## Time Constraints for Goals <a name="timeconstraints"></a>
 
 Goals can have time constraints, like maximum duration from previous goal.
 For this reason we introduce the **TimeConstraint** concept, which allows the definition of time constraints.
@@ -322,7 +331,7 @@ In the above example the constraint indicates that **The duration of the Goal mu
 seconds.
 
 
-## Communication Middleware / Message Broker
+## Communication Middleware / Message Broker <a name="middleware"></a>
 
 In GoalDSL it is possible to define the communication middleware to use, built
 on to of message broker technologies. This
@@ -363,7 +372,7 @@ RedisBroker MyMiddleware -> {
 ```
 
 
-## Target
+## Target <a name="target"></a>
 
 **Target** defines a set of goals which are assigned to be executed for a
 specific target/application. A target needs to be linked to a specific
@@ -388,7 +397,7 @@ order.
 Goals are defined in a list using the above syntax.
 
 
-## Other Concepts
+## Other Concepts of the Language <a name="other"></a>
 
 ### Point
 
@@ -416,14 +425,8 @@ Orientation2D(z)  // In 2D space only zAxes rotation is allowed.
 Orientation3D(x, y, z)
 ```
 
-## Metamodel of the Language
 
-The metamodel of the DSL, defines the concepts of the language.
-
-![bridges_1](./docs/images/GoalDSLMetamodel.png)
-
-
-## Multiple model files -  Import models
+## Multiple model files -  Import models <a name="multifile"></a>
 
 The language supports multi-file models via model imports.
 A nested model import layer is implemented, enabling pythonic imports
@@ -459,15 +462,30 @@ ComplexGoal GoalC -> {
 }
 ```
 
-## Thoughts
 
-### Add Scoring in Language
+## Validation <a name="validation"></a>
 
-Assign score metrics/weights/etc on goals.
-Scores can be defined when defining the "Target" goals (Goals which will be used
-    for a target).
+To validate a model description file, simply execute:
 
-**Note**: Currently, Area Goals can be set to 'AVOID' or 'REACHED' mode.
+```
+textx check target.goal --language goal_dsl
+```
+
+If the model passes the validation rules (grammar) you should see something
+like:
+
+```
+[I] ➜ textx check target.goal --language goal_dsl
+target.goal: OK.
+```
+
+
+## Metamodel <a name="metamodel"></a>
+
+The metamodel of the DSL, defines the concepts of the language.
+
+![bridges_1](./docs/images/GoalDSLMetamodel.png)
+
 
 ## Examples
 

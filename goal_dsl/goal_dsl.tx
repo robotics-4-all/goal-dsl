@@ -7,7 +7,6 @@ GoalDSLModel:
     (
         (target=Target)?
         (goals*=Goal)
-        (tConstraints*=TimeConstraint)
         (middleware*=CommunicationMiddleware)
     )#  // Any order
 ;
