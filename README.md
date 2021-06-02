@@ -461,51 +461,17 @@ ComplexGoal GoalC -> {
 
 ## Thoughts
 
-### AreaRoomGoal
-Provide Goal types for semantic declaration of reach or avoid areas,
-        for example "enter the kitchen".
-Even though this can be achieved using the `AreaGoal` goals, such definitions
-will be easier to configure. Though, the environment must somehow post
-the current room location of the thing in order to be able to operate. This also
-means that the environment must be semantically annotated.
-
 ### Add Scoring in Language
 
 Assign score metrics/weights/etc on goals.
 Scores can be defined when defining the "Target" goals (Goals which will be used
     for a target).
 
-### Anti-Goals
-
-Support setting every Goal in Anti-Goal mode, meaning that it **MUST NOT BE
-ACCOMPLISED**. This can be defined as an optional property of all **Goal** classes.
-Or define an AntiGoal class that will wrap all Goal classes and make the
-anti-goals.
-
-```
-TopicMsgReceivedGoal TopicGoalA -> {
-    topic: "robot.opts.face_detection.detected";
-    antiGoal: True;
-}
-
-```
-
-```
-TopicMsgReceivedGoal TopicGoalA -> {
-    topic: "robot.opts.face_detection.detected";
-}
-
-AntiGoal AntiTopicGoalA(TopicGoalA);
-
-```
-
-
 **Note**: Currently, Area Goals can be set to 'AVOID' or 'REACHED' mode.
 
 ## Examples
 
-An example that covers the complete list of features and of the language can
-found [here](./examples/)
+Several examples can be found [here](./examples/).
 
 # Credits
 
