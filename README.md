@@ -15,9 +15,21 @@ to require definition of Goals related to the Pose of the robot, or to follow a 
 
 **Goal Types**:
 - Topic Goals
+    - TopicMessageReceivedGoal
+    - TopicMessageParamGoal
 - Area Goals
+    - RectangleAreaGoal
+    - CircularAreaGoal
+    - PolylineAreaGoal
+    - StraightLineAreaGoal
+    - MovingAreaGoal
 - Pose Goals
+    - PositionGoal
+    - OrientationGoal
+    - PoseGoal
 - Trajectory Goals
+    - StraightLineTrajectoryGoal
+    - StraightLineTrajectoryGoal
 - Complex Goal
 - Goal Sequence
 
