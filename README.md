@@ -25,7 +25,7 @@ to require definition of Goals related to the Pose of the robot, or to follow a 
 10. [Examples](#examples)
 
 
-## Installation
+## Installation <a name="installation"></a>
 
 Download this repository and simply install using `pip` package manager.
 
@@ -496,7 +496,7 @@ The metamodel of the DSL, defines the concepts of the language.
 ![bridges_1](./docs/images/GoalDSLMetamodel.png)
 
 
-## Examples
+## Examples <a name="examples"></a>
 
 Several examples can be found [here](./examples/).
 
@@ -504,5 +504,5 @@ Several examples can be found [here](./examples/).
 
 - [klpanagi](https://github.com/klpanagi)
 - [imgchris]()
-- [etsardou]()
+- [etsardou](https://github.com/etsardou)
 - [asymeo]()
