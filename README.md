@@ -493,7 +493,7 @@ target.goal: OK.
 ## Code Generation <a name="generation"></a>
 
 The code-generator is shipped as a separate package which you will have to
-manually installed. Once installed, it will be listed in **textx generators**
+manually install. Once installed, it will be listed in **textx generators**
 and can be used via the textx cli.
 
 Install Goal-DSL python source generator from: https://github.com/robotics-4-all/goal-gen
