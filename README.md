@@ -21,6 +21,7 @@ to require definition of Goals related to the Pose of the robot, or to follow a 
 6. [Other Concepts of the Language](#other)
 7. [Multiple model files -  Import models](#multifile)
 8. [Validation](#validation)
+8. [Code Generation](#generation)
 9. [Metamodel](#metamodel)
 10. [Examples](#examples)
 
