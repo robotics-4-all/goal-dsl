@@ -297,7 +297,7 @@ TimeConstraintDuration:
 
 TCComparator: '>' | '<' | '==';
 
-AreaGoalTag: 'ENTER' | 'EXIT' | 'AVOID';
+AreaGoalTag: 'ENTER' | 'EXIT' | 'AVOID' | 'STEP';
 
 ComplexGoalAlgorithmType: 'ALL_ACCOMPLISHED' | 'NONE_ACCOMPLISHED' |
 'AT_LEAST_ONE_ACCOMPLISHED' | 'EXACTLY_X_ACCOMPLISHED' |
