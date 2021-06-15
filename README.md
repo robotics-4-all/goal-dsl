@@ -24,6 +24,7 @@ to require definition of Goals related to the Pose of the robot, or to follow a 
 8. [Code Generation](#generation)
 9. [Metamodel](#metamodel)
 10. [Examples](#examples)
+11. [Extra](#extra)
 
 
 ## Installation <a name="installation"></a>
@@ -258,9 +259,8 @@ Use this type to define goals for a thing to follow/track a trajectory. Mostly u
 A straight line trajectory goal, defined by (startPoint, finishPoint,
     maxDeviation).
 
-#### CustomPointsTrajectoryGoal
-A straight line trajectory goal, defined by (startPoint, finishPoint,
-    trajectoryPoints, maxDeviation).
+#### WaypointTrajectoryGoal
+A custom trajectory goal, defined by (list of points, maxDeviation).
 
 ### Complex Goals
 
@@ -514,6 +514,10 @@ The metamodel of the DSL, defines the concepts of the language.
 ## Examples <a name="examples"></a>
 
 Several examples can be found [here](./examples/).
+
+## Extra <a name="extra"></a>
+
+* [goal-dsl.vim](https://github.com/johnstef99/goal-dsl.vim) Vim syntax support for goal-dsl
 
 # Credits
 
