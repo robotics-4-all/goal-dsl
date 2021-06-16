@@ -522,6 +522,7 @@ Several examples can be found [here](./examples/).
 # Credits
 
 - [klpanagi](https://github.com/klpanagi)
+- [johnstef99](https://github.com/johnstef99)
 - [imgchris]()
 - [etsardou](https://github.com/etsardou)
 - [asymeo]()
