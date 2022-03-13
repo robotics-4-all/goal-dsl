@@ -1,0 +1,72 @@
+import entity
+import data_types
+import time_constraint
+
+
+AreaGoal:
+    RectangleAreaGoal     |
+    CircularAreaGoal      |
+    CrossStraightLineGoal |
+    MovingAreaGoal        |
+    PolylineAreaGoal
+;
+
+
+RectangleAreaGoal:
+    'Goal<RectangleArea>' name=ID ':'
+    (
+        ('poseEntity:' entity=[Entity|FQN] ';')
+        ('bottomLeftEdge:' bottomLeftEdge=Point ';')
+        ('lengthX:' lengthX=NUMBER ';')
+        ('lengthY:' lengthY=NUMBER ';')
+        ('tag:' type=AreaGoalTag ';')
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
+    )#  // Any order
+;
+
+PolylineAreaGoal:
+    'Goal<PolylineArea>' name=ID ':'
+    (
+        ('poseEntity:' entity=[Entity|FQN] ';')
+        ('points:' '[' points+=Point[','] ']' ';')
+        ('tag:' type=AreaGoalTag ';')
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
+    )#  // Any order
+    '}'
+;
+
+MovingAreaGoal:
+    'Goal<MovingArea>' name=ID ':'
+    (
+        ('poseEntity:' entity=[Entity|FQN] ';')
+        ('radius:' radius=NUMBER ';')
+        ('tag:' type=AreaGoalTag ';')
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
+    )#  // Any order
+;
+
+CircularAreaGoal:
+    'Goal<CircularArea>' name=ID ':'
+    (
+        ('poseEntity:' entity=[Entity|FQN] ';')
+        ('center:' center=Point ';')
+        ('radius:' radius=NUMBER ';')
+        ('tag:' type=AreaGoalTag ';')
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
+    )#
+;
+
+CrossStraightLineGoal:
+    'Goal<CrossStraightLine>' name=ID ':'
+    (
+        ('poseEntity:' entity=[Entity|FQN] ';')
+        ('startPoint:' startPoint=Point ';')
+        ('endPoint:' endPoint=Point ';')
+        ('tag:' type=AreaGoalTag ';')
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
+    )#
+;
+
+AreaGoalTag: 'ENTER' | 'EXIT' | 'AVOID' | 'STEP';
+
+FQN: ID('.'ID)*;

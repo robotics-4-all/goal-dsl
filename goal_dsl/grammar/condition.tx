@@ -1,0 +1,35 @@
+import entity
+
+Condition: ConditionGroup | PrimitiveCondition;
+
+ConditionGroup:
+    '(' r1=Condition ')' operator=BooleanOperatorType '(' r2=Condition ')'
+;
+
+PrimitiveCondition: StringCondition | NumericCondition;
+
+StringCondition:
+    param=[Attribute|FQN|entities.attributes]
+    operator=StringOperatorType
+    val=STRING
+;
+
+NumericCondition:
+    param=[Attribute|FQN|entities.attributes]
+    operator=NumericOperatorType
+    val=NUMBER
+;
+
+BooleanCondition:
+    param=[Attribute|FQN|entities.attributes]
+    operator=BooleanOperatorType
+    val=NUMBER
+;
+
+StringOperatorType: '~' | '!~' | '==' | '!=';
+
+NumericOperatorType: '>' | '<' | '==' | '!=' | '>=' | '<=';
+
+BooleanOperatorType: 'AND' | 'OR' | 'NOT' | 'XOR' | 'NOR' | 'XNOR' | 'NAND';
+
+FQN: ID('.'ID)*;

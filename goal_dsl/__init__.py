@@ -1,9 +1,9 @@
 import os
-from textx import language, metamodel_from_file
+from textx import language
 
 from goal_dsl.utils import get_mm
 
-__version__ = "0.1.0.dev"
+__version__ = "0.2.0.dev"
 
 
 @language('goal_dsl', '*.goal')

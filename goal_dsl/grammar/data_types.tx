@@ -1,0 +1,20 @@
+
+Point: Point2D | Point3D;
+Orientation: Orientation2D | Orientation3D;
+
+Point2D:
+    'Point2D' '(' x=NUMBER ',' y=NUMBER ')'
+;
+
+Point3D:
+    'Point3D' '(' x=NUMBER ',' y=NUMBER ',' z=NUMBER ')'
+;
+
+Orientation2D:
+    'Orientation2D' '(' z=NUMBER ')'
+;
+
+Orientation3D:
+    'Orientation3D' '(' x=NUMBER ',' y=NUMBER ',' z=NUMBER ')'
+;
+

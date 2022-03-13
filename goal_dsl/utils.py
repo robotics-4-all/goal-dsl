@@ -9,7 +9,7 @@ def get_mm(debug=False, global_scope=True):
     """
     """
     mm= metamodel_from_file(
-        join(this_dir, 'goal_dsl.tx'),
+        join(this_dir, 'grammar', 'goal_dsl.tx'),
         global_repository=global_scope,
         debug=debug
     )
@@ -31,11 +31,11 @@ def build_model(model_fpath):
     model = mm.model_from_file(model_fpath)
     # print(model._tx_loaded_models)
     reg_models = mm._tx_model_repository.all_models.filename_to_model
-    models = [val for key, val in reg_models.items() if val != model]
+    models = [val for _, val in reg_models.items() if val != model]
     return (model, models)
 
 
-def get_grammar(debug=False):
-    with open(join(this_dir, 'thing_dsl.tx')) as f:
+def get_grammar():
+    with open(join(this_dir, 'grammar', 'goal_dsl.tx')) as f:
         return f.read()
 

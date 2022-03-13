@@ -1,0 +1,67 @@
+import time_constraint
+
+MotionGoals:
+    OrientationGoal             |
+    PositionGoal                |
+    PoseGoal                    |
+    StraightLineTrajectoryGoal  |
+    WaypointTrajectoryGoal
+;
+
+PoseGoal:
+    'Goal<Pose>' name=ID ':'
+    (
+        ('orientation:' orientation=Orientation ';')
+        ('position:' position=Point ';')
+        ('maxDeviationPos:' maxDeviationPos=NUMBER ';')
+        ('maxDeviationOri:' maxDeviationOri=NUMBER ';')
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
+        ('listening:' listeningTopic=STRING ';')?
+    )#
+;
+
+OrientationGoal:
+    'OrientationGoal' name=ID '->' '{'
+    (
+        ('orientation:' orientation=Orientation ';')
+        ('maxDeviation:' maxDeviation=NUMBER ';')
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
+        ('listening:' listeningTopic=STRING ';')?
+    )#
+    '}'
+;
+
+PositionGoal:
+    'PositionGoal' name=ID '->' '{'
+    (
+        ('position:' point=Point ';')
+        ('maxDeviation:' maxDeviation=NUMBER ';')
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
+        ('listening:' listeningTopic=STRING ';')?
+    )#
+    '}'
+;
+
+
+StraightLineTrajectoryGoal:
+    'StraightLineTrajGoal' name=ID '->' '{'
+    (
+        ('startPoint:' startPoint=Point ';')
+        ('finishPoint:' finishPoint=Point ';')
+        ('maxDeviation:' maxDeviation=NUMBER ';')
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
+        ('listening:' listeningTopic=STRING ';')?
+    )#
+    '}'
+;
+
+WaypointTrajectoryGoal:
+    'WaypointTrajectoryGoal' name=ID '->' '{'
+    (
+        ('points:' '[' points+=Point[','] ']' ';')
+        ('maxDeviation:' maxDeviation=NUMBER ';')
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
+        ('listening:' listeningTopic=STRING ';')?
+    )#
+    '}'
+;

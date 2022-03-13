@@ -1,0 +1,43 @@
+/*
+    Goal DSL
+*/
+import communication
+import goal
+import entity
+
+
+GoalDSLModel:
+    imports*=Import
+    (
+        (target=Target)?
+        (entities*=Entity)
+        (goals*=Goal)
+        (middleware*=MessageBroker)
+    )#  // Any order
+;
+
+
+Target:
+    'Target' name=ID ':'
+    (
+        ('goals:' '[' goals*=[Goal|FQN][','] ']')
+        ('scoreWeights:' '[' scoreWeights*=FLOAT[','] ']')?
+        ('concurrent:' concurrent=BOOL)?
+    )#
+;
+
+
+// Utilities ------------------------------------->
+
+Import: 'import' importURI=FQN ('as' name=ID)? ';';
+
+FQN: ID('.'ID)*;
+
+// Special rule for comments. Comments start with //
+Comment: CommentLine | CommentBlock ;
+
+CommentLine: /\/\/.*?$/;
+
+CommentBlock: /\/\*(.|\n)*?\*\//;
+
+// <-----------------------------------------------

@@ -1,0 +1,56 @@
+import communication
+
+Entity:
+    'Entity' name=ID ':'
+        (
+        'topic:' topic=STRING
+        'broker:' broker=[MessageBroker]
+        'attributes:'
+                attributes*=Attribute
+        )#
+;
+
+EntityType:
+    'Producer' |
+    'Consumer'
+;
+
+Attribute:
+    NumericAttribute  |
+    BoolAttribute     |
+    StringAttribute   |
+    ListAttribute     |
+    DictAttribute
+;
+
+NumericAttribute:
+    IntAttribute    |
+    FloatAttribute
+;
+
+IntAttribute:
+    '-' name=ID ':' 'int'
+;
+
+FloatAttribute:
+    '-' name=ID ':' 'float'
+;
+
+StringAttribute:
+    '-' name=ID ':' 'string'
+;
+
+BoolAttribute:
+    '-' name=ID ':' 'bool'
+;
+
+ListAttribute:
+    '-' name=ID ':' 'list'
+;
+
+DictAttribute:
+    '-' name=ID ':' '{'
+        items*=Attribute
+        '}'
+;
+

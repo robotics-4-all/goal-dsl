@@ -1,0 +1,35 @@
+import entity_goals
+import area_goals
+import time_constraint
+
+
+Goal:
+    EntityStateGoal      |
+    AreaGoal             |
+    ComplexGoal
+;
+
+
+ComplexGoal:
+    'Goal<Complex>' name=ID ':'
+    (
+        ('goals:' '[' goals*=[Goal|FQN][','] ']')
+        ('algorithm:' algorithm=[ComplexGoalAlgorithmType] ';')
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
+        ('xAccomplished:' xAccomplished=INT ';')?
+    )#
+;
+
+// Follow this: https://github.com/textX/textX/blob/master/tests/functional/test_scoping/test_reference_to_buildin_attribute.py
+/* Assignment: goalRef=[Goal|FQN].goalParam */
+
+
+ComplexGoalAlgorithmType:
+    'ALL_ACCOMPLISHED'               |
+    'NONE_ACCOMPLISHED'              |
+    'AT_LEAST_ONE_ACCOMPLISHED'      |
+    'EXACTLY_X_ACCOMPLISHED'         |
+	'ALL_ACCOMPLISHED_ORDERED'       |
+    'EXACTLY_X_ACCOMPLISHED_ORDERED'
+;
+
