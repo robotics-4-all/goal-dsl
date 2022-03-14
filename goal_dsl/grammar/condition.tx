@@ -6,7 +6,11 @@ ConditionGroup:
     '(' r1=Condition ')' operator=BooleanOperatorType '(' r2=Condition ')'
 ;
 
-PrimitiveCondition: StringCondition | NumericCondition;
+PrimitiveCondition:
+    StringCondition     |
+    NumericCondition    |
+    BooleanCondition
+;
 
 StringCondition:
     param=[Attribute|FQN|entities.attributes]

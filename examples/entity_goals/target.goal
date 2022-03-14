@@ -24,15 +24,27 @@ Entity TempSensor3:
         - temp: float
 
 
+Entity AirQualitySensor1:
+    topic: 'kitchen.sensor.airq'
+    broker: MyLocalRedis
+    attributes:
+        - gas: float
+        - humidity: float
+
+
 Goal<EntityStateChange> Goal_1:
     entity: TempSensor1
 
 
 Goal<EntityStateCondition> Goal_2:
+    condition: (AirQualitySensor1.gas < 10) AND (AirQualitySensor1.humidity < 30)
+
+
+Goal<EntityStateCondition> Goal_3:
     condition: ((TempSensor1.temp > 10) AND (TempSensor2.temp > 10))
         AND (TempSensor3.temp > 10)
 
 
 Target MyAppTarget:
-    goals: [Goal_1, Goal_2]
+    goals: [Goal_1, Goal_2, Goal_3]
     concurrent: True
