@@ -1,11 +1,15 @@
 import entity_goals
 import area_goals
+import pose_goals
+import trajectory_goals
 import time_constraint
 
 
 Goal:
     EntityStateGoal      |
     AreaGoal             |
+    PoseGoal             |
+    TrajectoryGoal       |
     ComplexGoal
 ;
 

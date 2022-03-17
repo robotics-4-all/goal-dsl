@@ -1,11 +1,10 @@
 import time_constraint
+import data_types
 
-MotionGoals:
+PoseGoal:
     OrientationGoal             |
     PositionGoal                |
-    PoseGoal                    |
-    StraightLineTrajectoryGoal  |
-    WaypointTrajectoryGoal
+    PoseGoal
 ;
 
 PoseGoal:
@@ -21,47 +20,21 @@ PoseGoal:
 ;
 
 OrientationGoal:
-    'OrientationGoal' name=ID '->' '{'
+    'Goal<Orientation>' name=ID ':'
     (
         ('orientation:' orientation=Orientation ';')
         ('maxDeviation:' maxDeviation=NUMBER ';')
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
-    '}'
 ;
 
 PositionGoal:
-    'PositionGoal' name=ID '->' '{'
+    'Goal<Position>' name=ID ':'
     (
         ('position:' point=Point ';')
         ('maxDeviation:' maxDeviation=NUMBER ';')
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
         ('listening:' listeningTopic=STRING ';')?
     )#
-    '}'
-;
-
-
-StraightLineTrajectoryGoal:
-    'StraightLineTrajGoal' name=ID '->' '{'
-    (
-        ('startPoint:' startPoint=Point ';')
-        ('finishPoint:' finishPoint=Point ';')
-        ('maxDeviation:' maxDeviation=NUMBER ';')
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
-        ('listening:' listeningTopic=STRING ';')?
-    )#
-    '}'
-;
-
-WaypointTrajectoryGoal:
-    'WaypointTrajectoryGoal' name=ID '->' '{'
-    (
-        ('points:' '[' points+=Point[','] ']' ';')
-        ('maxDeviation:' maxDeviation=NUMBER ';')
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
-        ('listening:' listeningTopic=STRING ';')?
-    )#
-    '}'
 ;

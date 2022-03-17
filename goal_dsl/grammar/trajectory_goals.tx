@@ -1,0 +1,28 @@
+import time_constraint
+import data_types
+
+TrajectoryGoal:
+    StraightLineTrajectoryGoal  |
+    WaypointTrajectoryGoal
+;
+
+StraightLineTrajectoryGoal:
+    'Goal<StraightLineTrajectory>' name=ID ':'
+    (
+        ('startPoint:' startPoint=Point ';')
+        ('finishPoint:' finishPoint=Point ';')
+        ('maxDeviation:' maxDeviation=NUMBER ';')
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
+        ('listening:' listeningTopic=STRING ';')?
+    )#
+;
+
+WaypointTrajectoryGoal:
+    'Goal<WaypointTrajectory>' name=ID ':'
+    (
+        ('points:' '[' points+=Point[','] ']' ';')
+        ('maxDeviation:' maxDeviation=NUMBER ';')
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
+        ('listening:' listeningTopic=STRING ';')?
+    )#
+;
