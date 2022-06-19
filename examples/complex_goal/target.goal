@@ -44,6 +44,11 @@ Goal<EntityStateCondition> Goal_3:
         AND (TempSensor3.temp > 10)
 
 
-Target MyAppTarget:
+Goal<Complex> CG1:
     goals: [Goal_1, Goal_2, Goal_3]
-    concurrent: True
+    algorithm: ALL_ACCOMPLISHED_ORDERED
+
+
+Target MyAppTarget:
+    goals: [CG1]
+    concurrent: False

@@ -32,7 +32,6 @@ PolylineAreaGoal:
         ('tag:' type=AreaGoalTag ';')
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
     )#  // Any order
-    '}'
 ;
 
 MovingAreaGoal:
