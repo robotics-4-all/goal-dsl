@@ -14,7 +14,7 @@ Entity OrganicsMixer:
         - state: bool
 
 Entity RobotArmPose:
-    topic: 'garden.organic_mixer'
+    topic: 'robot.arm.pose'
     attributes:
     - pose: {
         - position: {
