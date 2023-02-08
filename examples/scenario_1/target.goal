@@ -20,7 +20,6 @@ Entity HumiditySensorList:
         - regionC: float
         - regionD: float
 
-
 Entity AirQualitySensorList:
     topic: 'garden.air_quality'
     attributes:

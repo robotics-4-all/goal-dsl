@@ -9,6 +9,8 @@ Goal:
     EntityStateGoal      |
     AreaGoal             |
     PoseGoal             |
+    PositionGoal         |
+    OrientationGoal      |
     TrajectoryGoal       |
     ComplexGoal
 ;

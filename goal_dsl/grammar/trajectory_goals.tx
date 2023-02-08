@@ -1,5 +1,6 @@
 import time_constraint
 import data_types
+import entity
 
 TrajectoryGoal:
     StraightLineTrajectoryGoal  |
@@ -9,20 +10,22 @@ TrajectoryGoal:
 StraightLineTrajectoryGoal:
     'Goal<StraightLineTrajectory>' name=ID ':'
     (
-        ('startPoint:' startPoint=Point ';')
-        ('finishPoint:' finishPoint=Point ';')
-        ('maxDeviation:' maxDeviation=NUMBER ';')
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
-        ('listening:' listeningTopic=STRING ';')?
+        ('entity:' entity=[Entity|FQN])
+        ('startPoint:' startPoint=Point)
+        ('finishPoint:' finishPoint=Point)
+        ('maxDeviation:' maxDeviation=NUMBER)
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
     )#
 ;
 
 WaypointTrajectoryGoal:
     'Goal<WaypointTrajectory>' name=ID ':'
     (
-        ('points:' '[' points+=Point[','] ']' ';')
-        ('maxDeviation:' maxDeviation=NUMBER ';')
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' ';')?
-        ('listening:' listeningTopic=STRING ';')?
+        ('entity:' entity=[Entity|FQN])
+        ('points:' '[' points+=Point[','] ']')
+        ('maxDeviation:' maxDeviation=NUMBER)
+        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
     )#
 ;
+
+FQN: ID('.'ID)*;
