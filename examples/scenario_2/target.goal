@@ -22,6 +22,11 @@ Entity RobotArmPose:
             - y: float
             - z: float
         }
+        - orientation: {
+            - x: float
+            - y: float
+            - z: float
+        }
     }
 
 // ------------------ GOAL Definitions -----------------
