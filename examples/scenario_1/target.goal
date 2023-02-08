@@ -6,7 +6,6 @@ Broker<MQTT> MyMQTTBroker:
 
 Entity TemperatureSensorList:
     topic: 'garden.temperature'
-    broker: MyMQTTBroker
     attributes:
         - regionA: float
         - regionB: float
@@ -15,7 +14,6 @@ Entity TemperatureSensorList:
 
 Entity HumiditySensorList:
     topic: 'garden.humidity'
-    broker: MyMQTTBroker
     attributes:
         - regionA: float
         - regionB: float
@@ -25,7 +23,6 @@ Entity HumiditySensorList:
 
 Entity AirQualitySensorList:
     topic: 'garden.air_quality'
-    broker: MyMQTTBroker
     attributes:
         - regionA: float
         - regionB: float
@@ -34,25 +31,21 @@ Entity AirQualitySensorList:
 
 Entity WindowRegionA:
     topic: 'garden.regionA.window'
-    broker: MyMQTTBroker
     attributes:
         - state: bool
 
 Entity WindowRegionB:
     topic: 'garden.regionB.window'
-    broker: MyMQTTBroker
     attributes:
         - state: bool
 
 Entity WindowRegionC:
     topic: 'garden.regionC.window'
-    broker: MyMQTTBroker
     attributes:
         - state: bool
 
 Entity WindowRegionD:
     topic: 'garden.regionD.window'
-    broker: MyMQTTBroker
     attributes:
         - state: bool
 
@@ -98,3 +91,4 @@ Goal<Complex> CG2:
 Target ScenarioATarget:
     goals: [CG1, CG2]
     concurrent: True
+    middleware: MyMQTTBroker

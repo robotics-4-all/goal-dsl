@@ -4,7 +4,6 @@ Entity:
     'Entity' name=ID ':'
         (
         'topic:' topic=STRING
-        'broker:' broker=[MessageBroker]
         'attributes:'
                 attributes*=Attribute
         )#
