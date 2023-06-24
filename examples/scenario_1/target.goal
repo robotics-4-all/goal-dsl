@@ -1,93 +1,113 @@
-Broker<MQTT> MyMQTTBroker:
+Broker<MQTT> MyMQTTBroker
     host: 'localhost'
     port: 1883
     auth: AuthPlain('', '')
+end
 
 
-Entity TemperatureSensorList:
+Entity TemperatureSensorList
     topic: 'garden.temperature'
     attributes:
         - regionA: float
         - regionB: float
         - regionC: float
         - regionD: float
+end
 
-Entity HumiditySensorList:
+Entity HumiditySensorList
     topic: 'garden.humidity'
     attributes:
         - regionA: float
         - regionB: float
         - regionC: float
         - regionD: float
+end
 
-Entity AirQualitySensorList:
+Entity AirQualitySensorList
     topic: 'garden.air_quality'
     attributes:
         - regionA: float
         - regionB: float
         - regionC: float
         - regionD: float
+end
 
-Entity WindowRegionA:
+Entity WindowRegionA
     topic: 'garden.regionA.window'
     attributes:
         - state: bool
+end
 
-Entity WindowRegionB:
+Entity WindowRegionB
     topic: 'garden.regionB.window'
     attributes:
         - state: bool
+end
 
-Entity WindowRegionC:
+Entity WindowRegionC
     topic: 'garden.regionC.window'
     attributes:
         - state: bool
+end
 
-Entity WindowRegionD:
+Entity WindowRegionD
     topic: 'garden.regionD.window'
     attributes:
         - state: bool
+end
 
 // ------------------ GOAL Definitions -----------------
-Goal<EntityStateCondition> Goal_1:
+Goal<EntityStateCondition> Goal_1
     condition: (TemperatureSensorList.regionA > 30) OR (HumiditySensorList.regionA > 0.8)
+end
 
-Goal<EntityStateCondition> Goal_2:
+Goal<EntityStateCondition> Goal_2
     condition: WindowRegionA.state == 1
+end
 
-Goal<EntityStateCondition> Goal_3:
+Goal<EntityStateCondition> Goal_3
     condition: (TemperatureSensorList.regionA < 20) AND (HumiditySensorList.regionA < 0.8)
     timeConstraints: [FROM_GOAL_START(<1800)]
+end
 
-Goal<EntityStateCondition> Goal_4:
+Goal<EntityStateCondition> Goal_4
     condition: WindowRegionA.state == 0
+end
 
-Goal<Complex> CG1:
+Goal<Complex> CG1
     goals: [Goal_1, Goal_2, Goal_3, Goal_4]
     strategy: ALL_ACCOMPLISHED_ORDERED
+end
 
-Goal<EntityStateCondition> Goal_5:
+Goal<EntityStateCondition> Goal_5
     condition: ((AirQualitySensorList.regionA < 0.5) OR
         (AirQualitySensorList.regionB < 0.5)) OR ((AirQualitySensorList.regionC
             < 0.5) OR (AirQualitySensorList.regionD < 0.5))
+end
 
-Goal<EntityStateCondition> Goal_6:
+Goal<EntityStateCondition> Goal_6
     condition: ((WindowRegionA.state == 1) AND (WindowRegionB.state == 1)) AND
-((WindowRegionC.state == 1) AND (WindowRegionD.state == 1))
+                ((WindowRegionC.state == 1) AND (WindowRegionD.state == 1))
+end
 
-Goal<EntityStateCondition> Goal_7:
+Goal<EntityStateCondition> Goal_7
     condition: ((AirQualitySensorList.regionA > 0.8) AND
         (AirQualitySensorList.regionB > 0.8)) AND ((AirQualitySensorList.regionC
             > 0.8) AND (AirQualitySensorList.regionD > 0.8))
+end
 
-Goal<EntityStateCondition> Goal_8:
-    condition: ((WindowRegionA.state == 0) AND (WindowRegionB.state == 0)) AND ((WindowRegionC.state == 0) AND (WindowRegionD.state == 0))
+Goal<EntityStateCondition> Goal_8
+    condition: ((WindowRegionA.state == 0) AND (WindowRegionB.state == 0)) AND
+                ((WindowRegionC.state == 0) AND (WindowRegionD.state == 0))
+end
 
-Goal<Complex> CG2:
+Goal<Complex> CG2
     goals: [Goal_5, Goal_6, Goal_7, Goal_8]
     strategy: ALL_ACCOMPLISHED_ORDERED
+end
 
-Target ScenarioATarget:
+Target ScenarioATarget
     goals: [CG1, CG2]
     concurrent: True
     middleware: MyMQTTBroker
+end

@@ -17,13 +17,14 @@ Goal:
 
 
 ComplexGoal:
-    'Goal<Complex>' name=ID ':'
+    'Goal<Complex>' name=ID
     (
         ('goals:' '[' goals*=[Goal|FQN][','] ']')
         ('strategy:' algorithm=[ComplexGoalAlgorithmType])
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
         ('xAccomplished:' xAccomplished=INT)?
     )#
+    'end'
 ;
 
 // Follow this: https://github.com/textX/textX/blob/master/tests/functional/test_scoping/test_reference_to_buildin_attribute.py

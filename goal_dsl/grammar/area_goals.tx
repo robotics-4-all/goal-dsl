@@ -13,7 +13,7 @@ AreaGoal:
 
 
 RectangleAreaGoal:
-    'Goal<RectangleArea>' name=ID ':'
+    'Goal<RectangleArea>' name=ID
     (
         ('entity:' entity=[Entity|FQN])
         ('bottomLeftEdge:' bottomLeftEdge=Point )
@@ -22,30 +22,33 @@ RectangleAreaGoal:
         ('tag:' type=AreaGoalTag )
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' )?
     )#  // Any order
+    'end'
 ;
 
 PolylineAreaGoal:
-    'Goal<PolylineArea>' name=ID ':'
+    'Goal<PolylineArea>' name=ID
     (
         ('entity:' entity=[Entity|FQN] )
         ('points:' '[' points+=Point[','] ']' )
         ('tag:' type=AreaGoalTag )
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' )?
     )#  // Any order
+    'end'
 ;
 
 MovingAreaGoal:
-    'Goal<MovingArea>' name=ID ':'
+    'Goal<MovingArea>' name=ID
     (
         ('entity:' entity=[Entity|FQN] )
         ('radius:' radius=NUMBER )
         ('tag:' type=AreaGoalTag )
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' )?
     )#  // Any order
+    'end'
 ;
 
 CircularAreaGoal:
-    'Goal<CircularArea>' name=ID ':'
+    'Goal<CircularArea>' name=ID
     (
         ('entity:' entity=[Entity|FQN] )
         ('center:' center=Point )
@@ -53,10 +56,11 @@ CircularAreaGoal:
         ('tag:' type=AreaGoalTag )
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' )?
     )#
+    'end'
 ;
 
 CrossStraightLineGoal:
-    'Goal<CrossStraightLine>' name=ID ':'
+    'Goal<CrossStraightLine>' name=ID
     (
         ('entity:' entity=[Entity|FQN] )
         ('startPoint:' startPoint=Point )
@@ -64,6 +68,7 @@ CrossStraightLineGoal:
         ('tag:' type=AreaGoalTag )
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' )?
     )#
+    'end'
 ;
 
 AreaGoalTag: 'ENTER' | 'EXIT' | 'AVOID' | 'STEP';

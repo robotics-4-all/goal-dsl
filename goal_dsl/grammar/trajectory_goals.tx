@@ -8,7 +8,7 @@ TrajectoryGoal:
 ;
 
 StraightLineTrajectoryGoal:
-    'Goal<StraightLineTrajectory>' name=ID ':'
+    'Goal<StraightLineTrajectory>' name=ID
     (
         ('entity:' entity=[Entity|FQN])
         ('startPoint:' startPoint=Point)
@@ -16,16 +16,18 @@ StraightLineTrajectoryGoal:
         ('maxDeviation:' maxDeviation=NUMBER)
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
     )#
+    'end'
 ;
 
 WaypointTrajectoryGoal:
-    'Goal<WaypointTrajectory>' name=ID ':'
+    'Goal<WaypointTrajectory>' name=ID
     (
         ('entity:' entity=[Entity|FQN])
         ('points:' '[' points+=Point[','] ']')
         ('maxDeviation:' maxDeviation=NUMBER)
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
     )#
+    'end'
 ;
 
 FQN: ID('.'ID)*;

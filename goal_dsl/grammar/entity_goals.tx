@@ -6,19 +6,21 @@ import entity
 EntityStateGoal: EntityStateChangeGoal | EntityStateConditionGoal;
 
 EntityStateChangeGoal:
-    'Goal<EntityStateChange>' name=ID ':'
+    'Goal<EntityStateChange>' name=ID
     (
         ('entity:' entity=[Entity|FQN])
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
     )#
+    'end'
 ;
 
 EntityStateConditionGoal:
-    'Goal<EntityStateCondition>' name=ID ':'
+    'Goal<EntityStateCondition>' name=ID
     (
         ('condition:' condition=Condition)
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
     )#
+    'end'
 ;
 
 FQN: ID('.'ID)*;

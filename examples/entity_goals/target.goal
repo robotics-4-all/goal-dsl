@@ -1,49 +1,55 @@
-Broker<Redis> MyLocalRedis:
+Broker<Redis> MyLocalRedis
     host: 'localhost'
     port: 6379
     db: 0
     auth: AuthPlain('', '')
+end
 
 
-Entity TempSensor1:
+Entity TempSensor1
     topic: 'bedroom.sensor.temperature'
-    broker: MyLocalRedis
     attributes:
         - temp: float
+end
 
-Entity TempSensor2:
+Entity TempSensor2
     topic: 'bathroom.sensor.temperature'
-    broker: MyLocalRedis
     attributes:
         - temp: float
+end
 
-Entity TempSensor3:
+Entity TempSensor3
     topic: 'livingroom.sensor.temperature'
-    broker: MyLocalRedis
     attributes:
         - temp: float
+end
 
-Entity AirQualitySensor1:
+Entity AirQualitySensor1
     topic: 'kitchen.sensor.airq'
-    broker: MyLocalRedis
     attributes:
         - gas: float
         - humidity: float
+end
 
 
-Goal<EntityStateChange> Goal_1:
+Goal<EntityStateChange> Goal_1
     entity: TempSensor1
+end
 
 
-Goal<EntityStateCondition> Goal_2:
+Goal<EntityStateCondition> Goal_2
     condition: (AirQualitySensor1.gas < 10) AND (AirQualitySensor1.humidity < 30)
+end
 
 
-Goal<EntityStateCondition> Goal_3:
+Goal<EntityStateCondition> Goal_3
     condition: ((TempSensor1.temp > 10) AND (TempSensor2.temp > 10))
         AND (TempSensor3.temp > 10)
+end
 
 
-Target MyAppTarget:
+Target MyAppTarget
     goals: [Goal_1, Goal_2, Goal_3]
     concurrent: True
+    middleware: MyLocalRedis
+end

@@ -1,12 +1,13 @@
 import communication
 
 Entity:
-    'Entity' name=ID ':'
+    'Entity' name=ID
         (
         'topic:' topic=STRING
         'attributes:'
-                attributes*=Attribute
+            ('-' attributes*=Attribute['-'])?
         )#
+    'end'
 ;
 
 EntityType:
@@ -28,27 +29,27 @@ NumericAttribute:
 ;
 
 IntAttribute:
-    '-' name=ID ':' 'int'
+    name=ID ':' 'int'
 ;
 
 FloatAttribute:
-    '-' name=ID ':' 'float'
+    name=ID ':' 'float'
 ;
 
 StringAttribute:
-    '-' name=ID ':' 'string'
+    name=ID ':' 'str'
 ;
 
 BoolAttribute:
-    '-' name=ID ':' 'bool'
+    name=ID ':' 'bool'
 ;
 
 ListAttribute:
-    '-' name=ID ':' 'list'
+    name=ID ':' 'list'
 ;
 
 DictAttribute:
-    '-' name=ID ':' '{'
+    name=ID ':' '{'
         items*=Attribute
         '}'
 ;

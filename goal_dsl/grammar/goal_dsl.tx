@@ -18,13 +18,14 @@ GoalDSLModel:
 
 
 Target:
-    'Target' name=ID ':'
+    'Target' name=ID
     (
         ('goals:' '[' goals*=[Goal|FQN][','] ']')
         ('middleware:' middleware=[MessageBroker])
         ('scoreWeights:' '[' scoreWeights*=FLOAT[','] ']')?
         ('concurrent:' concurrent=BOOL)?
     )#
+    'end'
 ;
 
 

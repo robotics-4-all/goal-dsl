@@ -12,7 +12,7 @@ BrokerAuthPlain:
 ;
 
 AMQPBroker:
-    'Broker<AMQP>' name=ID ':'
+    'Broker<AMQP>' name=ID
     (
         'host:' host=STRING
         'port:' port=INT
@@ -20,23 +20,26 @@ AMQPBroker:
         ('exchange:' exchange=STRING)?
         'auth:' auth=BrokerAuth
     )#
+    'end'
 ;
 
 MQTTBroker:
-    'Broker<MQTT>' name=ID ':'
+    'Broker<MQTT>' name=ID
     (
         'host:' host=STRING
         'port:' port=INT
         'auth:' auth=BrokerAuth
     )#
+    'end'
 ;
 
 RedisBroker:
-    'Broker<Redis>' name=ID ':'
+    'Broker<Redis>' name=ID
     (
         'host:' host=STRING
         'port:' port=INT
         ('db:' db=INT)?
         'auth:' auth=BrokerAuth
     )#
+    'end'
 ;
