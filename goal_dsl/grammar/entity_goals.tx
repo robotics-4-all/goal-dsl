@@ -3,24 +3,24 @@ import condition
 import entity
 
 
-EntityStateGoal: EntityStateChangeGoal | EntityStateConditionGoal;
+EntityGoal: EntityStateChangeGoal | EntityStateConditionGoal;
 
 EntityStateChangeGoal:
-    'Goal<EntityStateChange>' name=ID
+    'Goal<EntityStateChange>:'
     (
-        ('entity:' entity=[Entity|FQN])
+        ('name:' name=ID)
+        ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
     )#
-    'end'
 ;
 
 EntityStateConditionGoal:
-    'Goal<EntityStateCondition>' name=ID
+    'Goal<EntityStateCondition>:'
     (
+        ('name:' name=ID)
         ('condition:' condition=Condition)
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
     )#
-    'end'
 ;
 
 FQN: ID('.'ID)*;

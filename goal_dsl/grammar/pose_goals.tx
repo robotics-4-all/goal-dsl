@@ -3,9 +3,10 @@ import data_types
 import entity
 
 PoseGoal:
-    'Goal<Pose>' name=ID
+    'Goal<Pose>:'
     (
-        ('entity:' entity=[Entity|FQN])
+        ('name:' name=ID)
+        ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('orientation:' orientation=Orientation)
         ('position:' position=Point)
         ('maxDeviationPos:' maxDeviationPos=NUMBER)
@@ -13,30 +14,29 @@ PoseGoal:
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
         ('listening:' listeningTopic=STRING)?
     )#
-    'end'
 ;
 
 OrientationGoal:
-    'Goal<Orientation>' name=ID
+    'Goal<Orientation>:'
     (
-        ('entity:' entity=[Entity|FQN])
+        ('name:' name=ID)
+        ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('orientation:' orientation=Orientation)
         ('maxDeviation:' maxDeviation=NUMBER)
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
     )#
-    'end'
 ;
 
 PositionGoal:
-    'Goal<Position>' name=ID
+    'Goal<Position>:'
     (
-        ('entity:' entity=[Entity|FQN])
+        ('name:' name=ID)
+        ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('position:' point=Point)
         ('maxDeviation:' maxDeviation=NUMBER)
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
         ('listening:' listeningTopic=STRING)?
     )#
-    'end'
 ;
 
 FQN: ID('.'ID)*;

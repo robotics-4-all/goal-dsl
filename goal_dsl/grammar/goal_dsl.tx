@@ -8,30 +8,46 @@ import entity
 
 GoalDSLModel:
     imports*=Import
+    (metadata=Metadata)
     (
-        (target=Target)?
+        (brokers*=Broker)
         (entities*=Entity)
         (goals*=Goal)
-        (middleware*=MessageBroker)
-    )#  // Any order
-;
-
-
-Target:
-    'Target' name=ID
-    (
-        ('goals:' '[' goals*=[Goal|FQN][','] ']')
-        ('middleware:' middleware=[MessageBroker])
-        ('scoreWeights:' '[' scoreWeights*=FLOAT[','] ']')?
-        ('concurrent:' concurrent=BOOL)?
+        (scenarios*=Scenario)
     )#
-    'end'
 ;
 
+
+Metadata:
+    'Metadata:'
+    (
+        ('name:' name=ID)
+        ('version:' version=STRING)
+        ('author:' author=STRING)?
+        ('email:' email=STRING)?
+        ('description:' description=STRING)?
+    )#
+;
+
+
+Scenario:
+    'Scenario:'
+    (
+        ('name:' name=ID)
+        ('goals:' '-' goals*=WeightedGoal['-'])
+        ('scoreWeights:' '-' scoreWeights*=FLOAT['-'])?
+        ('concurrent:' concurrent=BOOL)?
+        ('broker:' broker=[Broker])?
+    )#
+;
+
+WeightedGoal:
+    goal=[Goal:FQN|+pm:goals*] ('->' weight=FLOAT)?
+;
 
 // Utilities ------------------------------------->
 
-Import: 'import' importURI=FQN ('as' name=ID)? ';';
+Import: 'import' importURI=FQN ('as' name=ID)?;
 
 FQN: ID('.'ID)*;
 

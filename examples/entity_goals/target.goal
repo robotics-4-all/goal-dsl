@@ -1,55 +1,61 @@
-Broker<Redis> MyLocalRedis
+MQTT:
+    name: HomeMQTT
     host: 'localhost'
-    port: 6379
-    db: 0
-    auth: AuthPlain('', '')
-end
+    port: 1883
+    auth:
+        username: ''
+        password: ''
 
-
-Entity TempSensor1
+Entity:
+    name: TempSensor1
+    type: sensor
     topic: 'bedroom.sensor.temperature'
     attributes:
         - temp: float
-end
 
-Entity TempSensor2
+Entity:
+    name: TempSensor2
+    type: sensor
     topic: 'bathroom.sensor.temperature'
     attributes:
         - temp: float
-end
 
-Entity TempSensor3
+Entity:
+    name: TempSensor3
+    type: sensor
     topic: 'livingroom.sensor.temperature'
     attributes:
         - temp: float
-end
 
-Entity AirQualitySensor1
+Entity:
+    name: AirQualitySensor1
+    type: sensor
     topic: 'kitchen.sensor.airq'
     attributes:
         - gas: float
         - humidity: float
-end
 
 
-Goal<EntityStateChange> Goal_1
+Goal<EntityStateChange>:
+    name: Goal_1
     entity: TempSensor1
-end
 
 
-Goal<EntityStateCondition> Goal_2
-    condition: (AirQualitySensor1.gas < 10) AND (AirQualitySensor1.humidity < 30)
-end
+Goal<EntityStateCondition>:
+    name: Goal_2
+    condition:
+        (AirQualitySensor1.gas < 10) AND (AirQualitySensor1.humidity < 30)
 
 
-Goal<EntityStateCondition> Goal_3
+Goal<EntityStateCondition>:
+    name: Goal_3
     condition: ((TempSensor1.temp > 10) AND (TempSensor2.temp > 10))
         AND (TempSensor3.temp > 10)
-end
 
-
-Target MyAppTarget
-    goals: [Goal_1, Goal_2, Goal_3]
+Scenario:
+    name: MyTarget
+    goals:
+        - Goal_1 -> 0.5
+        - Goal_2 -> 0.25
+        - Goal_3 -> 0.25
     concurrent: True
-    middleware: MyLocalRedis
-end

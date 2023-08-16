@@ -6,7 +6,7 @@ import time_constraint
 
 
 Goal:
-    EntityStateGoal      |
+    EntityGoal           |
     AreaGoal             |
     PoseGoal             |
     PositionGoal         |
@@ -17,19 +17,15 @@ Goal:
 
 
 ComplexGoal:
-    'Goal<Complex>' name=ID
+    'Goal<Complex>:'
     (
-        ('goals:' '[' goals*=[Goal|FQN][','] ']')
+        ('name:' name=ID)
+        ('goals:' '-' goals*=[Goal:FQN|+pm:goals*]['-'])
         ('strategy:' algorithm=[ComplexGoalAlgorithmType])
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
         ('xAccomplished:' xAccomplished=INT)?
     )#
-    'end'
 ;
-
-// Follow this: https://github.com/textX/textX/blob/master/tests/functional/test_scoping/test_reference_to_buildin_attribute.py
-/* Assignment: goalRef=[Goal|FQN].goalParam */
-
 
 ComplexGoalAlgorithmType:
     'ALL_ACCOMPLISHED'               |

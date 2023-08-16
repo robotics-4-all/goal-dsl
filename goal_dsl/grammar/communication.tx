@@ -1,4 +1,4 @@
-MessageBroker:
+Broker:
     AMQPBroker |
     MQTTBroker |
     RedisBroker
@@ -8,38 +8,39 @@ MessageBroker:
 BrokerAuth: BrokerAuthPlain;
 
 BrokerAuthPlain:
-	'AuthPlain(' username=STRING ',' password=STRING ')'
+    'username:' username=STRING
+    'password:' password=STRING
 ;
 
 AMQPBroker:
-    'Broker<AMQP>' name=ID
+    'AMQP:'
     (
+        'name:' name=ID
         'host:' host=STRING
         'port:' port=INT
         'vhost:' vhost=STRING
         ('exchange:' exchange=STRING)?
         'auth:' auth=BrokerAuth
     )#
-    'end'
 ;
 
 MQTTBroker:
-    'Broker<MQTT>' name=ID
+    'MQTT:'
     (
+        'name:' name=ID
         'host:' host=STRING
         'port:' port=INT
         'auth:' auth=BrokerAuth
     )#
-    'end'
 ;
 
 RedisBroker:
-    'Broker<Redis>' name=ID
+    'Redis:'
     (
+        'name:' name=ID
         'host:' host=STRING
         'port:' port=INT
         ('db:' db=INT)?
         'auth:' auth=BrokerAuth
     )#
-    'end'
 ;
