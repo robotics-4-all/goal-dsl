@@ -53,7 +53,8 @@ Goal<EntityStateCondition>:
         AND (TempSensor3.temp > 10)
 
 Scenario:
-    name: MyTarget
+    name: MyScenario
+    broker: HomeMQTT
     goals:
         - Goal_1 -> 0.5
         - Goal_2 -> 0.25

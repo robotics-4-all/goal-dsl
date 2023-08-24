@@ -8,7 +8,7 @@ import entity
 
 GoalDSLModel:
     imports*=Import
-    (metadata=Metadata)
+    (metadata=Metadata)?
     (
         (brokers*=Broker)
         (entities*=Entity)
@@ -35,14 +35,13 @@ Scenario:
     (
         ('name:' name=ID)
         ('goals:' '-' goals*=WeightedGoal['-'])
-        ('scoreWeights:' '-' scoreWeights*=FLOAT['-'])?
         ('concurrent:' concurrent=BOOL)?
-        ('broker:' broker=[Broker])?
+        ('broker:' broker=[Broker:FQN|+m:brokers*])?
     )#
 ;
 
 WeightedGoal:
-    goal=[Goal:FQN|+pm:goals*] ('->' weight=FLOAT)?
+    goal=[Goal:FQN|+m:goals*] ('->' weight=FLOAT)?
 ;
 
 // Utilities ------------------------------------->

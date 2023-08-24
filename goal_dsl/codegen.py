@@ -4,6 +4,7 @@ import jinja2
 
 from goal_dsl.language import build_model
 from goal_dsl.definitions import THIS_DIR
+from goal_dsl.lib.condition import Condition
 
 THIS_DIR = path.abspath(path.dirname(__file__))
 
@@ -30,12 +31,15 @@ def generate(model_fpath: str,
     scenarios = model.scenarios
     for scenario in scenarios:
         broker = scenario.broker
-        goals = scenario.goals
-        set_defaults(scenario, broker, goals)
+        wgoals = scenario.goals
+
+        set_defaults(scenario, broker, wgoals)
         report_broker(broker)
         report_goals(scenario)
 
-        # goals = process_goals(target.goals)
+        goals = [goal.goal for goal in wgoals]
+
+        goals = process_goals(goals)
         #
         # out_file = path.join(out_dir, "goal_checker.py")
         # with open(path.join(out_file), 'w') as f:
@@ -51,21 +55,22 @@ def process_goals(goals):
         if goal.__class__.__name__ == 'EntityStateConditionGoal':
             cond_lambda = make_condition_lambda(goal.condition)
             goal.cond_lambda = cond_lambda
-        if goal.__class__.__name__ == 'EntityStateChangeGoal':
-            print(goal)
-        goal_max_min_duration_from_tc(goal)
-        if goal.__class__.__name__ == 'ComplexGoal':
+        elif goal.__class__.__name__ == 'EntityStateChangeGoal':
+            pass
+        elif goal.__class__.__name__ == 'ComplexGoal':
             process_goals(goal.goals)
+        else:
+            print(f'[X] {goal.__class__.__name__} not yet supported by the code generator!!')
+        goal_max_min_duration_from_tc(goal)
     return goals
 
 
-def set_defaults(target, broker, goals):
-    if target.concurrent is None:
-        target.concurrent = True
-    if target.scoreWeights is None:
-        target.scoreWeights = [1/len(target.goals)] * len(target.goals)
-    elif len(target.scoreWeights) == 0:
-        target.scoreWeights = [1/len(target.goals)] * len(target.goals)
+def set_defaults(scenario, broker, wgoals):
+    sweights = [goal.weight for goal in wgoals]
+    if 0 in sweights or len(sweights) == 0:
+        sweights = [1 / len(scenario.goals)] * len(scenario.goals)
+    if scenario.concurrent is None:
+        scenario.concurrent = True
 
 
 def goal_max_min_duration_from_tc(goal):
@@ -95,6 +100,10 @@ def to_python_op(op):
 
 
 def make_condition_lambda(condition):
+    cond = Condition(condition)
+    cond.build()
+    print(cond.cond_expr)
+    return cond.cond_expr
     expr = transform_condition(condition)
     return f'lambda msg: True if {expr} else False'
 
@@ -130,35 +139,37 @@ def condition_param_to_py_syntax(param):
     return sub_str
 
 
-def report_goals(target: list):
-    for goal in target.goals:
-        print(f'[*] - Found Goal of type <{goal.__class__.__name__}>')
+def report_goals(scenario: list):
+    for wgoal in scenario.goals:
+        goal = wgoal.goal
+        print(f'[*] {goal.name} -> {wgoal.weight}')
 
 
-def report_broker(middleware):
-    if middleware.__class__.__name__ == 'AMQPBroker':
-        print('[*] - Middleware == AMQP Broker')
-        print(f'-> host: {middleware.host}')
-        print(f'-> port: {middleware.port}')
-        print(f'-> vhost: {middleware.vhost}')
-        print(f'-> exchange: {middleware.exchange}')
-        print(f'-> username: {middleware.auth.username}')
-        print(f'-> password: {middleware.auth.password}')
-    elif middleware.__class__.__name__ == 'RedisBroker':
-        print('[*] - Middleware == Redis Broker')
-        print(f'-> host: {middleware.host}')
-        print(f'-> port: {middleware.port}')
-        print(f'-> db: {middleware.db}')
-        print(f'-> username: {middleware.auth.username}')
-        print(f'-> password: {middleware.auth.password}')
-    elif middleware.__class__.__name__ == 'MQTTBroker':
-        print('[*] - Middleware == MQTTBroker Broker')
-        print(f'-> host: {middleware.host}')
-        print(f'-> port: {middleware.port}')
-        print(f'-> username: {middleware.auth.username}')
-        print(f'-> password: {middleware.auth.password}')
+def report_broker(broker):
+    if broker.__class__.__name__ == 'AMQPBroker':
+        print('[*] AMQP Broker')
+        print(f' host: {broker.host}')
+        print(f' port: {broker.port}')
+        print(f' vhost: {broker.vhost}')
+        print(f' exchange: {broker.exchange}')
+        print(f' username: {broker.auth.username}')
+        print(f' password: {broker.auth.password}')
+    elif broker.__class__.__name__ == 'RedisBroker':
+        print('[*] Redis Broker')
+        print(f' host: {broker.host}')
+        print(f' port: {broker.port}')
+        print(f' db: {broker.db}')
+        print(f' username: {broker.auth.username}')
+        print(f' password: {broker.auth.password}')
+    elif broker.__class__.__name__ == 'MQTTBroker':
+        print('[*] MQTT Broker')
+        print(f' host: {broker.host}')
+        print(f' port: {broker.port}')
+        print(f' username: {broker.auth.username}')
+        print(f' password: {broker.auth.password}')
     else:
-        raise ValueError(f'Middleware class ({middleware}) not supported!!')
+        print(broker)
+        raise ValueError(f'broker class ({broker}) not supported!!')
 
 
 @generator('goal_dsl', 'python')
