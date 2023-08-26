@@ -11,8 +11,7 @@ PoseGoal:
         ('position:' position=Point)
         ('maxDeviationPos:' maxDeviationPos=NUMBER)
         ('maxDeviationOri:' maxDeviationOri=NUMBER)
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
-        ('listening:' listeningTopic=STRING)?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
 ;
 
@@ -23,7 +22,7 @@ OrientationGoal:
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('orientation:' orientation=Orientation)
         ('maxDeviation:' maxDeviation=NUMBER)
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
 ;
 
@@ -34,8 +33,7 @@ PositionGoal:
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('position:' point=Point)
         ('maxDeviation:' maxDeviation=NUMBER)
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
-        ('listening:' listeningTopic=STRING)?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
 ;
 

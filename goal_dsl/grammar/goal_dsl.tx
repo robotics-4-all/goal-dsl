@@ -4,6 +4,7 @@
 import communication
 import goal
 import entity
+import util
 
 
 GoalDSLModel:
@@ -39,22 +40,3 @@ Scenario:
         ('broker:' broker=[Broker:FQN|+m:brokers*])?
     )#
 ;
-
-WeightedGoal:
-    goal=[Goal:FQN|+m:goals*] ('->' weight=FLOAT)?
-;
-
-// Utilities ------------------------------------->
-
-Import: 'import' importURI=FQN ('as' name=ID)?;
-
-FQN: ID('.'ID)*;
-
-// Special rule for comments. Comments start with //
-Comment: CommentLine | CommentBlock ;
-
-CommentLine: /\/\/.*?$/;
-
-CommentBlock: /\/\*(.|\n)*?\*\//;
-
-// <-----------------------------------------------

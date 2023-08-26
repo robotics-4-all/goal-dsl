@@ -1,6 +1,7 @@
 import time_constraint
 import condition
 import entity
+import util
 
 
 EntityGoal: EntityStateChangeGoal | EntityStateConditionGoal;
@@ -10,7 +11,7 @@ EntityStateChangeGoal:
     (
         ('name:' name=ID)
         ('entity:' entity=[Entity:FQN|+m:entities*])
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
 ;
 
@@ -19,8 +20,6 @@ EntityStateConditionGoal:
     (
         ('name:' name=ID)
         ('condition:' condition=Condition)
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
 ;
-
-FQN: ID('.'ID)*;

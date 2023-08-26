@@ -1,0 +1,18 @@
+// Utilities ------------------------------------->
+
+FQN: ID('.'ID)*;
+
+NID: /(.*?)\n/;
+
+Import: 'import' importURI=FQN ('as' name=ID)?;
+
+
+// Special rule for comments. Comments start with //
+Comment: CommentLine | CommentBlock ;
+
+CommentLine: /\/\/.*?$/;
+
+CommentBlock: /\/\*(.|\n)*?\*\//;
+
+// <-----------------------------------------------
+

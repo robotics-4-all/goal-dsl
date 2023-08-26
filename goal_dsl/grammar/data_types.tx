@@ -1,3 +1,4 @@
+import util
 
 Point: Point2D | Point3D;
 Orientation: Orientation2D | Orientation3D;
@@ -44,5 +45,3 @@ DictItem:
 DictType:
     NUMBER | STRING | BOOL | Dict | List | OBJECT
 ;
-
-NID: /(.*?)\n/;

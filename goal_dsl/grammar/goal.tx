@@ -3,6 +3,7 @@ import area_goals
 import pose_goals
 import trajectory_goals
 import time_constraint
+import util
 
 
 Goal:
@@ -20,7 +21,7 @@ ComplexGoal:
     'Goal<Complex>:'
     (
         ('name:' name=ID)
-        ('goals:' '-' goals*=[Goal:FQN|+m:goals*]['-'])
+        ('goals:' '-' goals*=WeightedGoal['-'])
         ('strategy:' algorithm=[ComplexGoalAlgorithmType])
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
         ('xAccomplished:' xAccomplished=INT)?
@@ -34,5 +35,9 @@ ComplexGoalAlgorithmType:
     'EXACTLY_X_ACCOMPLISHED'         |
 	'ALL_ACCOMPLISHED_ORDERED'       |
     'EXACTLY_X_ACCOMPLISHED_ORDERED'
+;
+
+WeightedGoal:
+    goal=[Goal:FQN|+m:goals*] ('->' weight=FLOAT)?
 ;
 

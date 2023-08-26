@@ -1,5 +1,6 @@
 import entity
 import data_types
+import util
 
 // === Conditions ===
 // Condition: AdvancedCondition | PrimitiveCondition | ConditionGroup ;
@@ -170,6 +171,3 @@ ListOperator: '==' | '!=' | 'is' | 'is not' | 'in' | 'not in';
 DictOperator: '==' | '!=' | 'is' | 'is not';
 
 TimeOperator: '>=' | '>' | '<=' | '<' | '==' | '!=' | 'is not' | 'is';
-
-// === Fully Qualified Names Rule ===
-FQN: ID('.'ID)*;

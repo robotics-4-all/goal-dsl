@@ -1,6 +1,7 @@
 import entity
 import data_types
 import time_constraint
+import util
 
 
 AreaGoal:
@@ -21,7 +22,7 @@ RectangleAreaGoal:
         ('lengthX:' lengthX=NUMBER )
         ('lengthY:' lengthY=NUMBER )
         ('tag:' type=AreaGoalTag )
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' )?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#  // Any order
 ;
 
@@ -32,7 +33,7 @@ PolylineAreaGoal:
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('points:' '[' points+=Point[','] ']' )
         ('tag:' type=AreaGoalTag )
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' )?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#  // Any order
 ;
 
@@ -43,7 +44,7 @@ MovingAreaGoal:
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('radius:' radius=NUMBER )
         ('tag:' type=AreaGoalTag )
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' )?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#  // Any order
 ;
 
@@ -55,7 +56,7 @@ CircularAreaGoal:
         ('center:' center=Point)
         ('radius:' radius=NUMBER)
         ('tag:' type=AreaGoalTag)
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
 ;
 
@@ -67,10 +68,8 @@ CrossStraightLineGoal:
         ('startPoint:' startPoint=Point)
         ('endPoint:' endPoint=Point)
         ('tag:' type=AreaGoalTag)
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']' )?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
 ;
 
 AreaGoalTag: 'ENTER' | 'EXIT' | 'AVOID' | 'STEP';
-
-FQN: ID('.'ID)*;

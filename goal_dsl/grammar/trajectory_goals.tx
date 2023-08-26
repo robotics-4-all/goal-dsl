@@ -15,7 +15,7 @@ StraightLineTrajectoryGoal:
         ('startPoint:' startPoint=Point)
         ('finishPoint:' finishPoint=Point)
         ('maxDeviation:' maxDeviation=NUMBER)
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
 ;
 
@@ -26,7 +26,7 @@ WaypointTrajectoryGoal:
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('points:' '[' points+=Point[','] ']')
         ('maxDeviation:' maxDeviation=NUMBER)
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
 ;
 
