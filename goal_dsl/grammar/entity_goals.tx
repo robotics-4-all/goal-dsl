@@ -9,7 +9,7 @@ EntityStateChangeGoal:
     'Goal<EntityStateChange>:'
     (
         ('name:' name=ID)
-        ('entity:' entity=[Entity:FQN|+pm:entities*])
+        ('entity:' entity=[Entity:FQN|+m:entities*])
         ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
     )#
 ;

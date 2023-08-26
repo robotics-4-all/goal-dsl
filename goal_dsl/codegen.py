@@ -14,7 +14,7 @@ jinja_env = jinja2.Environment(
     trim_blocks=True,
     lstrip_blocks=True)
 
-template = jinja_env.get_template('template.tpl')
+template = jinja_env.get_template('scenario.tpl')
 
 srcgen_folder = path.join(path.realpath(getcwd()), 'gen')
 
@@ -29,6 +29,12 @@ def generate(model_fpath: str,
         mkdir(out_dir)
 
     scenarios = model.scenarios
+
+    entities = model.entities
+    for e in entities:
+        e.attr_list = [attr.name for attr in e.attributes]
+    entity_names = [e.name for e in entities]
+
     for scenario in scenarios:
         broker = scenario.broker
         wgoals = scenario.goals
@@ -40,14 +46,17 @@ def generate(model_fpath: str,
         goals = [goal.goal for goal in wgoals]
 
         goals = process_goals(goals)
-        #
-        # out_file = path.join(out_dir, "goal_checker.py")
-        # with open(path.join(out_file), 'w') as f:
-        #     f.write(template.render(broker=broker,
-        #                             target=target,
-        #                             goals=goals))
-        # chmod(out_file, 509)
-        # return out_dir
+        scenario.scoreWeights = [goal.weight for goal in wgoals]
+
+        out_file = path.join(out_dir, f"{scenario.name}.py")
+        with open(path.join(out_file), 'w') as f:
+            f.write(template.render(broker=broker,
+                                    scenario=scenario,
+                                    entities=entities,
+                                    entity_names=entity_names,
+                                    goals=goals))
+        chmod(out_file, 509)
+        return out_dir
 
 
 def process_goals(goals):
@@ -92,51 +101,11 @@ def goal_max_min_duration_from_tc(goal):
     goal.min_duration = min_duration
 
 
-def to_python_op(op):
-    if op == 'AND':
-        return 'and'
-    elif op == 'OR':
-        return 'or'
-
-
 def make_condition_lambda(condition):
     cond = Condition(condition)
     cond.build()
     print(cond.cond_expr)
     return cond.cond_expr
-    expr = transform_condition(condition)
-    return f'lambda msg: True if {expr} else False'
-
-
-def transform_condition(condition):
-    expr = ''
-    if condition.__class__.__name__ == "ConditionGroup":
-        r1 = transform_condition(condition.r1)
-        r2 = transform_condition(condition.r2)
-        op = condition.operator
-        expr = f'({r1} {to_python_op(op)} {r2})'
-    elif condition.__class__.__name__ == "StringCondition":
-        m = condition_param_to_py_syntax(condition.param)
-        if condition.operator in ('==', '!='):
-            # expr = f'msg["{condition.param}"] == "{condition.val}"'
-            # print(condition.param)
-            expr = f'{m} {condition.operator} "{condition.val}"'
-        elif condition.operator == '~':
-            expr = f'"{condition.val}" in {m}'
-        elif condition.operator == '!~':
-            expr = f'"{condition.val}" not in {m}'
-    elif condition.__class__.__name__ == "NumericCondition":
-        m = condition_param_to_py_syntax(condition.param)
-        expr = f'{m} {condition.operator} {condition.val}'
-    return expr
-
-
-def condition_param_to_py_syntax(param):
-    levels = param.name.split('.')
-    sub_str = 'msg'
-    for l in levels:
-        sub_str = sub_str + f'[\'{l}\']'
-    return sub_str
 
 
 def report_goals(scenario: list):

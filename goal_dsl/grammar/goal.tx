@@ -20,7 +20,7 @@ ComplexGoal:
     'Goal<Complex>:'
     (
         ('name:' name=ID)
-        ('goals:' '-' goals*=[Goal:FQN|+pm:goals*]['-'])
+        ('goals:' '-' goals*=[Goal:FQN|+m:goals*]['-'])
         ('strategy:' algorithm=[ComplexGoalAlgorithmType])
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
         ('xAccomplished:' xAccomplished=INT)?

@@ -1,28 +1,49 @@
 #!/usr/bin/env python3
 
-from goalee import Target, Redisbroker
-from goalee.topic_goals import *
+from goalee import Scenario, Redisbroker, MQTTBroker, AMQPBroker
+from goalee.entity_goals import (
+    EntityStateChangeGoal, EntityStateConditionGoal
+)
+from goalee.entity import Entity
+
 from goalee.area_goals import *
 from goalee.complex_goal import *
 from goalee.types import Point
 
 
+{% if broker.__class__.__name__ == 'AMQPBroker' %}
+broker = AMQPBroker()
+{% elif broker.__class__.__name__ == 'RedisBroker' %}
+broker = RedisBroker()
+{% elif broker.__class__.__name__ == 'MQTTBroker' %}
+broker = MQTTBroker()
+{% endif %}
+
+
+{% for entity in entities %}
+{{ entity.name }} = Entity(
+    name='{{ entity.name }}',
+    etype='{{ entity.etype }}',
+    topic='{{ entity.topic }}',
+    attributes={{ entity.attr_list }},
+    # broker=broker
+)
+{% endfor %}
+
+
 if __name__ == '__main__':
-    {% if broker.__class__.__name__ == 'AMQPBroker' %}
-    broker = AMQPbroker()
-    {% elif broker.__class__.__name__ == 'RedisBroker' %}
-    broker = Redisbroker()
-    {% endif %}
-    t = Target(
-        name='{{ target.name }}',
+    t = Scenario(
+        name='{{ scenario.name }}',
         broker=broker,
-        score_weights={{ target.scoreWeights }}
+        score_weights={{ scenario.scoreWeights }}
     )
 
     {% for goal in goals %}
     {% if goal.__class__.__name__ == 'EntityStateConditionGoal' %}
     g = EntityStateConditionGoal(
-        condition={{goal.cond_lambda}},
+        name='{{ goal.name }}',
+        entities={{ entity_names }},
+        condition=lambda entities: {{goal.cond_lambda}},
         duration=({{ goal.min_duration }}, {{ goal.max_duration }}),
     )
 
@@ -90,7 +111,7 @@ if __name__ == '__main__':
     t.add_goal(g)
     {% endfor %}
 
-    {% if target.concurrent == True %}
+    {% if scenario.concurrent == True %}
     t.run_concurrent()
     {% else %}
     t.run_seq()

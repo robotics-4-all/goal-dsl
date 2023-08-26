@@ -96,27 +96,27 @@ class Condition(object):
                     f"get_buffer('{attr_ref.name}')"
             else:
                 val = f"entities['{entity_ref.name}']." + \
-                        f"attributes['{attr_ref.name}'].value"
+                        f"attributes['{attr_ref.name}']"
         elif aattr.__class__.__name__ == 'SimpleBoolAttr':
             attr_ref = aattr.attribute
             entity_ref = aattr.attribute.parent
             val = f"entities['{entity_ref.name}']." + \
-                    f"attributes['{attr_ref.name}'].value"
+                    f"attributes['{attr_ref.name}']"
         elif aattr.__class__.__name__ == 'SimpleStringAttr':
             attr_ref = aattr.attribute
             entity_ref = aattr.attribute.parent
             val = f"entities['{entity_ref.name}']." + \
-                    f"attributes['{attr_ref.name}'].value"
+                    f"attributes['{attr_ref.name}']"
         elif aattr.__class__.__name__ == 'SimpleDictAttr':
             attr_ref = aattr.attribute
             entity_ref = aattr.attribute.parent
             val = f"entities['{entity_ref.name}']." + \
-                    f"attributes['{attr_ref.name}'].value"
+                    f"attributes['{attr_ref.name}']"
         elif aattr.__class__.__name__ == 'SimpleListAttr':
             attr_ref = aattr.attribute
             entity_ref = aattr.attribute.parent
             val = f"entities['{entity_ref.name}']." + \
-                    f"attributes['{attr_ref.name}'].value"
+                    f"attributes['{attr_ref.name}']"
         elif aattr.__class__.__name__ in 'StdAttr':
             val = f"std({Condition.transform_augmented_attr(aattr.attribute)})"
         elif aattr.__class__.__name__ == 'MeanAttr':

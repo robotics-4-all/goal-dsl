@@ -1,0 +1,35 @@
+MQTT:
+    name: HomeMQTT
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+
+Entity:
+    name: TempSensor1
+    type: sensor
+    topic: 'bedroom.sensor.temperature'
+    attributes:
+        - temp: float
+
+Entity:
+    name: AirQualitySensor1
+    type: sensor
+    topic: 'kitchen.sensor.airq'
+    attributes:
+        - gas: float
+        - humidity: float
+
+
+Goal<EntityStateCondition>:
+    name: Goal_1
+    condition:
+        (AirQualitySensor1.gas < 10) AND (AirQualitySensor1.humidity < 30)
+
+Scenario:
+    name: E_2_G_1
+    broker: HomeMQTT
+    goals:
+        - Goal_1
+    concurrent: True
