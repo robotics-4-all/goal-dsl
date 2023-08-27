@@ -6,7 +6,6 @@ MQTT:
         username: ''
         password: ''
 
-
 Entity:
     name: TemperatureSensorList
     type: sensor

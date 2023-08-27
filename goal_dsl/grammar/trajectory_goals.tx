@@ -1,6 +1,7 @@
 import time_constraint
 import data_types
 import entity
+import util
 
 TrajectoryGoal:
     StraightLineTrajectoryGoal  |
@@ -29,5 +30,3 @@ WaypointTrajectoryGoal:
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
 ;
-
-FQN: ID('.'ID)*;
