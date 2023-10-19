@@ -1,0 +1,55 @@
+MQTT:
+    name: HomeMQTT
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+
+Entity:
+    name: TempSensor1
+    type: sensor
+    topic: 'bedroom.sensor.temperature'
+    attributes:
+        - temp: float
+
+Entity:
+    name: TempSensor2
+    type: sensor
+    topic: 'bedroom.sensor.temperature'
+    attributes:
+        - temp: float
+
+Entity:
+    name: TempSensor3
+    type: sensor
+    topic: 'bedroom.sensor.temperature'
+    attributes:
+        - temp: float
+
+
+Goal<EntityStateCondition>:
+    name: Goal_1
+    condition:
+        (TempSensor1.temp < 10) OR (TempSensor1.temp > 30)
+
+
+Goal<EntityStateCondition>:
+    name: Goal_2
+    condition:
+        (TempSensor1.temp < 10) OR (TempSensor1.temp > 30)
+
+Goal<EntityStateCondition>:
+    name: Goal_3
+    condition:
+        (TempSensor1.temp < 10) OR (TempSensor1.temp > 30)
+
+
+Scenario:
+    name: E_3_G_3
+    broker: HomeMQTT
+    goals:
+        - Goal_1
+        - Goal_2
+        - Goal_3
+    concurrent: True

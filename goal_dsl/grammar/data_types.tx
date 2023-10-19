@@ -1,3 +1,4 @@
+import util
 
 Point: Point2D | Point3D;
 Orientation: Orientation2D | Orientation3D;
@@ -18,3 +19,29 @@ Orientation3D:
     'Orientation3D' '(' x=NUMBER ',' y=NUMBER ',' z=NUMBER ')'
 ;
 
+
+Time:
+    hour=INT ':' minute=INT (':' second=INT)?
+;
+
+Date: month=INT ':' day=INT ':' year=INT;
+
+List:
+    '[' items*=ListItem[','] ']'
+;
+
+ListItem:
+    NUMBER | STRING | BOOL | List | Dict | OBJECT
+;
+
+Dict:
+    '{' items*=DictItem[','] '}'
+;
+
+DictItem:
+    name=STRING ':' value=DictType
+;
+
+DictType:
+    NUMBER | STRING | BOOL | Dict | List | OBJECT
+;

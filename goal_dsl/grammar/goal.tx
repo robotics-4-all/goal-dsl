@@ -3,10 +3,11 @@ import area_goals
 import pose_goals
 import trajectory_goals
 import time_constraint
+import util
 
 
 Goal:
-    EntityStateGoal      |
+    EntityGoal           |
     AreaGoal             |
     PoseGoal             |
     PositionGoal         |
@@ -17,19 +18,15 @@ Goal:
 
 
 ComplexGoal:
-    'Goal<Complex>' name=ID
+    'Goal<Complex>:'
     (
-        ('goals:' '[' goals*=[Goal|FQN][','] ']')
+        ('name:' name=ID)
+        ('goals:' '-' goals*=WeightedGoal['-'])
         ('strategy:' algorithm=[ComplexGoalAlgorithmType])
-        ('timeConstraints:' '[' timeConstraints*=TimeConstraint[','] ']')?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
         ('xAccomplished:' xAccomplished=INT)?
     )#
-    'end'
 ;
-
-// Follow this: https://github.com/textX/textX/blob/master/tests/functional/test_scoping/test_reference_to_buildin_attribute.py
-/* Assignment: goalRef=[Goal|FQN].goalParam */
-
 
 ComplexGoalAlgorithmType:
     'ALL_ACCOMPLISHED'               |
@@ -38,5 +35,9 @@ ComplexGoalAlgorithmType:
     'EXACTLY_X_ACCOMPLISHED'         |
 	'ALL_ACCOMPLISHED_ORDERED'       |
     'EXACTLY_X_ACCOMPLISHED_ORDERED'
+;
+
+WeightedGoal:
+    goal=[Goal:FQN|+m:goals*] ('->' weight=FLOAT)?
 ;
 

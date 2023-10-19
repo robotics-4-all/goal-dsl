@@ -1,55 +1,120 @@
 import communication
+import data_types
+import util
 
 Entity:
-    'Entity' name=ID
+    'Entity:'
         (
-        'topic:' topic=STRING
-        'attributes:'
-            ('-' attributes*=Attribute['-'])?
-        )#
-    'end'
+			('name:' name=ID)
+			('type:' etype=EntityType)
+			('topic:' topic=STRING)
+			('freq:' freq=NUMBER)?
+			('broker:' broker=[Broker])?
+			('attributes:' '-' attributes*=Attribute['-'])
+		)#
 ;
 
 EntityType:
-    'Producer' |
-    'Consumer'
+    'sensor'    |
+    'actuator'  |
+    'hybrid'
 ;
 
 Attribute:
-    NumericAttribute  |
-    BoolAttribute     |
-    StringAttribute   |
-    ListAttribute     |
+    NumericAttribute    |
+    BoolAttribute       |
+    StringAttribute     |
+    TimeAttribute       |
+    ListAttribute       |
     DictAttribute
 ;
 
 NumericAttribute:
-    IntAttribute    |
-    FloatAttribute
+    IntAttribute | FloatAttribute
 ;
 
 IntAttribute:
-    name=ID ':' 'int'
+    name=ID ':' 'int' ('=' default=INT)?
+        ('->' generator=NumericValueGen ('with noise' noise=Noise)?)?
 ;
 
 FloatAttribute:
-    name=ID ':' 'float'
+    name=ID ':' 'float' ('=' default=FLOAT)?
+        ('->' generator=NumericValueGen ('with noise' noise=Noise)?)?
 ;
 
 StringAttribute:
-    name=ID ':' 'str'
+    name=ID ':' 'str' ('=' default=STRING)?
 ;
 
 BoolAttribute:
-    name=ID ':' 'bool'
+    name=ID ':' 'bool' ('=' default=BOOL)?
+        ('->' generator=BooleanValueGen)?
 ;
 
 ListAttribute:
-    name=ID ':' 'list'
+    name=ID ':' 'list' ('=' '[' default*=Attribute[','] ']')?
+        ('->' generator=ListValueGen)?
 ;
 
 DictAttribute:
-    name=ID ':' '{'
-        items*=Attribute
-        '}'
+    name=ID ':' 'dict' ('=' '{' items*=Attribute[','] '}')?
+        ('->' generator=DictValueGen)?
+;
+
+TimeAttribute:
+    name=ID ':' 'time' ('=' default=Time)?
+;
+
+
+NumericValueGen:
+    ConstantFun     |
+    LinearFun       |
+    SawFun			|
+    GaussianFun     |
+    ReplayFun       |
+    ReplayFileFun
+;
+
+BooleanValueGen: ReplayFun | ReplayFileFun;
+
+ListValueGen: ReplayFun | ReplayFileFun;
+
+DictValueGen: ReplayFun | ReplayFileFun;
+
+GaussianFun:
+    'gaussian' '(' value=NUMBER ',' maxValue=NUMBER ',' sigma=NUMBER ')'
+;
+
+ConstantFun:
+    'constant' '(' value=NUMBER ')'
+;
+
+LinearFun:
+    'linear' '(' start=NUMBER ',' step=NUMBER ')'
+;
+
+SawFun:
+    'saw' '(' min=NUMBER ',' max=NUMBER ',' step=NUMBER ')'
+;
+
+// το concept είναι ότι θες να δίνεις συγκεκριμένα patterns ή έχεις κρατήσει
+// τιμές από πραγματικούς αισθητήρες και θες να τις αναπαράγεις
+ReplayFun:
+    'replay' '(' '[' values*=BASETYPE[','] ']' ',' times=INT ')'
+;
+
+ReplayFileFun:
+    'replay' '(' filepath=STRING ')'
+;
+
+
+Noise: UniformNoise | GaussianNoise;
+
+UniformNoise:
+    'uniform' '(' min=NUMBER ',' max=NUMBER ')'
+;
+
+GaussianNoise:
+    'gaussian' '(' mu=NUMBER ',' sigma=NUMBER ')'
 ;

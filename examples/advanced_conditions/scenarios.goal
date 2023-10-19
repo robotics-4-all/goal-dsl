@@ -1,0 +1,29 @@
+import entities.goal
+
+MQTT:
+    name: HomeMQTT
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+
+Goal<EntityStateChange>:
+    name: Goal_1
+    entity: TempSensor1
+
+
+Goal<EntityStateCondition>:
+    name: Goal_2
+    condition:
+        (mean(TempSensor1.temp, 10) > 0.5 ) AND
+            (mean(TempSensor2.temp, 10) > 30)
+
+
+Scenario:
+    name: MyTarget
+    goals:
+        - Goal_1 -> 0.6
+        - Goal_2 -> 0.4
+    concurrent: True
+    broker: HomeMQTT

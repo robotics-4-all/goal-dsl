@@ -4,42 +4,39 @@
 import communication
 import goal
 import entity
+import util
 
 
 GoalDSLModel:
     imports*=Import
+    (metadata=Metadata)?
     (
-        (target=Target)?
+        (brokers*=Broker)
         (entities*=Entity)
         (goals*=Goal)
-        (middleware*=MessageBroker)
-    )#  // Any order
-;
-
-
-Target:
-    'Target' name=ID
-    (
-        ('goals:' '[' goals*=[Goal|FQN][','] ']')
-        ('middleware:' middleware=[MessageBroker])
-        ('scoreWeights:' '[' scoreWeights*=FLOAT[','] ']')?
-        ('concurrent:' concurrent=BOOL)?
+        (scenarios*=Scenario)
     )#
-    'end'
 ;
 
 
-// Utilities ------------------------------------->
+Metadata:
+    'Metadata:'
+    (
+        ('name:' name=ID)
+        ('version:' version=STRING)
+        ('author:' author=STRING)?
+        ('email:' email=STRING)?
+        ('description:' description=STRING)?
+    )#
+;
 
-Import: 'import' importURI=FQN ('as' name=ID)? ';';
 
-FQN: ID('.'ID)*;
-
-// Special rule for comments. Comments start with //
-Comment: CommentLine | CommentBlock ;
-
-CommentLine: /\/\/.*?$/;
-
-CommentBlock: /\/\*(.|\n)*?\*\//;
-
-// <-----------------------------------------------
+Scenario:
+    'Scenario:'
+    (
+        ('name:' name=ID)
+        ('goals:' '-' goals*=WeightedGoal['-'])
+        ('concurrent:' concurrent=BOOL)?
+        ('broker:' broker=[Broker:FQN|+m:brokers*])?
+    )#
+;

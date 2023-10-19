@@ -44,8 +44,7 @@ Goal<EntityStateChange>:
 Goal<EntityStateCondition>:
     name: Goal_2
     condition:
-        (AirQualitySensor1.gas < 10) AND
-        (AirQualitySensor1.humidity < 30)
+        (AirQualitySensor1.gas < 10) AND (AirQualitySensor1.humidity < 30)
 
 
 Goal<EntityStateCondition>:
@@ -53,18 +52,11 @@ Goal<EntityStateCondition>:
     condition: ((TempSensor1.temp > 10) AND (TempSensor2.temp > 10))
         AND (TempSensor3.temp > 10)
 
-
-Goal<Complex>:
-    name: CG1
-    goals:
-        - Goal_1
-        - Goal_2
-        - Goal_3
-    strategy: ALL_ACCOMPLISHED_ORDERED
-
-
 Scenario:
     name: MyScenario
+    broker: HomeMQTT
     goals:
-        - CG1
-    concurrent: False
+        - Goal_1 -> 0.5
+        - Goal_2 -> 0.25
+        - Goal_3 -> 0.25
+    concurrent: True
