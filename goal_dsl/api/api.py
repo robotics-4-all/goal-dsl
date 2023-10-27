@@ -11,17 +11,42 @@ import tarfile
 from goal_dsl.language import build_model
 from goal_dsl.codegen import generate as generate_model
 
-from fastapi import FastAPI, File, UploadFile, status
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi import FastAPI, File, UploadFile, status, HTTPException, Security
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import APIKeyHeader
 
 HAS_DOCKER_EXEC = os.getenv("HAS_DOCKER_EXEC", False)
+API_KEY = os.getenv("API_KEY", "API_KEY")
+TMP_DIR = '/tmp/goaldsl'
+
+
+if not os.path.exists(TMP_DIR):
+    os.mkdir(TMP_DIR)
+
 
 if HAS_DOCKER_EXEC:
     import docker
     docker_client = docker.from_env()
 
+
+api_keys = [
+    API_KEY
+]
+
+api_key_header = APIKeyHeader(name="X-API-Key")
+
+def get_api_key(api_key_header: str = Security(api_key_header)) -> str:
+    if api_key_header in api_keys:
+        return api_key_header
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or missing API Key",
+    )
+
+
 api = FastAPI()
+
 api.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -29,13 +54,6 @@ api.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-TMP_DIR = '/tmp/goaldsl'
-
-
-if not os.path.exists(TMP_DIR):
-    os.mkdir(TMP_DIR)
 
 
 @api.get("/", response_class=HTMLResponse)
@@ -63,7 +81,8 @@ img{
 
 
 @api.post("/validate/file")
-async def validate_file(file: UploadFile = File(...)):
+async def validate_file(file: UploadFile = File(...),
+                        api_key: str = Security(get_api_key)):
     print(f'Validation for request: file=<{file.filename}>,' + \
           f' descriptor=<{file.file}>')
     resp = {
@@ -87,7 +106,8 @@ async def validate_file(file: UploadFile = File(...)):
 
 
 @api.get("/validate/base64")
-async def validate_b64(fenc: str = ''):
+async def validate_b64(fenc: str = '',
+                       api_key: str = Security(get_api_key)):
     if len(fenc) == 0:
         return 404
     resp = {
@@ -111,7 +131,8 @@ async def validate_b64(fenc: str = ''):
 
 
 @api.post("/generate")
-async def generate(model_file: UploadFile = File(...)):
+async def generate(model_file: UploadFile = File(...),
+                   api_key: str = Security(get_api_key)):
     print(f'Generate for request: file=<{model_file.filename}>,' + \
           f' descriptor=<{model_file.file}>')
     resp = {
@@ -151,7 +172,8 @@ if HAS_DOCKER_EXEC:
     @api.post("/execute")
     async def execute(model_file: UploadFile = File(...),
                       container: str = 'subprocess',
-                      wait: bool = False):
+                      wait: bool = False,
+                      api_key: str = Security(get_api_key)):
         print(f'Run/Execute for request: file=<{model_file.filename}>,' + \
               f' descriptor=<{model_file.file}>')
         resp = {
