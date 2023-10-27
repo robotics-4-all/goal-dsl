@@ -15,12 +15,14 @@ from fastapi import FastAPI, File, UploadFile, status
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+HAS_DOCKER_EXEC = os.getenv("HAS_DOCKER_EXEC", False)
+
 if HAS_DOCKER_EXEC:
     import docker
     docker_client = docker.from_env()
 
-http_api = FastAPI()
-http_api.add_middleware(
+api = FastAPI()
+api.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
@@ -36,7 +38,7 @@ if not os.path.exists(TMP_DIR):
     os.mkdir(TMP_DIR)
 
 
-@http_api.get("/", response_class=HTMLResponse)
+@api.get("/", response_class=HTMLResponse)
 async def root():
     return """
 <html>
@@ -60,7 +62,7 @@ img{
     """
 
 
-@http_api.post("/validate/file")
+@api.post("/validate/file")
 async def validate_file(file: UploadFile = File(...)):
     print(f'Validation for request: file=<{file.filename}>,' + \
           f' descriptor=<{file.file}>')
@@ -84,7 +86,7 @@ async def validate_file(file: UploadFile = File(...)):
     return resp
 
 
-@http_api.get("/validate/base64")
+@api.get("/validate/base64")
 async def validate_b64(fenc: str = ''):
     if len(fenc) == 0:
         return 404
@@ -108,7 +110,7 @@ async def validate_b64(fenc: str = ''):
     return resp
 
 
-@http_api.post("/generate")
+@api.post("/generate")
 async def generate(model_file: UploadFile = File(...)):
     print(f'Generate for request: file=<{model_file.filename}>,' + \
           f' descriptor=<{model_file.file}>')
@@ -146,7 +148,7 @@ async def generate(model_file: UploadFile = File(...)):
 
 
 if HAS_DOCKER_EXEC:
-    @http_api.post("/execute")
+    @api.post("/execute")
     async def execute(model_file: UploadFile = File(...),
                       container: str = 'subprocess',
                       wait: bool = False):
