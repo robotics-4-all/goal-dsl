@@ -5,9 +5,8 @@ import util
 
 
 PoseGoal:
-    'Goal<Pose>:'
+    'Goal<Pose>' name=ID
     (
-        ('name:' name=ID)
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('orientation:' orientation=Orientation)
         ('position:' position=Point)
@@ -15,26 +14,27 @@ PoseGoal:
         ('maxDeviationOri:' maxDeviationOri=NUMBER)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
+    'end'
 ;
 
 OrientationGoal:
-    'Goal<Orientation>:'
+    'Goal<Orientation>' name=ID
     (
-        ('name:' name=ID)
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('orientation:' orientation=Orientation)
         ('maxDeviation:' maxDeviation=NUMBER)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
+    'end'
 ;
 
 PositionGoal:
-    'Goal<Position>:'
+    'Goal<Position>' name=ID
     (
-        ('name:' name=ID)
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('position:' point=Point)
         ('maxDeviation:' maxDeviation=NUMBER)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
+    'end'
 ;

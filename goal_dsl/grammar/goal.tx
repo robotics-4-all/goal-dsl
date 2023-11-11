@@ -18,14 +18,14 @@ Goal:
 
 
 ComplexGoal:
-    'Goal<Complex>:'
+    'Goal<Complex>' name=ID
     (
-        ('name:' name=ID)
         ('goals:' '-' goals*=WeightedGoal['-'])
         ('strategy:' algorithm=[ComplexGoalAlgorithmType])
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
         ('xAccomplished:' xAccomplished=INT)?
     )#
+    'end'
 ;
 
 ComplexGoalAlgorithmType:

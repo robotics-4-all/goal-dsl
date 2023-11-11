@@ -9,24 +9,24 @@ TrajectoryGoal:
 ;
 
 StraightLineTrajectoryGoal:
-    'Goal<StraightLineTrajectory>:'
+    'Goal<StraightLineTrajectory>' name=ID
     (
-        ('name:' name=ID)
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('startPoint:' startPoint=Point)
         ('finishPoint:' finishPoint=Point)
         ('maxDeviation:' maxDeviation=NUMBER)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
+    'end'
 ;
 
 WaypointTrajectoryGoal:
-    'Goal<WaypointTrajectory>:'
+    'Goal<WaypointTrajectory>' name=ID
     (
-        ('name:' name=ID)
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('points:' '[' points+=Point[','] ']')
         ('maxDeviation:' maxDeviation=NUMBER)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
+    'end'
 ;

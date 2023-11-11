@@ -7,19 +7,19 @@ import util
 EntityGoal: EntityStateChangeGoal | EntityStateConditionGoal;
 
 EntityStateChangeGoal:
-    'Goal<EntityStateChange>:'
+    'Goal<EntityStateChange>' name=ID
     (
-        ('name:' name=ID)
         ('entity:' entity=[Entity:FQN|+m:entities*])
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
+    'end'
 ;
 
 EntityStateConditionGoal:
-    'Goal<EntityStateCondition>:'
+    'Goal<EntityStateCondition>' name=ID
     (
-        ('name:' name=ID)
         ('condition:' condition=Condition)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
+    'end'
 ;

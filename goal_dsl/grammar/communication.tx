@@ -1,46 +1,63 @@
-Broker:
-    AMQPBroker |
-    MQTTBroker |
-    RedisBroker
+MessageBroker:
+    AMQPBroker | MQTTBroker | RedisBroker
 ;
 
 
-BrokerAuth: BrokerAuthPlain;
+BrokerConnection:
+    'ref' ':' ref=[MessageBroker:FQN]
+    'auth' ':' auth=Authentication
+;
 
-BrokerAuthPlain:
-    'username:' username=STRING
-    'password:' password=STRING
+
+Authentication: AuthPlain | AuthApiKey | AuthCert;
+
+AuthPlain:
+    'username' ':' username=STRING
+    'password' ':' password=STRING
+;
+
+AuthApiKey:
+    'key' ':' key=STRING
+;
+
+AuthCert:
+    ('cert' ':' cert=STRING) | ('certPath' ':' certPath=STRING)
 ;
 
 AMQPBroker:
-    'AMQP:'
+    'Broker<AMQP>' name=ID
     (
-        'name:' name=ID
-        'host:' host=STRING
-        'port:' port=INT
-        'vhost:' vhost=STRING
-        ('exchange:' exchange=STRING)?
-        'auth:' auth=BrokerAuth
+        ('host:' host=STRING)
+        ('port:' port=INT)
+        ('vhost:' vhost=STRING)?
+        ('topicExchange:' topicE=STRING)?
+        ('rpcExchange:' rpcE=STRING)?
+        ('ssl' ':' ssl=BOOL)?
+        ('auth' ':' auth=Authentication)?
     )#
+    'end'
 ;
 
 MQTTBroker:
-    'MQTT:'
+    'Broker<MQTT>' name=ID
     (
-        'name:' name=ID
-        'host:' host=STRING
-        'port:' port=INT
-        'auth:' auth=BrokerAuth
+        ('host:' host=STRING)
+        ('port:' port=INT)
+        ('ssl' ':' ssl=BOOL)?
+        ('auth' ':' auth=Authentication)?
     )#
+    'end'
 ;
 
 RedisBroker:
-    'Redis:'
+    'Broker<Redis>' name=ID
     (
-        'name:' name=ID
-        'host:' host=STRING
-        'port:' port=INT
+        ('host:' host=STRING)
+        ('port:' port=INT)
         ('db:' db=INT)?
-        'auth:' auth=BrokerAuth
+        ('ssl' ':' ssl=BOOL)?
+        ('auth' ':' auth=Authentication)?
     )#
+    'end'
 ;
+
