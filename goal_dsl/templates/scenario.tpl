@@ -72,7 +72,7 @@ if __name__ == '__main__':
         duration=({{ goal.min_duration }}, {{ goal.max_duration }}),
     )
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
-    g = ComplexGoal(
+    cg = ComplexGoal(
         {% if goal.algorithm.__class__.__name__ == 'ALL_ACCOMPLISHED'%}
         algorithm=ComplexGoalAlgorithm.ALL_ACCOMPLISHED,
         {% elif goal.algorithm.__class__.__name__ == 'NONE_ACCOMPLISHED'%}
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     {% for goal in goal.goals %}
     {% if goal.__class__.__name__ == 'EntityStateConditionGoal' %}
     g = EntityStateConditionGoal(
-        condition={{goal.cond_lambda}},
+        condition="{{goal.cond_lambda}}",
         duration=({{ goal.min_duration }}, {{ goal.max_duration }}),
     )
 
@@ -104,11 +104,11 @@ if __name__ == '__main__':
         duration=({{ goal.min_duration }}, {{ goal.max_duration }}),
     )
     {% endif %}
-    g.add_goal(gs)
+    cg.add_goal(g)
     {% endfor %}
     ## More Goals to Generate here
     {% endif %}
-    t.add_goal(g)
+    t.add_goal(cg)
     {% endfor %}
 
     {% if scenario.concurrent == True %}

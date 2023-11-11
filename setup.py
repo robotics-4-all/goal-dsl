@@ -2,18 +2,22 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
-this_dir = os.path.abspath(os.path.dirname(__file__))
+THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 
-VERSIONFILE = os.path.join(this_dir, "goal_dsl", "__init__.py")
+VERSIONFILE = os.path.join(THIS_DIR, "goal_dsl", "__init__.py")
 VERSION = None
 for line in open(VERSIONFILE, "r").readlines():
     if line.startswith('__version__'):
-        VERSION = line.split('"')[1]
+        VERSION = line.split('\"')[1]
 
 if not VERSION:
-    raise RuntimeError('No version defined in goal_dsl.__init__.py')
+    raise RuntimeError('No version defined in smauto.__init__.py')
+
+
+with open('requirements.txt') as f:
+    required = f.read().splitlines()
 
 
 if sys.argv[-1].startswith('publish'):
@@ -34,4 +38,14 @@ if sys.argv[-1].startswith('publish'):
     sys.exit()
 
 
-setup(version=VERSION)
+setup(
+    package_data={'': ['*.tx']},
+    keywords='goaldsl',
+    name='goaldsl',
+    packages=find_packages(include=['goal_dsl', 'goal_dsl.*']),
+    install_requires=required,
+    test_suite='tests',
+    url='https://github.com/robotics-4-all/goal-dsl',
+    version=VERSION,
+    zip_safe=False,
+)

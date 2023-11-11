@@ -47,6 +47,7 @@ def generate(model_fpath: str,
 
         goals = process_goals(goals)
         scenario.scoreWeights = [goal.weight for goal in wgoals]
+        print(goals)
 
         out_file = path.join(out_dir, f"{scenario.name}.py")
         with open(path.join(out_file), 'w') as f:
@@ -60,18 +61,26 @@ def generate(model_fpath: str,
 
 
 def process_goals(goals):
+    _goals = []
     for goal in goals:
+        if goal.__class__.__name__ == 'WeightedGoal':
+            goal = goal.goal
+        print(goal)
         if goal.__class__.__name__ == 'EntityStateConditionGoal':
             cond_lambda = make_condition_lambda(goal.condition)
             goal.cond_lambda = cond_lambda
+            print(cond_lambda)
         elif goal.__class__.__name__ == 'EntityStateChangeGoal':
             pass
         elif goal.__class__.__name__ == 'ComplexGoal':
-            process_goals(goal.goals)
+            _cgoals = process_goals(goal.goals)
+            _goals.append(_cgoals)
+            goal.goals = _cgoals
         else:
             print(f'[X] {goal.__class__.__name__} not yet supported by the code generator!!')
         goal_max_min_duration_from_tc(goal)
-    return goals
+        _goals.append(goal)
+    return _goals
 
 
 def set_defaults(scenario, broker, wgoals):
