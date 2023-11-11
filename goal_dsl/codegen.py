@@ -65,11 +65,9 @@ def process_goals(goals):
     for goal in goals:
         if goal.__class__.__name__ == 'WeightedGoal':
             goal = goal.goal
-        print(goal)
         if goal.__class__.__name__ == 'EntityStateConditionGoal':
             cond_lambda = make_condition_lambda(goal.condition)
             goal.cond_lambda = cond_lambda
-            print(cond_lambda)
         elif goal.__class__.__name__ == 'EntityStateChangeGoal':
             pass
         elif goal.__class__.__name__ == 'ComplexGoal':
