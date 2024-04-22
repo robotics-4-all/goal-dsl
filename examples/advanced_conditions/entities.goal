@@ -1,28 +1,28 @@
-Entity:
-    name: TempSensor1
+Entity TempSensor1
     type: sensor
     topic: 'bedroom.temperature'
     attributes:
         - temp: float
+end
 
-Entity:
-    name: TempSensor2
+Entity TempSensor2
     type: sensor
     topic: 'bathroom.temperature'
     attributes:
         - temp: float
+end
 
-Entity:
-    name: TempSensor3
+Entity TempSensor3
     type: sensor
     topic: 'livingroom.temperature'
     attributes:
         - temp: float
+end
 
-Entity:
-    name: AirQualitySensor1
+Entity AirQualitySensor1
     type: sensor
     topic: 'kitchen.airq'
     attributes:
         - gas: float
         - humidity: float
+end

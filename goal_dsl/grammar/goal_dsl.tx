@@ -20,23 +20,23 @@ GoalDSLModel:
 
 
 Metadata:
-    'Metadata:'
+    'Metadata' name=ID
     (
-        ('name:' name=ID)
         ('version:' version=STRING)
         ('author:' author=STRING)?
         ('email:' email=STRING)?
         ('description:' description=STRING)?
     )#
+    'end'
 ;
 
 
 Scenario:
-    'Scenario:'
+    'Scenario' name=ID
     (
-        ('name:' name=ID)
         ('goals:' '-' goals*=WeightedGoal['-'])
         ('concurrent:' concurrent=BOOL)?
         ('broker:' broker=[Broker:FQN|+m:brokers*])?
     )#
+    'end'
 ;

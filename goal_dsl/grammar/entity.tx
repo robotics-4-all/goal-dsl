@@ -3,15 +3,15 @@ import data_types
 import util
 
 Entity:
-    'Entity:'
+    'Entity' name=ID
         (
-			('name:' name=ID)
 			('type:' etype=EntityType)
 			('topic:' topic=STRING)
 			('freq:' freq=NUMBER)?
 			('broker:' broker=[Broker])?
 			('attributes:' '-' attributes*=Attribute['-'])
 		)#
+    'end'
 ;
 
 EntityType:
