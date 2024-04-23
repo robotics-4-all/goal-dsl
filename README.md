@@ -1,23 +1,14 @@
-# goal-dsl
+#.
+GoalDSL is an external Domain-Specific Language (DSL) for the behaviour verification of IoT-enabled CPS applications and systems, based on a goal-driven approach. The general idea is that goal-driven rules can be defined for entities (smart objects, virtual artefacts, etc.) in a CPS, a smart environment or a digital twin.
 
-Domain-Specific Language for evaluation of IoT applications and system behavior, 
-based on **Goals**.
-
-The general idea is that we can define goal rules based on messages arrived
-at specific topics. For example, a goal may define a rule to wait until receive an event
-or a message on a topic.
-
-To expand this idea to the context of Cyber-Physical Systems, beyond
-topic-related Goals, it is useful to be able to define environment-related Goals
-for mobile things, such as robots. For example, in robotics it is common
-to require definition of Goals related to the Pose of the robot, or to follow a trajectory.
+Goal-driven verification scenarios can be defined based on messages arriving at specific topics of a message broker. For example, a goal may define a rule to wait until receiving a message from the in-house robot or until the temperature in the bedroom reaches a specific value. To expand this idea to the context of Cyber-Physical Systems and Smart Home Automation, beyond topic-related goals, it is useful to be able to define goals for mobile smart objects (e.g. robots) and for monitoring the state of smart objects and act on them. For example, in robotics it is common to require definition of goals related to the pose of the robot, or to follow a trajectory, to pass from a specific point or reach a destination target. Concerning smart home specific goals, the language supports goals which monitor the attribute values of entities. In a nutshell, our approach can be used to verify that the implementation meets expected functional standards, regarding application development for smart environments.
 
 # Table of contents
 1. [Installation](#installation)
-2. [Classification of Goals](#goalclasses)
+2. [Goal Types](#goaltypes)
 3. [Time Constraints for Goals](#timeconstraints)
 4. [Communication Middleware / Message Broker](#middleware)
-5. [Target](#target)
+5. [Scenario](#scenario)
 6. [Other Concepts of the Language](#other)
 7. [Multiple model files -  Import models](#multifile)
 8. [Validation](#validation)
@@ -37,108 +28,269 @@ cd goal-dsl
 pip install .
 ```
 
+### Entities
 
-## Classification of Goals <a name="goalclasses"></a>
+Entities are your connected smart devices that send and receive information
+using a message broker. Entities have the following required properties:
 
-**Goal Types**:
-- Topic Goals
-    - TopicMessageReceivedGoal
-    - TopicMessageParamGoal
-- Area Goals
-    - RectangleAreaGoal
-    - CircularAreaGoal
-    - PolylineAreaGoal
-    - StraightLineAreaGoal
-    - MovingAreaGoal
-- Pose Goals
+- A unique name
+- A broker to connect to
+- A topic to send/receive messages
+- A set of attributes
+
+**Attributes** are what define the structure and the type of information in the
+messages the Entity sends to the communication broker.
+
+Entity definitions follow the syntax of the below examples, for both sensor and actuator types. The difference between the two is that sensors are considered "Producers" while actuators are "Consumers" in the environment. Sensor Entities have an extra property, that is the `freq` to set the publishing frequency of either physical or virtual.
+
+```
+Entity weather_station
+    type: sensor
+    freq: 5
+    topic: "bedroom.weather_station"
+    broker: cloud_broker
+    attributes:
+        - temperature: float
+        - humidity: float
+        - pressure: float
+end
+```
+
+```
+Entity bedroom_lamp
+    type: actuator
+    topic: "bedroom.lamp"
+    broker: cloud_platform_issel
+    attributes:
+        - power: bool
+end
+```
+
+- **type**: The Entity type. Currently supports `sensor`, `actuator` or `hybrid`
+- **topic**: The Topic in the Broker used by the Entity to send and receive
+messages. Note that / should be substituted with .
+(e.g: bedroom/aircondition -> bedroom.aircondition).
+- **broker**: The name property of a previously defined Broker which the
+Entity uses to communicate.
+- **attributes**: Attributes have a name and a type. As can be seen in the above
+example, HA-Auto supports int, float, string, bool, list and dictionary types.
+Note that nested dictionaries are also supported.
+- **description (Optional)**: A description of the Entity
+- **freq (Optional)**: Used for Entities of type "**sensor**" to set the msg publishing rate
+
+Notice that each Entity has it's own reference to a Broker, thus the metamodel
+allows for communicating with Entities which are connected to different message
+brokers. This allows for definining automation for multi-broker architectures.
+
+Supported data types for Attributes:
+
+- **int**: Integer numerical values
+- **float**: Floating point numerical values
+- **bool**: Boolean (true/false) values
+- **str**: String values
+- **time**: Time values (e.g. `01:25`)
+- **list**: List / Array
+- **dict**: Dictionary
+
+#### Attribute value generation for virtual Entities
+
+SmAuto provides a code generator which can be utilized to transform Entities models
+into executable source code in Python.
+This feature of the language enables end-to-end generation of the objects (sensors, actuators, robots)
+which send and receive data based on their models. Thus it can be used to
+generate while virtual smart environments and directly dig into defining and
+testing automations.
+
+For this purpose, the language supports (Optional) definition of a `Value Generator` and a `Noise` to be applied on each attribute of an Entity of type **sensor** separately.
+
+```
+Entity weather_station
+    type: sensor
+    freq: 5
+    topic: "smauto.bme"
+    broker: home_mqtt_broker
+    attributes:
+        - temperature: float -> gaussian(10, 20, 5) with noise gaussian(1,1)
+        - humidity: float -> linear(1, 0.2) with noise uniform (0, 1)
+        - pressure: float -> constant(0.5)
+end
+```
+
+The above example utilizes this feature of the language. Each attribute can define
+it's own value and noise generators, using a simple grammar as evident below:
+
+```
+-> <ValueGenerator> with noise <NoiseGenerator>
+```
+
+**Supported Value Generators:**
+
+- **Constant**: `constant(value)`. Constant value
+- **Linear**: `linear(min, step)`. Linear function
+- **Saw**: `saw(min, max, step)`. Saw function.
+- **Gaussian**: `gaussian(value, maxValue, sigma)`. Gaussian function
+- **Replay**: `replay([values], times)`. Replay from a list of values. The `times` parameter can be used to force replay iterations to a specific value. If `times=-1` then values will be replayed infinitely.
+- **ReplayFile**: `replayFile("FILE_PATH")`. Replay data from a file.
+
+
+**Supported Noise Generators:**
+
+- **Uniform**: `uniform(min, max)`.
+- **Gaussian**: `gaussian(mean, sigma)`.
+
+Value generation and Noise are optional in the language and are features used
+by the Virtual Entity generator to transform Entity models into executable code.
+
+![SmAutoValueGenA](assets/images/Smauto_ValueGen_1.png)
+
+
+### Conditions
+
+Conditions are very similar to conditions in imperative programming languages
+such as Python, Java, C++ or JavaScript. You can use Entity Attributes in a
+condition just like a variable by referencing it in the Condition using
+it's Fully-Qualified Name (FQN) in dot (.) notation.
+
+```
+entity_name.attribute_name
+```
+
+<!-- ![ConditionMM](assets/images/SmAutoConditionMM.png) -->
+
+
+#### Condition Formatting:
+
+You can combine two conditions into a more complex one using logical operators.
+The general format of the Condition is:
+
+`(condition_1) LOGICAL_OP (condition_2)`
+
+Make sure to not forget the parenthesis.
+
+`condition_1 AND condition_2 AND condition_3`
+
+will have to be rephrased to an equivalent like:
+
+`((condition_1) AND (condition_2)) AND (condition_3)`
+
+
+#### Lists and Dictionaries:
+
+The language has support for Lists and Dictionaries and even nesting them.
+However, for now the use of lists and dictionaries in conditions are treated
+as full objects and their individual elements cannot be accessed and used in
+conditions. This means that you can compare a List to a full other List, but
+cannot compare individual list items. Similarly, you can compare a full
+dictionary to another but cannot use individual dictionary items in conditions.
+
+Nested in-language reference to Dict and List items will be supported in a future release
+of the language.
+
+#### Operators
+
+- String Operators: `~`, `!~`, `==`, `!=`, `has`
+- Numeric Operators: `>`, `>=`, `<`, `<=`, `==`, `!=`
+- Logical Operators: `AND`, `OR`, `NOT`, `XOR`, `NOR`, `XNOR`, `NAND`
+- BooleanValueOperator: `is` , `is not`;
+- List and Dictionary Operators: `==`, `!=`
+
+#### Build-in attribute processing functions
+
+The language provides buildi-in functions which can be applied to attribute references
+when defining a Condition.
+
+```
+condition:
+    (mean(bedroom_temp_sensor.temperature, 10) > 28) AND
+    (std(bedroom_temp_sensor.temperature, 10) > 1)
+
+condition:
+    bedroom_humidity_sensor.humidity in range(30, 60)
+
+condition:
+    bedroom_temp_sensor.temperature in range(24, 26) AND
+    bedroom_humidity_sensor.humidity in range(30, 60)
+
+condition:
+    var(mean(bedroom_temp_sensor.temperature, 10), 10) >= 0.1
+```
+
+
+**Supported Functions:**
+
+- **mean**: The mean of the attribute buffer
+- **std**: The standard deviation of the attribute buffer
+- **var**: The variance of the attribute buffer
+- **min**: The minimum value in the attribute buffer
+- **max**: The maximum value in the attribute buffer
+
+#### Writing Conditions
+
+Bellow you will find some example conditions.
+
+```
+(bedroom_humidity.humidity < 0.3) AND (bedroom_humidifier.state == 0)
+
+((bedroom_human_detector.position != []) AND
+    (bedroom_thermometer.temperature < 27.5)
+) AND (bedroom_thermostat.state == 0)
+```
+
+## Goal Types <a name="goaltypes"></a>
+
+- **Entity Goals**
+    - EntityStateChange
+    - EntityStateCondition
+- **Area Goals**
+    - RectangleArea
+    - CircularArea
+    - PolylineArea
+    - StraightLineArea
+    - MovingArea
+- **Pose Goals**
     - PositionGoal
     - OrientationGoal
     - PoseGoal
-- Trajectory Goals
+- **Trajectory Goals**
     - StraightLineTrajectoryGoal
     - StraightLineTrajectoryGoal
-- Complex Goal
-- Goal Sequence
+- **Complex Goal**
 
 
-### Topic Goals
+### Entity Goals
 
-#### TopicMessageReceivedGoal
+#### EntityStateChange
 This Goal is considered **REACHED** when a message arrives at a specific topic,
 without any considerations of the payload of the message.
 
 ```
-TopicMsgReceivedGoal TopicGoalA -> {
-    topic: 'robot.opts.face_detection.detected';
-}
+Goal<EntityStateChange> Goal_1
+    entity: TempSensor1
+end
 
-TopicMsgReceivedGoal TopicGoalD -> {
-    topic: 'env.door.kitchen.opened';
-}
 ```
 
-#### TopicMessageParamGoal
+#### EntityStateCondition
 Set this Goal for cases where you want to filter messages arrived at a topic
 based on an exppression.
 
 ```
-TopicMsgParamGoal TopicGoalB -> {
-    topic: "robot.sensor.motion.speed";
-    condition: "linVel" > 10;
-}
+Goal<EntityStateCondition> Goal_2
+    condition:
+        (AirQualitySensor1.gas < 10) AND (AirQualitySensor1.humidity < 30)
+end
 
-TopicMsgParamGoal TopicGoalC -> {
-    topic: "robot.sensor.motion.speed";
-    condition: "angVel" == 10;
-}
+Goal<EntityStateCondition> Goal_3
+    condition: ((TempSensor1.temp > 10) AND (TempSensor2.temp > 10))
+        AND (TempSensor3.temp > 10)
+end
 
-TopicMsgParamGoal TopicGoalE -> {
-    topic: "robot.sensor.qr.detected";
-    condition: "msg" == "R4A";
-}
-
-TopicMsgParamGoal TopicGoalF -> {
-    topic: "robot.sensor.qr.detected";
-    condition: ("linVel" > 10) AND ("angVel" < 0.5);
-}
+Goal<EntityStateCondition> Goal_4
+    condition:
+        (mean(TempSensor1.temp, 10) > 0.5 ) AND
+            (mean(TempSensor2.temp, 10) > 30)
+end
 ```
-
-Conditions syntax is defined by the following grammar:
-
-```
-Condition: ConditionGroup | PrimitiveCondition;
-
-ConditionGroup:
-    '(' c1=Condition ')' operator=BooleanOperatorType '('
-    c2=Condition ')'
-;
-
-PrimitiveCondition: StringCondition | NumericCondition;
-
-StringCondition:
-    param=STRING operator=StringOperatorType val=STRING
-;
-
-NumericCondition:
-    param=STRING operator=NumericOperatorType val=NUMBER
-;
-
-StringOperatorType: '~' | '!~' | '==' | '!=';
-NumericOperatorType: '>' | '<' | '==' | '!=';
-BooleanOperatorType: 'AND' | 'OR' | 'NOT' | 'XOR' | 'NOR' | 'XNOR' | 'NAND';
-```
-
-Now lets try to strip things down. First of all, a Condition can be either a
-PrimitiveCondition or a ConditionGroup. The first is a condition for primitive
-data types, such as strings (StringCondition) and numbers (NumericCondition).
-ConditionGroup is used to apply boolean operations, e.g:
-
-```
-(("linVel" > 10) AND ("angVel" < 0.5)) AND ("error" == "");
-```
-
-Furthermore, ConditionGroup has two Conditions, which means that nested
-Conditions can be crafted based on boolean operations.
 
 
 ### Area Goals
@@ -147,7 +299,7 @@ An **AreaGoal** is related areas in the environment which have a meaning for an
 application. An example would be the avoidance of specific areas. All Area Goals
 have a tag that gives a meaning to the goal
 
-**AreaGoalTags**
+**Tag**:
 - AVOID
 - ENTER
 - EXIT
@@ -158,56 +310,60 @@ The first defines area goals which have to be avoided by mobile things, while
 the latter an area that has to be "entered". All Area Goals have a `tag`
 property.
 
-#### RectangleAreaGoal
+#### Rectangle Area
 A rectangle area defined by (centerPoint, radius) that has to either be reached
 or avoided.
 
 ```
-RectangleAreaGoal GoalA -> {
-    bottomLeftEdge: Point2D(2.0, 6.0);
-    lengthX: 3.0;
-    lengthY: 4.0;
-    tag: ENTER;
-}
+Goal<RectangleArea> GoalA
+    entity: my_robot
+    bottomLeftEdge: Point2D(2.0, 6.0)
+    lengthX: 3.0
+    lengthY: 4.0
+    tag: ENTER
+end
 ```
 
-#### CircularAreaGoal
+#### Circular Area
 A circular area defined by (centerPoint, radius).
 
 ```
-CircularAreaGoal GoalB -> {
-    center: Point2D(2.0, 6.0);
-    radius: 3.0;
-    tag: AVOID;
-}
+Goal<CircularArea> GoalB
+    entity: my_robot
+    center: Point2D(2.0, 6.0)
+    radius: 3.0
+    tag: AVOID
+end
 ```
 
-#### PolylineAreaGoal
+#### Polyline Area
 A polyline area defined by a list of Points.
 
 ```
-PolylineAreaGoal PolylineAreaExample -> {
-    points: [Point2D(0.0, 0.0), Point2D(2.0, 4.0), Point2D(4.0,  0.0)];
-    tag: AVOID;
-}
+Goal<PolylineArea> GoalC
+    entity: my_robot
+    points: [Point2D(0.0, 0.0), Point2D(2.0, 4.0), Point2D(4.0,  0.0)]
+    tag: AVOID
+end
 ```
 
-#### StraightLineAreaGoal
+#### Straight Line
 A straight line in the environment, defined by (startPoint, finishPoint) that has to be either reached or avoided.
 
 ```
-StraightLineAreaGoal StraightLineAreaExample -> {
+Goal<StraightLine> GoalD
+    entity: my_robot
     startPoint: Point2D(2.0, 7.6);
     endPoint: Point2D(2.0, 7.6);
     tag: AVOID;
-}
+end
 ```
 
-#### MovingAreaGoal
+#### Mobile Area
 This type of Goal can be used for mobile objects, such as robots.
 
 ```
-MovingAreaGoal MyRobotAvoid -> {
+Goal<MobileArea> GoalD
     radius: 46;  // 46cm
     tag: AVOID;
 }
@@ -223,20 +379,23 @@ Mostly used in mobile robot applications.
 Reach a specific position in space.
 
 ```
-PositionGoal ExamplePositionGoal -> {
-    position: Point2D(0.0, 0.0);
-    maxDeviation: 1;  // cm
-}
+Goal<Position> Goal_5
+    entity: RobotArmPose
+    position: Point3D(0, 0, 0)
+    maxDeviation: 0.1
+    timeConstraints:
+        - FROM_GOAL_START(<60)
+end
 ```
 
 #### OrientationGoal
 Reach a specific orientation in space.
 
 ```
-OrientationGoal ExampleOrientationGoal -> {
-    orientation: Orientation2D(1.0);  // rad?
+Goal<Orientation> Goal_5
+    orientation: Orientation2D(1.0);  // rad
     maxDeviation: 0.2; // rad
-}
+end
 ```
 
 #### PoseGoal
@@ -279,43 +438,50 @@ definition.
 - **EXACTLY_X_ACCOMPLISHED_ORDERED**
 
 ```
-ComplexGoal GoalC -> {
-    algorithm: ALL_ACCOMPLISHED;
-    addGoal(GoalA);
-    addGoal(GoalB);
-}
+Goal<EntityStateChange> Goal_1
+    entity: TempSensor1
+end
+
+Goal<EntityStateCondition> Goal_2
+    condition:
+        (AirQualitySensor1.gas < 10) AND
+        (AirQualitySensor1.humidity < 30)
+end
+
+Goal<EntityStateCondition> Goal_3
+    condition: ((TempSensor1.temp > 10) AND (TempSensor2.temp > 10))
+        AND (TempSensor3.temp > 10)
+end
+
+Goal<Complex> CG1
+    goals:
+        - Goal_1
+        - Goal_2
+        - Goal_3
+    strategy: ALL_ACCOMPLISHED_ORDERED
+end
 ```
 
 In case of Ordered algorithms, which is the cases of `ALL_ACCOMPLISHED_ORDERED`,
 `EXACTLY_X_ACCOMPLISHED_ORDERED`, the execution of inner Goals is sequential.
-Otherwise Goals defined using the `addGoal()` buildin will be executed
-cuncurrently.
 
-### Goal Sequence
 
-A number of Goals which have to be accomplished in sequence.
-
-```
-Sequence S1 -> {
-    addGoal(GoalC);
-    addGoal(GoalD);
-    addGoal(GoalE);
-}
-```
-
-## Time Constraints for Goals <a name="timeconstraints"></a>
+## Time Constraints <a name="timeconstraints"></a>
 
 Goals can have time constraints, like maximum duration from previous goal.
 For this reason we introduce the **TimeConstraint** concept, which allows the definition of time constraints.
 
 ```
-TimeConstraint: TimeConstraintDuration;
-
-
-TimeConstraintDuration:
-    type=TimingConstraintType '(' comparator=TCComparator time=FLOAT ')'
-;
+Goal<EntityStateCondition> Goal_3
+    condition:
+        (TemperatureSensorList.regionA < 20) AND
+        (HumiditySensorList.regionA < 0.8)
+    timeConstraints:
+        - FROM_GOAL_START(<1800)
+end
 ```
+
+In the above example the constraint indicates that **The duration of the Goal must not exceed 10 seconds**.
 
 Each TimeConstraint can measure time relative to either the start of
 the application or the start of the current goal. This can be defined using the
@@ -325,86 +491,62 @@ values.
 - **FROM_APP_START**
 - **FROM_GOAL_START**
 
-The `comparator` can have one of the values `>`,
-`<` and `==`.
-
-An example time constraint::
-
-```
-TopicMsgReceivedGoal TopicGoalA -> {
-    topic: "robot.opts.face_detection.detected";
-    timeConstraints: [FROM_GOAL_START(< 10.0)];
-}
-```
-
-In the above example the constraint indicates that **The duration of the Goal must not exceed 10
-seconds.
+The `expression` can use one of the values `>`, `<`, `>=`, `<=` and `==`.
 
 
 ## Communication Middleware / Message Broker <a name="middleware"></a>
 
-In GoalDSL it is possible to define the communication middleware to use, built
-on to of message broker technologies. This
-is relevant to the same communication middleware the under-investigation
-application uses.
-
-Currently, three types of **CommunicationMiddleware** are supported by the DSL.
-These are listed below among with their properties.
-
-- AMQPBroker
-  - host (str): Hostname to connect to
-  - port (int): AMQP port to connect
-  - vhost (str): Vhost to connect
-  - exchange (str): Exchange to use for Topic-based pubsub communication
-  - auth
-    - Plain Authentication: AuthPlain(username, password)
-- MQTTBroker
-  - host (str): Hostname to connect to
-  - port (int): Redis port to connect
-  - auth
-    - Plain Authentication: AuthPlain(username, password)
-- RedisBroker
-  - host (str): Hostname to connect to
-  - port (int): Redis port to connect
-  - db (int): Redis database instance to connect
-  - auth
-    - Plain Authentication: AuthPlain(username, password)
-
-Below is an example of a RedisBroker definition.
+The Broker acts as the communication layer for messages where each device has
+its own Topic which is basically a mailbox for sending and receiving messages.
+SmartAutomation DSL supports Brokers which support the MQTT, AMQP and Redis
+protocols. You can define a Broker using the syntax in the following example:
 
 ```
-RedisBroker MyMiddleware -> {
-    host: 'localhost';
-    port: 6379;
-    db: 0;
-    auth: AuthPlain('', '');  // AuthPlain(username, password)
-}
+Broker<MQTT> hassio_mqtt
+    host: "localhost"
+    port: 1883
+    auth:
+        username: "my_username"
+        password: "my_password"
+end
 ```
 
+- **type**: The first line can be `MQTT`, `AMQP` or `Redis` according to the broker type
+- **host**: Host IP address or hostname for the Broker
+- **port**: Broker Port number
+- **auth**: Authentication credentials. Unified for all communication brokers
+    - **username**: Username used for authentication
+    - **password**: Password used for authentication
+- **vhost (Optional)**: Vhost parameter. Only for AMQP brokers
+- **ssl (Optional)**: Enable/Disable ssl channel encryption
+- **topicExchange (Optional)**: (Optional) Exchange parameter. Only for AMQP brokers
+- **rpcExchange (FUTURE SUPPORT)**: Exchange parameter. Only for AMQP brokers
+- **db (Optional)**: Database number parameter. Only for Redis brokers
 
-## Target <a name="target"></a>
 
-**Target** defines a set of goals which are assigned to be executed for a
-specific target/application. A target needs to be linked to a specific
-middleware (message broker). Each model can have **ONLY ONE** target.
 
-A **Target** is defined by a list of Goals and a communication middleware. 
+## Scenario <a name="scenario"></a>
+
+**Scenario** defines a set of goals which are assigned to be executed for a
+specific target/application. A scenario needs to be linked to a specific
+middleware (message broker),
+
+A **Scenario** is defined by a list of Goals and a communication middleware.
 
 ```
-import complex_goals.goal as complex;
-...
-
-Target MyAppTarget -> {
-    goals: [complex.GoalA, complex.GoalB, complex.GoalC, complex.GoalD];
-    middleware: MyMiddleware;  // Reference a previously defined Middleware
-    scoreWeights: [0,2, 0,3, 0.3, 0.2];  // Score weights for Goals
-    concurrent: True;  // Select between sequential and concurrent execution
-}
+Scenario ScenarioB
+    goals:
+        - Goal_1 -> 0.2
+        - Goal_2 -> 0.2
+        - Goal_3 -> 0.2
+        - Goal_4 -> 0.2
+        - Goal_5 -> 0.2
+    broker: MyMQTTBroker
+    concurrent: false
+end
 ```
 
-A Target can have multiple Goals, which are executed concurrently or in a sequential
-order.
-Goals are defined in a list using the above syntax.
+A scenario can have multiple Goals, which are executed **concurrently** or in a **sequential** order. This is defined for each scenario via the **concurrent** property.
 
 
 ## Other Concepts of the Language <a name="other"></a>
@@ -506,7 +648,7 @@ textx generate target.goal --target goalee
 
 ## Metamodel <a name="metamodel"></a>
 
-The metamodel of the DSL, defines the concepts of the language.
+The abstract metamodel of the DSL, that defines the concepts, their relations and top-level constraints, is shown below.
 
 ![bridges_1](./docs/images/GoalDSLMetamodel.png)
 
@@ -518,11 +660,3 @@ Several examples can be found [here](./examples/).
 ## Extra <a name="extra"></a>
 
 * [goal-dsl.vim](https://github.com/johnstef99/goal-dsl.vim) Vim syntax support for goal-dsl
-
-# Credits
-
-- [klpanagi](https://github.com/klpanagi)
-- [johnstef99](https://github.com/johnstef99)
-- [imgchris]()
-- [etsardou](https://github.com/etsardou)
-- [asymeo]()

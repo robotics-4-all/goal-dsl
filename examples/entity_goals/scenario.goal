@@ -44,7 +44,6 @@ Goal<EntityStateCondition> Goal_2
         (AirQualitySensor1.gas < 10) AND (AirQualitySensor1.humidity < 30)
 end
 
-
 Goal<EntityStateCondition> Goal_3
     condition: ((TempSensor1.temp > 10) AND (TempSensor2.temp > 10))
         AND (TempSensor3.temp > 10)

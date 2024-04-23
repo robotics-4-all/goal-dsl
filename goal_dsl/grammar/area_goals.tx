@@ -7,7 +7,7 @@ import util
 AreaGoal:
     RectangleAreaGoal     |
     CircularAreaGoal      |
-    CrossStraightLineGoal |
+    StraightLine          |
     MovingAreaGoal        |
     PolylineAreaGoal
 ;
@@ -37,7 +37,7 @@ PolylineAreaGoal:
     'end'
 ;
 
-MovingAreaGoal:
+MobileArea:
     'Goal<MovingArea>' name=ID
     (
         ('entity:' entity=[Entity:FQN|+pm:entities*])
@@ -60,8 +60,8 @@ CircularAreaGoal:
     'end'
 ;
 
-CrossStraightLineGoal:
-    'Goal<CrossStraightLine>' name=ID
+StraightLine:
+    'Goal<StraightLine>' name=ID
     (
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('startPoint:' startPoint=Point)
