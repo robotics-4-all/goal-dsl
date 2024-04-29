@@ -4,11 +4,16 @@ import util
 
 // === Conditions ===
 // Condition: AdvancedCondition | PrimitiveCondition | ConditionGroup ;
-Condition: ConditionGroup | PrimitiveCondition | AdvancedCondition;
+Condition: ConditionList;
+
+ConditionList:
+    r1=ConditionGroup (operator=LogicalOperator r2=ConditionGroup)*
+;
 
 ConditionGroup:
-    '(' r1=Condition ')' operator=LogicalOperator '(' r2=Condition ')'
-    // (cond=Condition (operator=LogicalOperator)?)*
+    '(' r=Condition ')'
+    | PrimitiveCondition
+    | AdvancedCondition
 ;
 
 PrimitiveCondition:
@@ -162,7 +167,7 @@ StringOperator: '~' | '!~' | '==' | '!=' | 'is not' | 'is' | 'has' | 'in' | 'not
 
 NumericOperator: '>=' | '>' | '<=' | '<' | '==' | '!=' | 'is not' | 'is';
 
-LogicalOperator: 'AND' | 'OR' | 'NOT' | 'XOR' | 'NOR' | 'XNOR' | 'NAND';
+LogicalOperator: 'and' | 'or' | 'not' | 'xor' | 'nor' | 'xnor' | 'nand';
 
 BooleanOperator: '==' | '!=' | 'is not' | 'is';
 

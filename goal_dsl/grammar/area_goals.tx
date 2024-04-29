@@ -37,7 +37,7 @@ PolylineAreaGoal:
     'end'
 ;
 
-MobileArea:
+MovingAreaGoal:
     'Goal<MovingArea>' name=ID
     (
         ('entity:' entity=[Entity:FQN|+pm:entities*])
