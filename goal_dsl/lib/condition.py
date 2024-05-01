@@ -1,4 +1,4 @@
-from textx import textx_isinstance, get_metamodel
+from textx import textx_isinstance, get_metamodel, get_location
 import statistics
 
 
@@ -28,13 +28,13 @@ OPERATORS = {
     '<=': lambda left, right: f"({left} <= {right})",
 
     # Logical operators
-    'AND': lambda left, right: f"({left} and {right})",
-    'OR': lambda left, right: f"({left} or {right})",
-    'NOT': lambda left, right: f"({left} is not {right})",
-    'XOR': lambda left, right: f"({left} ^ {right})",
-    'NOR': lambda left, right: f"(not ({left} or {right}))",
-    'XNOR': lambda left, right: f"(({left} or {right}) and (not {left} or not {right}))",
-    'NAND': lambda left, right: f"(not ({left} and {right}))",
+    'and': lambda left, right: f"({left} and {right})",
+    'or': lambda left, right: f"({left} or {right})",
+    'not': lambda left, right: f"({left} is not {right})",
+    'xor': lambda left, right: f"({left} ^ {right})",
+    'nor': lambda left, right: f"(not ({left} or {right}))",
+    'xnor': lambda left, right: f"(({left} or {right}) and (not {left} or not {right}))",
+    'nand': lambda left, right: f"(not ({left} and {right}))",
 
     # Advanced
     'InRange': lambda attr, min, max: f"({attr} > {min} and {attr} < {max})",
@@ -42,9 +42,8 @@ OPERATORS = {
 
 
 class Condition(object):
-    def __init__(self, condition):
-        self.condition = condition
-        self.parent = condition.parent
+    def __init__(self, parent):
+        self.parent = parent
         self.cond_expr = None
         self.cond_raw = None
 
@@ -187,7 +186,7 @@ class Condition(object):
             return False, f"{self.parent.name}: condition not built."
 
 
-class ConditionGroup(Condition):
+class ConditionList(Condition):
     def __init__(self, parent, r1, operator, r2):
         self.r1 = r1
         self.r2 = r2
