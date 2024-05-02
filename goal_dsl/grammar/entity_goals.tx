@@ -1,7 +1,7 @@
 import time_constraint
 import condition
 import entity
-import util
+import utils
 
 
 EntityGoal: EntityStateChangeGoal | EntityStateConditionGoal;

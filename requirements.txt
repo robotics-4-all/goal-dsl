@@ -3,7 +3,7 @@ colorama==0.4.4
 pydantic==1.10.4
 fastapi>=0.68.0,<0.69.0
 uvicorn>=0.15.0,<0.16.0
-textX==3.1.1
+textX>=4.0.0<5.0.0
 rich==13.4.2
 python-multipart==0.0.6
 aiofiles==23.1.0

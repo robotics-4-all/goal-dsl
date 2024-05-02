@@ -1,12 +1,12 @@
-import util
+import utils
 
-Broker:
+MessageBroker:
     AMQPBroker | MQTTBroker | RedisBroker
 ;
 
 
 BrokerConnection:
-    'ref' ':' ref=[Broker:FQN]
+    'ref' ':' ref=[MessageBroker:FQN]
     'auth' ':' auth=Authentication
 ;
 
@@ -62,4 +62,3 @@ RedisBroker:
     )#
     'end'
 ;
-

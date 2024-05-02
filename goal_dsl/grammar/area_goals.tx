@@ -1,7 +1,7 @@
 import entity
-import data_types
+import types
 import time_constraint
-import util
+import utils
 
 
 AreaGoal:

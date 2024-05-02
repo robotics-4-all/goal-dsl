@@ -4,14 +4,14 @@
 import communication
 import goal
 import entity
-import util
+import utils
 
 
 GoalDSLModel:
     imports*=Import
     (metadata=Metadata)?
     (
-        (brokers*=Broker)
+        (brokers*=MessageBroker)
         (entities*=Entity)
         (goals*=Goal)
         (scenarios*=Scenario)
@@ -36,7 +36,7 @@ Scenario:
     (
         ('goals:' '-' goals*=WeightedGoal['-'])
         ('concurrent:' concurrent=BOOL)?
-        ('broker:' broker=[Broker:FQN|+m:brokers*])?
+        ('broker:' broker=[MessageBroker:FQN|+m:brokers*])?
     )#
     'end'
 ;
