@@ -4,11 +4,16 @@ import util
 
 // === Conditions ===
 // Condition: AdvancedCondition | PrimitiveCondition | ConditionGroup ;
-Condition: ConditionGroup | PrimitiveCondition | AdvancedCondition;
+Condition: ConditionList;
+
+ConditionList:
+    r1=ConditionGroup (operator=LogicalOperator r2=ConditionGroup)*
+;
 
 ConditionGroup:
-    '(' r1=Condition ')' operator=LogicalOperator '(' r2=Condition ')'
-    // (cond=Condition (operator=LogicalOperator)?)*
+    '(' r=Condition ')'
+    | PrimitiveCondition
+    | AdvancedCondition
 ;
 
 PrimitiveCondition:
@@ -28,18 +33,39 @@ InRangeCondition:
 ;
 
 MathExpression:
-	'math' '(' op=MathTerm (op=PlusOrMinus op=MathTerm)* ')'
+    left=MathTerm (operator=PlusOrMinus right=MathTerm)*
+;
+
+MathTerm:
+    left=MathFactor (operator=MulOrDiv right=MathFactor)*
+;
+
+MathFactor:
+    (sign=PlusOrMinus)?
+    (
+        op=MathOperand
+        | '(' op=MathExpression ')'
+    )
+;
+
+MathOperand:
+    op=NUMBER
+    | op=AugmentedNumericAttr
+    | op=AttributeValue
+;
+
+AttributeValue:
+    attribute=[Attribute:FQN|+pm:entities.attributes]
+;
+
+NumericCondition:
+    (operand1=MathExpression
+     operator=NumericOperator
+     operand2=MathExpression)
 ;
 
 PlusOrMinus: '+' | '-';
 MulOrDiv: '*' | '/' ;
-
-MathTerm: op=MathFactor (op=MulOrDiv op=MathFactor)*;
-
-MathFactor: (sign=PlusOrMinus)?  op=MathOperand;
-
-MathOperand: op=NUMBER | op=[NumericAttribute:FQN|+pm:entities.attributes] |
-	('(' op=MathExpression ')');
 
 StdAttr:
     'std' '(' attribute=AugmentedNumericAttr ',' size=INT ')'
@@ -74,12 +100,6 @@ AugmentedAttr:
     AugmentedDictAttr
 ;
 
-
-NumericCondition:
-    (operand1=AugmentedNumericAttr
-     operator=NumericOperator
-     (operand2=NUMBER | operand2=AugmentedNumericAttr))
-;
 
 StringCondition:
     (operand1=AugmentedStringAttr
@@ -162,7 +182,7 @@ StringOperator: '~' | '!~' | '==' | '!=' | 'is not' | 'is' | 'has' | 'in' | 'not
 
 NumericOperator: '>=' | '>' | '<=' | '<' | '==' | '!=' | 'is not' | 'is';
 
-LogicalOperator: 'AND' | 'OR' | 'NOT' | 'XOR' | 'NOR' | 'XNOR' | 'NAND';
+LogicalOperator: 'and' | 'or' | 'not' | 'xor' | 'nor' | 'xnor' | 'nand';
 
 BooleanOperator: '==' | '!=' | 'is not' | 'is';
 

@@ -41,14 +41,17 @@ end
 
 Goal<EntityStateCondition> Goal_2
     condition:
-        (AirQualitySensor1.gas < 10) AND (AirQualitySensor1.humidity < 30)
+        (mean(AirQualitySensor1.gas, 10) <= 25) and (std(AirQualitySensor1.humidity, 10) < 0.5)
 end
 
 
 Goal<EntityStateCondition> Goal_3
-    condition: ((TempSensor1.temp > 10) AND (TempSensor2.temp > 10))
-        AND (TempSensor3.temp > 10)
+    condition:
+        (TempSensor1.temp * 10 > 10) and
+        (TempSensor2.temp + 2 > 10) and
+        (TempSensor3.temp - TempSensor2.temp > 10)
 end
+
 
 Scenario MyScenario
     broker: HomeMQTT
