@@ -1,6 +1,15 @@
+Broker<MQTT> MyMQTTBroker
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
 Entity TempSensor1
     type: sensor
     topic: 'bedroom.temperature'
+    source: MyMQTTBroker
     attributes:
         - temp: float
 end
@@ -8,6 +17,7 @@ end
 Entity TempSensor2
     type: sensor
     topic: 'bathroom.temperature'
+    source: MyMQTTBroker
     attributes:
         - temp: float
 end
@@ -15,6 +25,7 @@ end
 Entity TempSensor3
     type: sensor
     topic: 'livingroom.temperature'
+    source: MyMQTTBroker
     attributes:
         - temp: float
 end
@@ -22,6 +33,7 @@ end
 Entity AirQualitySensor1
     type: sensor
     topic: 'kitchen.airq'
+    source: MyMQTTBroker
     attributes:
         - gas: float
         - humidity: float

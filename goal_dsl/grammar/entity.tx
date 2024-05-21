@@ -2,23 +2,40 @@ import communication
 import types
 import utils
 
+
+EntitySource: BrokerSource | RESTSource;
+// EntityStateSource: BrokerSource | RESTSource | DBSource;
+
+BrokerSource: ref=[MessageBroker];
+
+RESTSource: ref=[RESTEndpoint];
+
+// DBSource: DBSQLSource | DBNoSQLSource;
+
+// DBSQLSource: ref=[DBSQLEntry];
+
+// DBSQLSource: ref=[DBSQLEntry];
+
+
 Entity:
     'Entity' name=ID
-        (
-			('type:' etype=EntityType)
-			('topic:' topic=STRING)
-            ('description:' description=STRING)?
-			('freq:' freq=NUMBER)?
-			('broker:' broker=[MessageBroker])?
-			('attributes:' '-' attributes*=Attribute['-'])
-		)#
+    (
+        ('type:' etype=EntityType)
+        ('topic:' topic=STRING)
+        ('source:' broker=EntitySource)
+        ('description:' description=STRING)?
+        ('freq:' freq=NUMBER)?
+        ('attributes:' '-' attributes*=Attribute['-'])
+    )#
     'end'
 ;
 
 EntityType:
-    'sensor' |
-    'actuator' |
-    'hybrid'
+    'sensor'    |
+    'actuator'  |
+    'hybrid'    |
+    'robot'     |
+    'other'
 ;
 
 Attribute:

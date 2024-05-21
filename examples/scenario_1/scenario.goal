@@ -9,6 +9,7 @@ end
 Entity TemperatureSensorList
     type: sensor
     topic: 'garden.temperature'
+    source: MyMQTTBroker
     attributes:
         - regionA: float
         - regionB: float
@@ -19,6 +20,7 @@ end
 Entity HumiditySensorList
     type: sensor
     topic: 'garden.humidity'
+    source: MyMQTTBroker
     attributes:
         - regionA: float
         - regionB: float
@@ -29,6 +31,7 @@ end
 Entity AirQualitySensorList
     type: sensor
     topic: 'garden.air_quality'
+    source: MyMQTTBroker
     attributes:
         - regionA: float
         - regionB: float
@@ -39,12 +42,14 @@ end
 Entity WindowRegionA
     type: actuator
     topic: 'garden.regionA.window'
+    source: MyMQTTBroker
     attributes:
         - state: bool
 end
 
 Entity WindowRegionB
     topic: 'garden.regionB.window'
+    source: MyMQTTBroker
     type: actuator
     attributes:
         - state: bool
@@ -53,6 +58,7 @@ end
 Entity WindowRegionC
     type: actuator
     topic: 'garden.regionC.window'
+    source: MyMQTTBroker
     attributes:
         - state: bool
 end
@@ -60,6 +66,7 @@ end
 Entity WindowRegionD
     type: actuator
     topic: 'garden.regionD.window'
+    source: MyMQTTBroker
     attributes:
         - state: bool
 end
@@ -67,7 +74,7 @@ end
 // ------------------ GOAL Definitions -----------------
 Goal<EntityStateCondition> Goal_1
     condition:
-        (TemperatureSensorList.regionA > 30) OR
+        (TemperatureSensorList.regionA > 30) or
         (HumiditySensorList.regionA > 0.8)
 end
 
@@ -77,7 +84,7 @@ end
 
 Goal<EntityStateCondition> Goal_3
     condition:
-        (TemperatureSensorList.regionA < 20) AND
+        (TemperatureSensorList.regionA < 20) and
         (HumiditySensorList.regionA < 0.8)
     timeConstraints:
         - FROM_GOAL_START(<1800)
@@ -97,25 +104,31 @@ Goal<Complex> CG1
 end
 
 Goal<EntityStateCondition> Goal_5
-    condition: ((AirQualitySensorList.regionA < 0.5) OR
-        (AirQualitySensorList.regionB < 0.5)) OR ((AirQualitySensorList.regionC
-            < 0.5) OR (AirQualitySensorList.regionD < 0.5))
+    condition: (AirQualitySensorList.regionA < 0.5) or
+        (AirQualitySensorList.regionB < 0.5) or
+        (AirQualitySensorList.regionC < 0.5) or
+        (AirQualitySensorList.regionD < 0.5)
 end
 
 Goal<EntityStateCondition> Goal_6
-    condition: ((WindowRegionA.state == 1) AND (WindowRegionB.state == 1)) AND
-                ((WindowRegionC.state == 1) AND (WindowRegionD.state == 1))
+    condition: (WindowRegionA.state == 1) and
+        (WindowRegionB.state == 1) and
+        (WindowRegionC.state == 1) and
+        (WindowRegionD.state == 1)
 end
 
 Goal<EntityStateCondition> Goal_7
-    condition: ((AirQualitySensorList.regionA > 0.8) AND
-        (AirQualitySensorList.regionB > 0.8)) AND ((AirQualitySensorList.regionC
-            > 0.8) AND (AirQualitySensorList.regionD > 0.8))
+    condition: (AirQualitySensorList.regionA > 0.8) and
+        (AirQualitySensorList.regionB > 0.8) and
+        (AirQualitySensorList.regionC > 0.8) and
+        (AirQualitySensorList.regionD > 0.8)
 end
 
 Goal<EntityStateCondition> Goal_8
-    condition: ((WindowRegionA.state == 0) AND (WindowRegionB.state == 0)) AND
-                ((WindowRegionC.state == 0) AND (WindowRegionD.state == 0))
+    condition: (WindowRegionA.state == 0) and
+        (WindowRegionB.state == 0) and
+        (WindowRegionC.state == 0) and
+        (WindowRegionD.state == 0)
 end
 
 Goal<Complex> CG2

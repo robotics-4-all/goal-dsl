@@ -1,4 +1,5 @@
 import utils
+import types
 
 MessageBroker:
     AMQPBroker | MQTTBroker | RedisBroker
@@ -61,4 +62,30 @@ RedisBroker:
         ('auth' ':' auth=Authentication)?
     )#
     'end'
+;
+
+
+RESTEndpoint:
+    'RESTEndpoint' name=ID
+    (
+        ('verb:' verb=RESTVerb)
+        ('host:' host=STRING)
+        ('port:' port=INT)
+        ('path:' path=STRING)
+        ('base_url:' baseUrl=STRING)?
+        (
+        'params:'
+            ('query:' '-' queryParams*=Property['-'])?
+            ('path:' '-' pathParams*=Property['-'])?
+            ('body:' '-' bodyParams*=Property['-'])?
+        ('headers:' '-' headers*=Property['-'])?
+        )?
+    )#
+    'end'
+;
+
+RESTVerb:
+    'GET'   |
+    'POST'  |
+    'PUT'
 ;

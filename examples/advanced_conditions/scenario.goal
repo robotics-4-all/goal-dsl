@@ -1,0 +1,18 @@
+import entities.goal
+
+
+Goal<EntityStateChange> Goal_1
+    entity: TempSensor1
+end
+
+Goal<EntityStateCondition> Goal_2
+    condition: (mean(TempSensor1.temp, 10) > 0.5 ) and
+        (mean(TempSensor2.temp, 10) > 30)
+end
+
+Scenario MyScenario
+    goals:
+        - Goal_1 -> 0.6
+        - Goal_2 -> 0.4
+    concurrent: True
+end
