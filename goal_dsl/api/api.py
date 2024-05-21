@@ -15,6 +15,7 @@ from fastapi import FastAPI, File, UploadFile, status, HTTPException, Security
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import APIKeyHeader
+from pydantic import BaseModel
 
 HAS_DOCKER_EXEC = os.getenv("HAS_DOCKER_EXEC", False)
 API_KEY = os.getenv("API_KEY", "API_KEY")
@@ -23,11 +24,6 @@ TMP_DIR = '/tmp/goaldsl'
 
 if not os.path.exists(TMP_DIR):
     os.mkdir(TMP_DIR)
-
-
-if HAS_DOCKER_EXEC:
-    import docker
-    docker_client = docker.from_env()
 
 
 api_keys = [
@@ -56,28 +52,38 @@ api.add_middleware(
 )
 
 
-@api.get("/", response_class=HTMLResponse)
-async def root():
-    return """
-<html>
-<head>
-<style>
-html,body{
-    margin:0;
-    height:100%;
-}
-img{
-  display:block;
-  width:100%; height:100%;
-  object-fit: cover;
-}
-</style>
-</head>
-<body>
- <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fnews.images.itv.com%2Fimage%2Ffile%2F492835%2Fimg.jpg&f=1&nofb=1" alt="">
-</body>
-</html>
-    """
+class ValidationModel(BaseModel):
+    name: str
+    model: str
+
+
+class TransformationModel(BaseModel):
+    name: str
+    model: str
+
+
+@api.post("/validate")
+async def validate(model: ValidationModel, api_key: str = Security(get_api_key)):
+    text = model.model
+    name = model.name
+    if len(text) == 0:
+        return 404
+    resp = {"status": 200, "message": ""}
+    u_id = uuid.uuid4().hex[0:8]
+    fpath = os.path.join(TMP_DIR, f"model_for_validation-{u_id}.goal")
+    with open(fpath, "w") as f:
+        f.write(text)
+    try:
+        model = build_model(fpath)
+        print("Model validation success!!")
+        resp["message"] = "Model validation success"
+    except Exception as e:
+        print("Exception while validating model. Validation failed!!")
+        print(e)
+        resp["status"] = 404
+        resp["message"] = str(e)
+        raise HTTPException(status_code=400, detail=f"Validation error: {e}")
+    return resp
 
 
 @api.post("/validate/file")
