@@ -22,7 +22,7 @@ Entity:
     'Entity' name=ID
     (
         ('type:' etype=EntityType)
-        ('topic:' topic=STRING)
+        ('topic:' topic=STRING)?
         ('source:' broker=EntitySource)
         ('description:' description=STRING)?
         ('freq:' freq=NUMBER)?
