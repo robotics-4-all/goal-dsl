@@ -101,6 +101,9 @@ def transform_cond(cond):
         entity, attr = m.split(".")
         attr_ref = f"entities['{entity}'].attributes['{attr}']"
         cond.cond_expr = cond.cond_expr.replace(m, attr_ref)
+        cond.cond_expr = cond.cond_expr.replace("condition:", "")
+        if cond.cond_expr.startswith(" "):
+            cond.cond_expr = cond.cond_expr[1:]
 
 
 def is_float(string):

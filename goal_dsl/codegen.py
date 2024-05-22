@@ -24,7 +24,7 @@ def generate(model_fpath: str,
     # Create output folder
     if out_dir in (None, ""):
         out_dir = srcgen_folder
-    model, _ = build_model(model_fpath)
+    model = build_model(model_fpath)
     if not path.exists(out_dir):
         mkdir(out_dir)
 
@@ -66,8 +66,9 @@ def process_goals(goals):
         if goal.__class__.__name__ == 'WeightedGoal':
             goal = goal.goal
         if goal.__class__.__name__ == 'EntityStateConditionGoal':
-            cond_lambda = make_condition_lambda(goal.condition)
-            goal.cond_lambda = cond_lambda
+            # cond_lambda = make_condition_lambda(goal.condition)
+            cond_lambda = goal.condition.cond_expr
+            goal.cond_lambda = goal.condition.cond_expr
         elif goal.__class__.__name__ == 'EntityStateChangeGoal':
             pass
         elif goal.__class__.__name__ == 'ComplexGoal':
@@ -152,4 +153,3 @@ def report_broker(broker):
 def codegen_python(metamodel, model, output_path, overwrite, debug, **custom_args):
     "Generator for generating goalee from goal_dsl descriptions"
     generate(model._tx_filename)
-
