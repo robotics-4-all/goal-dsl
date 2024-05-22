@@ -9,6 +9,37 @@ from goal_dsl.definitions import THIS_DIR, MODEL_REPO_PATH, BUILTIN_MODELS
 
 # CURRENT_FPATH = pathlib.Path(__file__).parent.resolve()
 
+
+class PrimitiveDataType(object):
+    """
+    We are registering user PrimitiveDataType class to support
+    primitive types (integer, string) in our entity models
+    Thus, user doesn't need to provide integer and string
+    types in the model but can reference them in attribute types nevertheless.
+    """
+    def __init__(self, parent, name):
+        self.parent = parent
+        self.name = name
+
+    def __str__(self):
+        return self.name
+
+
+type_builtins = {
+    'int': PrimitiveDataType(None, 'int'),
+    'int32': PrimitiveDataType(None, 'int32'),
+    'int64': PrimitiveDataType(None, 'int64'),
+    'uint': PrimitiveDataType(None, 'uint'),
+    'uint8': PrimitiveDataType(None, 'uint8'),
+    'uint32': PrimitiveDataType(None, 'uint32'),
+    'uint64': PrimitiveDataType(None, 'uint64'),
+    'float': PrimitiveDataType(None, 'float'),
+    'float32': PrimitiveDataType(None, 'float32'),
+    'float64': PrimitiveDataType(None, 'float64'),
+    'str': PrimitiveDataType(None, 'str')
+}
+
+
 CUSTOM_CLASSES = [
 ]
 
@@ -21,23 +52,40 @@ def model_proc(model, metamodel):
     pass
 
 
+def condition_processor(plot):
+    pass
+
+def nid_processor(nid):
+    nid = nid.replace("\n", "")
+    return nid
+
+
+obj_processors = {
+    'Condition': condition_processor
+}
+
+
 def get_metamodel(debug: bool = False, global_repo: bool = False):
     metamodel = metamodel_from_file(
         join(THIS_DIR, 'grammar', 'goal_dsl.tx'),
-        classes=class_provider,
-        auto_init_attributes=False,
+        auto_init_attributes=True,
         textx_tools_support=True,
+        classes=[
+            PrimitiveDataType
+        ],
+        builtins=type_builtins,
         # global_repository=GLOBAL_REPO,
         global_repository=global_repo,
         debug=debug,
     )
 
-    metamodel.register_scope_providers(get_scode_providers())
+    metamodel.register_scope_providers(get_scope_providers())
     metamodel.register_model_processor(model_proc)
+    metamodel.register_obj_processors(obj_processors)
     return metamodel
 
 
-def get_scode_providers():
+def get_scope_providers():
     sp = {"*.*": scoping_providers.FQNImportURI(importAs=True)}
     if BUILTIN_MODELS:
         sp["brokers*"] = scoping_providers.FQNGlobalRepo(
@@ -83,7 +131,7 @@ def get_top_level_condition(model):
 
 def get_model_goals(model):
     goals = get_children_of_type("Goal", model)
-    print(goals)
+    return goals
 
 
 def build_cond_expr(cond, model):

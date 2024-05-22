@@ -14,6 +14,7 @@ GoalDSLModel:
         (brokers*=MessageBroker)
         (entities*=Entity)
         (goals*=Goal)
+        (restEndpoints*=RESTEndpoint)
         (scenarios*=Scenario)
     )#
 ;
