@@ -3,12 +3,13 @@ import types
 import utils
 
 
-EntitySource: BrokerSource | RESTSource;
+EntitySource: (ref=[MessageBroker])|(ref=[RESTEndpoint]);
+// EntitySource: BrokerSource | RESTSource;
 // EntityStateSource: BrokerSource | RESTSource | DBSource;
 
-BrokerSource: ref=[MessageBroker];
+// BrokerSource: ref=[MessageBroker];
 
-RESTSource: ref=[RESTEndpoint];
+// RESTSource: ref=[RESTEndpoint];
 
 // DBSource: DBSQLSource | DBNoSQLSource;
 

@@ -8,13 +8,20 @@ end
 
 RESTEndpoint WeatherForecastSvc
     verb: GET
-    host: "weather.myplatform.net"
+    host: "api.openweathermap.org"
     port: 8080
-    path: "/"
-    params:
-        query:
-            - from: str
-            - to: str
+    path: "/data/3.0"
+end
+
+Entity WeatherForecast
+    type: sensor
+    topic: 'openweather.forecast'
+    source: WeatherForecastSvc
+    attributes:
+        - current: dict
+        - minutely: dict
+        - hourly: dict
+        - daily: dict
 end
 
 Entity TempSensor1
