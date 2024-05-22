@@ -11,7 +11,7 @@ import tarfile
 from goal_dsl.language import build_model
 from goal_dsl.codegen import generate as generate_model
 
-from fastapi import FastAPI, File, UploadFile, status, HTTPException, Security
+from fastapi import FastAPI, File, UploadFile, status, HTTPException, Security, Body
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import APIKeyHeader
@@ -137,8 +137,42 @@ async def validate_b64(fenc: str = '',
 
 
 @api.post("/generate")
-async def generate(model_file: UploadFile = File(...),
-                   api_key: str = Security(get_api_key)):
+async def gen_from_model(
+    gen_auto_model: TransformationModel = Body(...),
+    api_key: str = Security(get_api_key),
+):
+    resp = {"status": 200, "message": "", "model_json": ""}
+    model = gen_auto_model.model
+    u_id = uuid.uuid4().hex[0:8]
+    model_path = os.path.join(TMP_DIR, f"model-{u_id}.auto")
+    gen_path = os.path.join(TMP_DIR, f"gen-{u_id}")
+    if not os.path.exists(gen_path):
+        os.mkdir(gen_path)
+    with open(model_path, "w") as f:
+        f.write(model)
+    tarball_path = os.path.join(
+        TMP_DIR,
+        f'{u_id}.tar.gz'
+    )
+    gen_path = os.path.join(
+        TMP_DIR,
+        f'gen-{u_id}'
+    )
+    try:
+        out_dir = generate_model(model_path, gen_path)
+        make_tarball(tarball_path, out_dir)
+        return FileResponse(tarball_path,
+                            filename=os.path.basename(tarball_path),
+                            media_type='application/x-tar')
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"Codintxt.Transformation error: {e}"
+        )
+
+
+@api.post("/generate/file")
+async def gen_from_file(model_file: UploadFile = File(...),
+                        api_key: str = Security(get_api_key)):
     print(f'Generate for request: file=<{model_file.filename}>,' + \
           f' descriptor=<{model_file.file}>')
     resp = {
@@ -244,4 +278,3 @@ if HAS_DOCKER_EXEC:
 def make_tarball(fout, source_dir):
     with tarfile.open(fout, "w:gz") as tar:
         tar.add(source_dir, arcname=os.path.basename(source_dir))
-

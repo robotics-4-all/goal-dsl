@@ -40,14 +40,13 @@ def generate(model_fpath: str,
         wgoals = scenario.goals
 
         set_defaults(scenario, broker, wgoals)
-        report_broker(broker)
-        report_goals(scenario)
+        # report_broker(broker)
+        # report_goals(scenario)
 
         goals = [goal.goal for goal in wgoals]
 
         goals = process_goals(goals)
         scenario.scoreWeights = [goal.weight for goal in wgoals]
-        print(goals)
 
         out_file = path.join(out_dir, f"{scenario.name}.py")
         with open(path.join(out_file), 'w') as f:
