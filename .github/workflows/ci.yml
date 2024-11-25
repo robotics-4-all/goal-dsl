@@ -4,7 +4,7 @@ on: push
 
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: appleboy/ssh-action@master
@@ -15,8 +15,8 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd ~/goal-dsl
-            git reset --hard origin/main
-            git pull https://${{ secrets.CLONE_TOKEN }}@github.com/robotics-4-all/goal-dsl main
+            git reset --hard origin/master
+            git pull https://${{ secrets.CLONE_TOKEN }}@github.com/robotics-4-all/goal-dsl master
             docker build -t goaldsl .
             docker compose down
             docker compose build
