@@ -101,13 +101,21 @@ def get_scope_providers():
 
 
 def build_model(model_path):
-    mm = get_metamodel(debug=False)
-    model = mm.model_from_file(model_path)
-    conds = get_top_level_condition(model)
+    """
+    This function builds a model from a given goal-driven CPS Behavior Verification language file.
+
+    Parameters:
+    model_path (str): The path to the goal-driven CPS Behavior Verification language file.
+
+    Returns:
+    model: The built model object representing the goal-driven CPS Behavior Verification language.
+    """
+    mm = get_metamodel(debug=False)  # Get the metamodel for the language
+    model = mm.model_from_file(model_path)  # Parse the model from the file
+    conds = get_top_level_condition(model)  # Get the top-level conditions from the model
     for cond in conds:
-        build_cond_expr(cond, model)
-    # entities = get_children_of_type('Entity', model)
-    return model
+        build_cond_expr(cond, model)  # Build the condition expressions for each top-level condition
+    return model  # Return the built model
 
 
 def get_model_entities(model):
