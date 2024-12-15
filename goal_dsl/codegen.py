@@ -40,8 +40,6 @@ def generate(model_fpath: str,
         wgoals = scenario.goals
 
         set_defaults(scenario, broker, wgoals)
-        # report_broker(broker)
-        # report_goals(scenario)
 
         goals = [goal.goal for goal in wgoals]
 
