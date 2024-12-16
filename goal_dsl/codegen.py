@@ -65,7 +65,7 @@ def process_goals(goals):
         if goal.__class__.__name__ == 'EntityStateConditionGoal':
             # cond_lambda = make_condition_lambda(goal.condition)
             cond_lambda = goal.condition.cond_expr
-            goal.cond_lambda = goal.condition.cond_expr
+            goal.condition.cond_lambda = goal.condition.cond_expr
         elif goal.__class__.__name__ == 'EntityStateChangeGoal':
             pass
         elif goal.__class__.__name__ == 'ComplexGoal':
@@ -109,7 +109,6 @@ def goal_max_min_duration_from_tc(goal):
 def make_condition_lambda(condition):
     cond = Condition(condition)
     cond.build()
-    print(cond.cond_expr)
     return cond.cond_expr
 
 

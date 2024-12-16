@@ -16,7 +16,7 @@ AreaGoal:
 RectangleAreaGoal:
     'Goal<RectangleArea>' name=ID
     (
-        ('entity:' entity=[Entity:FQN|+pm:entities*])
+        //('entity:' entity=[Entity:FQN|+pm:entities*])
         ('bottomLeftEdge:' bottomLeftEdge=Point )
         ('lengthX:' lengthX=NUMBER )
         ('lengthY:' lengthY=NUMBER )
@@ -51,7 +51,7 @@ MovingAreaGoal:
 CircularAreaGoal:
     'Goal<CircularArea>' name=ID
     (
-        ('entity:' entity=[Entity:FQN|+pm:entities*])
+        //('entity:' entity=[Entity:FQN|+pm:entities*])
         ('center:' center=Point)
         ('radius:' radius=NUMBER)
         ('tag:' type=AreaGoalTag)

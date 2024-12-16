@@ -45,16 +45,30 @@ end
 
 Goal<EntityStateCondition> Goal_2
     condition:
+        AirQualitySensor1.gas <= 25
+end
+
+/*
+Goal<EntityStateCondition> Goal_3
+    condition:
+        mean(AirQualitySensor1.gas, 10) <= 25
+end
+*/
+
+/*
+Goal<EntityStateCondition> Goal_2
+    condition:
         (mean(AirQualitySensor1.gas, 10) <= 25) and
         (std(AirQualitySensor1.humidity, 10) < 0.5)
 end
+*/
 
 
 Goal<EntityStateCondition> Goal_3
     condition:
-        (TempSensor1.temp * 10 > 10) and
-        (TempSensor2.temp + 2 > 10) and
-        (TempSensor3.temp - TempSensor2.temp > 10)
+        (TempSensor1.temp > 10) and
+        (TempSensor2.temp > 10) and
+        (TempSensor3.temp - TempSensor2.temp < 10)
 end
 
 

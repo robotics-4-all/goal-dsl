@@ -110,9 +110,7 @@ def model_proc(model, metamodel):
 
 def condition_processor(cond):
     # Adds a cond.cond_expr property to the Condition instance
-    print("AAAAAS")
     build_cond_expr(cond)
-    print(cond.cond_expr)
 
 
 def nid_processor(nid):
@@ -232,6 +230,8 @@ def transform_cond(cond):
         cond.cond_expr = cond.cond_expr.replace("condition:", "")
         if cond.cond_expr.startswith(" "):
             cond.cond_expr = cond.cond_expr[1:]
+        if "mean" in cond.cond_expr:
+            pass
 
 
 def is_float(string):
@@ -258,3 +258,9 @@ def get_cond_definition(cond):
 def goaldsl_language():
     "Goal-driven CPS Behavior Verification language"
     return get_metamodel()
+
+
+def get_model_grammar(model_path):
+    mm = get_metamodel()
+    grammar_model = mm.grammar_model_from_file(model_path)
+    return grammar_model
