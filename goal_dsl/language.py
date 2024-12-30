@@ -2,8 +2,9 @@ import re
 from os.path import join
 from textx import metamodel_from_file, get_children_of_type, metamodel_for_language, get_location
 import textx.scoping.providers as scoping_providers
-from textx import language, get_model
-import statistics
+from textx import language, get_model, textx_isinstance, TextXSemanticError, get_parent_of_type, get_children
+
+from goal_dsl.logging import default_logger as logger
 
 from goal_dsl.definitions import THIS_DIR, MODEL_REPO_PATH, BUILTIN_MODELS
 
@@ -109,8 +110,8 @@ def model_proc(model, metamodel):
 
 
 def condition_processor(cond):
-    # Adds a cond.cond_expr property to the Condition instance
-    build_cond_expr(cond)
+    # build_cond_expr(cond)
+    pass
 
 
 def nid_processor(nid):
@@ -119,8 +120,8 @@ def nid_processor(nid):
 
 
 obj_processors = {
-    # 'Condition': condition_processor,
-    'ConditionList': condition_processor,
+    "Condition": condition_processor,
+    # 'ConditionList': condition_processor,
     # 'ConditionGroup': condition_processor,
     # 'PrimitiveCondition': condition_processor,
     # 'AdvancedCondition': condition_processor,
@@ -180,20 +181,52 @@ def build_model(model_path):
     Returns:
     model: The built model object representing the goal-driven CPS Behavior Verification language.
     """
+    entity_attr_buffs = []
     mm = get_metamodel(debug=False)  # Get the metamodel for the language
     model = mm.model_from_file(model_path)  # Parse the model from the file
     conds = get_top_level_condition(model)  # Get the top-level conditions from the model
-    for cond in conds:
-        build_cond_expr(cond)  # Build the condition expressions for each top-level condition
+    goals = get_model_goals(model)  # Get the goals from the model
+    entities = get_model_entities(model)  # Get the entities from the model
+
+    logger.info(f"Goals: {goals}")
+    logger.info(f"Entities: {entities}")
+
+    build_condition_expressions(conds)  # Build the condition expressions for each top-level condition
+    entity_attr_buffs = build_entity_attr_buff_tuples(conds)  # Build the entity attribute buffer tuples
+    update_entity_attributes(entities, entity_attr_buffs)  # Update the entity attributes with buffer values
+
+    logger.info(entity_attr_buffs)
     return model  # Return the built model
 
 
+def build_condition_expressions(conds):
+    for cond in conds:
+        build_condition(cond)
+
+
+def update_entity_attributes(entities, entity_attr_buffs):
+    for entity in entities:
+        update_entity_attributes_for_buffer(entity, entity_attr_buffs)
+
+
+def update_entity_attributes_for_buffer(entity, entity_attr_buffs):
+    for c in entity_attr_buffs:
+        if c[0] == entity.name:
+            for attr in entity.attributes:
+                if attr.name == c[1]:
+                    if not hasattr(attr, "buffer") or attr.buffer < c[2]:
+                        setattr(attr, "buffer", c[2])
+
+
 def get_model_entities(model):
-    return get_children_of_type("Entity", model)
+    entities = []
+    for m in model._tx_model_repository.all_models:
+        entities += m.entities
+    return entities
 
 
 def get_model_conditions(model):
-    conds = get_children_of_type("ConditionList", model)
+    conds = get_children_of_type("Condition", model)
     return conds
 
 
@@ -208,30 +241,36 @@ def get_top_level_condition(model):
 
 
 def get_model_goals(model):
-    goals = get_children_of_type("Goal", model)
+    goals = []
+    for m in model._tx_model_repository.all_models:
+        goals += m.goals
     return goals
 
 
-def build_cond_expr(cond):
+def build_entity_attr_buff_tuples(cond):
+    pattern = r'(?:mean|std)\((\w+)\.(\w+), (\d+)\)'
+    matches = re.findall(pattern, cond.cond_def)
+    result = [(entity, attribute, int(number)) for entity, attribute, number in matches]
+    return result
+
+
+def build_condition(cond):
     cond_def = get_cond_definition(cond)
-    cond.cond_expr = cond_def
-    transform_cond(cond)
+    cond.cond_def = cond_def
+    cond.cond_py = transform_cond_py(cond)
 
 
-def transform_cond(cond):
-    pattern = r'\b\w+\.\w+\b'
-    matches = re.findall(pattern, cond.cond_expr)
-    for m in matches:
-        if is_float(m):
-            continue
-        entity, attr = m.split(".")
-        attr_ref = f"entities['{entity}'].attributes['{attr}']"
-        cond.cond_expr = cond.cond_expr.replace(m, attr_ref)
-        cond.cond_expr = cond.cond_expr.replace("condition:", "")
-        if cond.cond_expr.startswith(" "):
-            cond.cond_expr = cond.cond_expr[1:]
-        if "mean" in cond.cond_expr:
-            pass
+def transform_cond_py(cond):
+    cond_def = cond.cond_def
+    cond_def = cond_def.replace("condition:", "").lstrip().rstrip()
+    logger.info(f"Transforming Condition: {cond_def}")
+    cond_py = cond_def
+    cond_py = re.sub(r'mean\(([^,]+)\.([^,]+), [^)]*\)', r'mean(entities["\1"].get_buffer["\2"])', cond_py)
+    cond_py = re.sub(r'std\(([^,]+)\.([^,]+), [^)]*\)', r'std(entities["\1"].get_buffer["\2"])', cond_py)
+    cond_py = re.sub(r'var\(([^,]+)\.([^,]+), [^)]*\)', r'var(entities["\1"].get_buffer["\2"])', cond_py)
+    cond_py = re.sub(r'(\b\w+)\.(?!\d)(\w+\b)', r'entities["\1"].attributes["\2"]', cond_py)
+    logger.info(f"Transformed Condition: {cond_py}")
+    return cond_py
 
 
 def is_float(string):
@@ -256,7 +295,7 @@ def get_cond_definition(cond):
 
 @language('goal_dsl', '*.goal')
 def goaldsl_language():
-    "Goal-driven CPS Behavior Verification language"
+    "Goal-driven Behavior Verification DSL for CPSs"
     return get_metamodel()
 
 
@@ -264,3 +303,7 @@ def get_model_grammar(model_path):
     mm = get_metamodel()
     grammar_model = mm.grammar_model_from_file(model_path)
     return grammar_model
+
+
+def is_instance_textx(obj, type_name):
+    return obj.__class__.__name__ == type_name

@@ -3,10 +3,8 @@ import types
 import utils
 
 // === Conditions ===
-// Condition: AdvancedCondition | PrimitiveCondition | ConditionGroup ;
-Condition: ConditionList;
 
-ConditionList:
+Condition:
     r1=ConditionGroup (operator=LogicalOperator r2=ConditionGroup)*
 ;
 
@@ -43,15 +41,14 @@ MathTerm:
 MathFactor:
     (sign=PlusOrMinus)?
     (
-        op=MathOperand
-        | '(' op=MathExpression ')'
+        op=MathOperand | '(' op=MathExpression ')'
     )
 ;
 
 MathOperand:
-    op=NUMBER
-    | op=AugmentedNumericAttr
-    | op=AttributeValue
+    op=NUMBER |
+    op=AugmentedNumericAttr |
+    op=AttributeValue
 ;
 
 AttributeValue:
