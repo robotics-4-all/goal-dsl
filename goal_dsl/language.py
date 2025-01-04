@@ -136,7 +136,7 @@ obj_processors = {
 }
 
 
-def get_metamodel(debug: bool = False, global_repo: bool = False):
+def get_metamodel(debug: bool = False, global_repo: bool = True):
     metamodel = metamodel_from_file(
         join(THIS_DIR, 'grammar', 'goal_dsl.tx'),
         auto_init_attributes=True,
@@ -194,8 +194,6 @@ def build_model(model_path):
     build_condition_expressions(conds)  # Build the condition expressions for each top-level condition
     entity_attr_buffs = build_entity_attr_buff_tuples(conds)  # Build the entity attribute buffer tuples
     update_entity_attributes(entities, entity_attr_buffs)  # Update the entity attributes with buffer values
-
-    logger.info(entity_attr_buffs)
     return model  # Return the built model
 
 
@@ -210,11 +208,14 @@ def update_entity_attributes(entities, entity_attr_buffs):
 
 
 def update_entity_attributes_for_buffer(entity, entity_attr_buffs):
+    for attr in entity.attributes:
+        if not hasattr(attr, "buffer"):
+            setattr(attr, "buffer", None)
     for c in entity_attr_buffs:
         if c[0] == entity.name:
             for attr in entity.attributes:
                 if attr.name == c[1]:
-                    if not hasattr(attr, "buffer") or attr.buffer < c[2]:
+                    if attr.buffer is None or attr.buffer < c[2]:
                         setattr(attr, "buffer", c[2])
 
 
@@ -246,11 +247,21 @@ def get_model_goals(model):
         goals += m.goals
     return goals
 
+def get_model_scenarios(model):
+    scenarios = []
+    for m in model._tx_model_repository.all_models:
+        scenarios += m.scenarios
+    return scenarios
 
-def build_entity_attr_buff_tuples(cond):
+
+def build_entity_attr_buff_tuples(conds):
     pattern = r'(?:mean|std)\((\w+)\.(\w+), (\d+)\)'
-    matches = re.findall(pattern, cond.cond_def)
-    result = [(entity, attribute, int(number)) for entity, attribute, number in matches]
+    result = [] # List to store the entity attribute buffer tuples
+    for cond in conds:
+        matches = re.findall(pattern, cond.cond_def)
+        result += [(entity, attribute, int(number)) for entity, attribute, number in matches]
+    # matches = re.findall(pattern, cond.cond_def)
+    # result = [(entity, attribute, int(number)) for entity, attribute, number in matches]
     return result
 
 

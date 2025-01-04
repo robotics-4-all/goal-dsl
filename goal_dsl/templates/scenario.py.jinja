@@ -2,6 +2,7 @@
 
 from goalee import Scenario, RedisBroker, MQTTBroker, AMQPBroker
 from goalee.entity import Entity
+from statistics import stdev as std, mean as mean, variance as var
 
 from goalee.area_goals import *
 from goalee.complex_goal import *
@@ -44,7 +45,11 @@ entities_list = []
     )
     {% endif %}
 )
-
+{% for attr in entity.attributes %}
+{% if attr.buffer not in (None, 0) %}
+{{ entity.name }}.init_attr_buffer("{{ attr.name }}", {{ attr.buffer }})
+{% endif %}
+{% endfor %}
 entities_list.append({{ entity.name }})
 {% endfor %}
 
@@ -82,11 +87,13 @@ if __name__ == '__main__':
 
     {% for goal in goals %}
     {% if goal.__class__.__name__ == 'EntityStateConditionGoal' %}
+
     g = EntityStateCondition(
         name='{{ goal.name }}',
         entities=[{% for e in entity_names %}{{ e }}, {% endfor %}],
         # condition=lambda entities: True if {{goal.cond_lambda}} else False,
-        condition='{{ goal.condition.cond_expr.replace("'", "\"") }}',
+        condition='{{ goal.condition.cond_py.replace("'", "\"") }}',
+        # condition={{ goal.condition.cond_lambda}},
         max_duration={{ goal.max_duration }},
         min_duration={{ goal.min_duration }},
     )

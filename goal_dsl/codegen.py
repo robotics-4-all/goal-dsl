@@ -2,9 +2,10 @@ from os import path, mkdir, getcwd, chmod
 from textx import generator
 import jinja2
 
-from goal_dsl.language import build_model
+from goal_dsl.language import build_model, get_model_entities, get_model_scenarios
 from goal_dsl.definitions import THIS_DIR
 from goal_dsl.lib.condition import Condition
+from goal_dsl.logging import default_logger as logger
 
 THIS_DIR = path.abspath(path.dirname(__file__))
 
@@ -14,7 +15,7 @@ jinja_env = jinja2.Environment(
     trim_blocks=True,
     lstrip_blocks=True)
 
-template = jinja_env.get_template('scenario.tpl')
+template = jinja_env.get_template('scenario.py.jinja')
 
 srcgen_folder = path.join(path.realpath(getcwd()), 'gen')
 
@@ -28,15 +29,18 @@ def generate(model_fpath: str,
     if not path.exists(out_dir):
         mkdir(out_dir)
 
-    scenarios = model.scenarios
+    scenarios = get_model_scenarios(model)
+    entities = get_model_entities(model)
 
-    entities = model.entities
     for e in entities:
         e.attr_list = [attr.name for attr in e.attributes]
+        e.attr_buff = [getattr(attr, "buffer", None) for attr in e.attributes]
+
     entity_names = [e.name for e in entities]
 
     for scenario in scenarios:
         broker = scenario.broker
+        print(broker)
         wgoals = scenario.goals
 
         set_defaults(scenario, broker, wgoals)
@@ -63,9 +67,9 @@ def process_goals(goals):
         if goal.__class__.__name__ == 'WeightedGoal':
             goal = goal.goal
         if goal.__class__.__name__ == 'EntityStateConditionGoal':
-            # cond_lambda = make_condition_lambda(goal.condition)
-            cond_lambda = goal.condition.cond_expr
-            goal.condition.cond_lambda = goal.condition.cond_expr
+            cond_lambda = make_condition_lambda(goal.condition)
+            goal.condition.cond_lambda = cond_lambda
+            logger.info(f'[*] - Goal <{goal.name}> condition lambda: {cond_lambda}')
         elif goal.__class__.__name__ == 'EntityStateChangeGoal':
             pass
         elif goal.__class__.__name__ == 'ComplexGoal':
@@ -106,11 +110,12 @@ def goal_max_min_duration_from_tc(goal):
     goal.min_duration = min_duration
 
 
+# def make_condition_lambda(condition):
+#     cond = Condition(condition)
+#     cond.build()
+#     return cond.cond_expr
 def make_condition_lambda(condition):
-    cond = Condition(condition)
-    cond.build()
-    return cond.cond_expr
-
+    return f'lambda entities: True if {condition.cond_py} else False'
 
 def report_goals(scenario: list):
     for wgoal in scenario.goals:
