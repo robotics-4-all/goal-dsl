@@ -98,7 +98,6 @@ if __name__ == '__main__':
         max_duration={{ goal.max_duration }},
         min_duration={{ goal.min_duration }},
     )
-
     {% elif goal.__class__.__name__ == 'EntityStateChangeGoal' %}
     g = EntityStateChange(
         entity={{ goal.entity.name }},
@@ -108,14 +107,15 @@ if __name__ == '__main__':
     )
     {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
     g = WaypointTrajectoryGoal(
-        topic='{{ goal.entity.topic }}',
+        entities=[{% for e in entity_names %}{{ e }}, {% endfor %}],
         points=[
             {% for point in goal.points %}
             Point({{ point.x }}, {{ point.y }}, {{ point.z }}),
             {% endfor %}
         ],
         deviation={{ goal.maxDeviation }},
-        duration=({{ goal.min_duration }}, {{ goal.max_duration }}),
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
     )
     {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
     g = RectangleAreaGoal(
@@ -140,19 +140,22 @@ if __name__ == '__main__':
     )
     {% elif goal.__class__.__name__ == 'PositionGoal' %}
     g = PositionGoal(
-        topic='{{ goal.entity.topic }}',
-        point=Point({{ goal.point.x }}, {{ goal.point.y }}, {{ goal.point.z }}),
+        entity={{ goal.entity.name }},
+        position=Point({{ goal.point.x }}, {{ goal.point.y }}, {{ goal.point.z }}),
         deviation={{ goal.maxDeviation }},
-        duration=({{ goal.min_duration }}, {{ goal.max_duration }}),
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
     )
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
     cg = ComplexGoal(
-        {% if goal.algorithm.__class__.__name__ == 'ALL_ACCOMPLISHED'%}
+        algorithm=ComplexGoalAlgorithm.{{ goal.algorithm }},
+        {# {% if goal.algorithm.__class__.__name__ == 'ALL_ACCOMPLISHED'%}
         algorithm=ComplexGoalAlgorithm.ALL_ACCOMPLISHED,
         {% elif goal.algorithm.__class__.__name__ == 'NONE_ACCOMPLISHED'%}
         algorithm=ComplexGoalAlgorithm.NONE_ACCOMPLISHED,
-        {% endif %}
-        duration=({{ goal.min_duration }}, {{ goal.max_duration }}),
+        {% endif %} #}
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
     )
         {% for goal in goal.goals %}
         {% if goal.__class__.__name__ == 'EntityStateConditionGoal' %}

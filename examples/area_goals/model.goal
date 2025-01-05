@@ -41,7 +41,7 @@ end
 Goal<CircularArea> Goal_2
     center: Point3D(5, 5, 0)
     radius: 5
-    tag: ENTER
+    tag: AVOID
 end
 
 Scenario MyScenario
