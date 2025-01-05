@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     g = EntityStateCondition(
         name='{{ goal.name }}',
-        entities=[{% for e in entity_names %}{{ e }}, {% endfor %}],
+        entities=[{{ ", ".join(entity_names) }}],
         # condition='{{ goal.condition.cond_py.replace("'", "\"") }}',
         condition={{ goal.condition.cond_lambda}},
         max_duration={{ goal.max_duration }},
