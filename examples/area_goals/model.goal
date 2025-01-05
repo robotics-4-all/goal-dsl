@@ -15,6 +15,22 @@ Entity Robot1Pose
         - orientation: dict
 end
 
+Entity TempSensor1
+    type: sensor
+    topic: 'bedroom.sensor.temperature'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
+Entity TempSensor2
+    type: sensor
+    topic: 'bathroom.sensor.temperature'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
 Goal<RectangleArea> Goal_1
     bottomLeftEdge: Point3D(0, 0, 0)
     lengthX: 5
