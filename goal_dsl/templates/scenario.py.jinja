@@ -149,11 +149,6 @@ if __name__ == '__main__':
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
     cg = ComplexGoal(
         algorithm=ComplexGoalAlgorithm.{{ goal.algorithm }},
-        {# {% if goal.algorithm.__class__.__name__ == 'ALL_ACCOMPLISHED'%}
-        algorithm=ComplexGoalAlgorithm.ALL_ACCOMPLISHED,
-        {% elif goal.algorithm.__class__.__name__ == 'NONE_ACCOMPLISHED'%}
-        algorithm=ComplexGoalAlgorithm.NONE_ACCOMPLISHED,
-        {% endif %} #}
         max_duration={{ goal.max_duration }},
         min_duration={{ goal.min_duration }},
     )
