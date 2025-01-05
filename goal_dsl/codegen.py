@@ -40,7 +40,6 @@ def generate(model_fpath: str,
 
     for scenario in scenarios:
         broker = scenario.broker
-        print(broker)
         wgoals = scenario.goals
 
         set_defaults(scenario, broker, wgoals)
@@ -71,6 +70,10 @@ def process_goals(goals):
             goal.condition.cond_lambda = cond_lambda
             logger.info(f'[*] - Goal <{goal.name}> condition lambda: {cond_lambda}')
         elif goal.__class__.__name__ == 'EntityStateChangeGoal':
+            pass
+        elif goal.__class__.__name__ == 'RectangleAreaGoal':
+            pass
+        elif goal.__class__.__name__ == 'CircularAreaGoal':
             pass
         elif goal.__class__.__name__ == 'ComplexGoal':
             _cgoals = process_goals(goal.goals)

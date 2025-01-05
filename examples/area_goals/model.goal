@@ -8,7 +8,7 @@ end
 
 Entity Robot1Pose
     type: sensor
-    topic: 'robot_a.pose'
+    topic: 'robot_1.pose'
     source: HomeMQTT
     attributes:
         - position: dict
@@ -16,14 +16,21 @@ Entity Robot1Pose
 end
 
 Goal<RectangleArea> Goal_1
-    bottomLeftEdge: Point3D(5, 5, 0)
-    lengthX: 2
-    lengthY: 2
+    bottomLeftEdge: Point3D(0, 0, 0)
+    lengthX: 5
+    lengthY: 5
+    tag: ENTER
+end
+
+Goal<CircularArea> Goal_2
+    center: Point3D(5, 5, 0)
+    radius: 5
     tag: ENTER
 end
 
 Scenario MyScenario
     goals:
         - Goal_1
+        - Goal_2
     concurrent: False
 end

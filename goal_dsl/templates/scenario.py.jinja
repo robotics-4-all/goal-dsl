@@ -78,6 +78,8 @@ if __name__ == '__main__':
         username='{{ scenario.broker.username }}',
         password='{{ scenario.broker.password }}',
     )
+    {% else %}
+    broker = None
     {% endif %}
     t = Scenario(
         name='{{ scenario.name }}',
@@ -119,7 +121,7 @@ if __name__ == '__main__':
     g = RectangleAreaGoal(
         name='{{ goal.name }}',
         entities=[{% for e in entity_names %}{{ e }}, {% endfor %}],
-        bottom_left_edge={{ goal.bottom_left_edge}},
+        bottom_left_edge=Point({{ goal.bottomLeftEdge.x }}, {{ goal.bottomLeftEdge.y }}, {{ goal.bottomLeftEdge.z }}),
         length_x={{ goal.lengthX}},
         length_y={{ goal.lengthY}},
         tag=AreaGoalTag.{{ goal.tag }},
@@ -130,7 +132,7 @@ if __name__ == '__main__':
     g = CircularAreaGoal(
         name='{{ goal.name }}',
         entities=[{% for e in entity_names %}{{ e }}, {% endfor %}],
-        center={{ goal.center }},
+        center=Point({{ goal.center.x }}, {{ goal.center.y }}, {{ goal.center.z }}),
         radius={{ goal.radius }},
         tag=AreaGoalTag.{{ goal.tag }},
         max_duration={{ goal.max_duration }},
