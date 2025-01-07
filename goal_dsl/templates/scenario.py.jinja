@@ -106,7 +106,7 @@ if __name__ == '__main__':
     )
     {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
     g = WaypointTrajectoryGoal(
-        entities=[{% for e in entity_names %}{{ e }}, {% endfor %}],
+        entities=[{{ ", ".join(entity_names) }}],
         points=[
             {% for point in goal.points %}
             Point({{ point.x }}, {{ point.y }}, {{ point.z }}),
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
     g = RectangleAreaGoal(
         name='{{ goal.name }}',
-        entities=[{% for e in entity_names %}{{ e }}, {% endfor %}],
+        entities=[{{ ", ".join(entity_names) }}],
         bottom_left_edge=Point({{ goal.bottomLeftEdge.x }}, {{ goal.bottomLeftEdge.y }}, {{ goal.bottomLeftEdge.z }}),
         length_x={{ goal.lengthX}},
         length_y={{ goal.lengthY}},
@@ -130,8 +130,18 @@ if __name__ == '__main__':
     {% elif goal.__class__.__name__ == 'CircularAreaGoal' %}
     g = CircularAreaGoal(
         name='{{ goal.name }}',
-        entities=[{% for e in entity_names %}{{ e }}, {% endfor %}],
+        entities=[{{ ", ".join(entity_names) }}],
         center=Point({{ goal.center.x }}, {{ goal.center.y }}, {{ goal.center.z }}),
+        radius={{ goal.radius }},
+        tag=AreaGoalTag.{{ goal.tag }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+    {% elif goal.__class__.__name__ == 'MovingAreaGoal' %}
+    g = MovingAreaGoal(
+        name='{{ goal.name }}',
+        motion_entity={{ goal.entity.name }},
+        entities=[{{ ", ".join(entity_names) }}],
         radius={{ goal.radius }},
         tag=AreaGoalTag.{{ goal.tag }},
         max_duration={{ goal.max_duration }},
@@ -183,7 +193,7 @@ if __name__ == '__main__':
         {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
     g = RectangleAreaGoal(
         name='{{ goal.name }}',
-        entities=[{% for e in entity_names %}{{ e }}, {% endfor %}],
+        entities=[{{ ", ".join(entity_names) }}],
         bottom_left_edge=Point({{ goal.bottomLeftEdge.x }}, {{ goal.bottomLeftEdge.y }}, {{ goal.bottomLeftEdge.z }}),
         length_x={{ goal.lengthX}},
         length_y={{ goal.lengthY}},
@@ -194,7 +204,7 @@ if __name__ == '__main__':
         {% elif goal.__class__.__name__ == 'CircularAreaGoal' %}
     g = CircularAreaGoal(
         name='{{ goal.name }}',
-        entities=[{% for e in entity_names %}{{ e }}, {% endfor %}],
+        entities=[{{ ", ".join(entity_names) }}],
         center=Point({{ goal.center.x }}, {{ goal.center.y }}, {{ goal.center.z }}),
         radius={{ goal.radius }},
         tag=AreaGoalTag.{{ goal.tag }},
