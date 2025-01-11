@@ -42,12 +42,12 @@ setup(
     keywords='goaldsl',
     name='goaldsl',
     packages=find_packages(include=['goal_dsl', 'goal_dsl.*']),
-    # package_data={
-    #     'goal_dsl': ['templates/*.jinja', 'grammar/*.tx'],  # Include grammar and template files
-    # },
+    package_data={
+        'goal_dsl': ['templates/*.jinja', 'grammar/*.tx'],  # Include grammar and template files
+    },
     install_requires=required,
     test_suite='tests',
     url='https://github.com/robotics-4-all/goal-dsl',
     version=VERSION,
-    zip_safe=True,
+    zip_safe=False,
 )
