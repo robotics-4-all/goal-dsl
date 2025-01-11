@@ -49,5 +49,5 @@ setup(
     test_suite='tests',
     url='https://github.com/robotics-4-all/goal-dsl',
     version=VERSION,
-    zip_safe=False,
+    zip_safe=True,
 )
