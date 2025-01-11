@@ -60,6 +60,35 @@ def generate(model_fpath: str,
         return out_dir
 
 
+def generate_str(model: str):
+    scenarios = get_model_scenarios(model)
+    entities = get_model_entities(model)
+
+    for e in entities:
+        e.attr_list = [attr.name for attr in e.attributes]
+        e.attr_buff = [getattr(attr, "buffer", None) for attr in e.attributes]
+
+    entity_names = [e.name for e in entities]
+
+    for scenario in scenarios:
+        broker = scenario.broker
+        wgoals = scenario.goals
+
+        set_defaults(scenario, broker, wgoals)
+
+        goals = [goal.goal for goal in wgoals]
+
+        goals = process_goals(goals)
+        scenario.scoreWeights = [goal.weight for goal in wgoals]
+
+        code = template.render(broker=broker,
+                               scenario=scenario,
+                               entities=entities,
+                               entity_names=entity_names,
+                               goals=goals)
+        return code
+
+
 def process_goals(goals):
     _goals = []
     for goal in goals:
