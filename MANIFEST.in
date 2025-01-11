@@ -1,2 +1,2 @@
-recursive-include goal_dsl/templates/*.jinja
-recursive-include goal_dsl/grammar/*.tx
+include *.tx *.jinja
+recursive-include goal_dsl/templates/*.jinja goal_dsl/grammar/*.tx
