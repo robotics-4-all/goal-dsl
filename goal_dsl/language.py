@@ -197,6 +197,32 @@ def build_model(model_path):
     return model  # Return the built model
 
 
+def build_model_str(model_str):
+    """
+    This function builds a model from a given goal-driven CPS Behavior Verification language file.
+
+    Parameters:
+    model_path (str): The path to the goal-driven CPS Behavior Verification language file.
+
+    Returns:
+    model: The built model object representing the goal-driven CPS Behavior Verification language.
+    """
+    entity_attr_buffs = []
+    mm = get_metamodel(debug=False)  # Get the metamodel for the language
+    model = mm.model_from_str(model_str)  # Parse the model from the file
+    conds = get_top_level_condition(model)  # Get the top-level conditions from the model
+    goals = get_model_goals(model)  # Get the goals from the model
+    entities = get_model_entities(model)  # Get the entities from the model
+
+    logger.info(f"Goals: {goals}")
+    logger.info(f"Entities: {entities}")
+
+    build_condition_expressions(conds)  # Build the condition expressions for each top-level condition
+    entity_attr_buffs = build_entity_attr_buff_tuples(conds)  # Build the entity attribute buffer tuples
+    update_entity_attributes(entities, entity_attr_buffs)  # Update the entity attributes with buffer values
+    return model  # Return the built model
+
+
 def build_condition_expressions(conds):
     for cond in conds:
         build_condition(cond)

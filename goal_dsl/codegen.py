@@ -2,7 +2,7 @@ from os import path, mkdir, getcwd, chmod
 from textx import generator
 import jinja2
 
-from goal_dsl.language import build_model, get_model_entities, get_model_scenarios
+from goal_dsl.language import build_model, build_model_str, get_model_entities, get_model_scenarios
 from goal_dsl.definitions import THIS_DIR
 from goal_dsl.lib.condition import Condition
 from goal_dsl.logging import default_logger as logger
@@ -60,7 +60,9 @@ def generate(model_fpath: str,
         return out_dir
 
 
-def generate_str(model: str):
+def generate_str(model_str: str):
+    model = build_model_str(model_str)
+
     scenarios = get_model_scenarios(model)
     entities = get_model_entities(model)
 
