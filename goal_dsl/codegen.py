@@ -72,6 +72,7 @@ def generate_str(model_str: str):
     entity_names = [e.name for e in entities]
 
     for scenario in scenarios:
+        # TODO: Only one scenario is supported for now
         broker = scenario.broker
         wgoals = scenario.goals
 
