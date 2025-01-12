@@ -1,0 +1,30 @@
+import entities.goal
+
+
+Goal<EntityStateChange> Goal_1
+    entity: TempSensor1
+end
+
+Goal<EntityStateCondition> Goal_2
+    condition: mean(TempSensor1.temp, 5) > 10
+end
+
+Goal<EntityStateCondition> Goal_3
+    condition: mean(TempSensor1.temp, 10) > 10
+end
+
+/*
+Goal<EntityStateCondition> Goal_3
+    condition: (mean(TempSensor1.temp, 5) > 0.5 ) and
+        (std(TempSensor2.temp, 3) < 1)
+end
+*/
+
+Scenario MyScenario
+    goals:
+        - Goal_1 -> 0.5
+        - Goal_2 -> 0.25
+        - Goal_3 -> 0.25
+    concurrent: True
+    broker: MyMQTTBroker
+end

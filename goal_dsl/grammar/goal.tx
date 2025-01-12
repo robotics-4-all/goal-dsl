@@ -3,7 +3,7 @@ import area_goals
 import pose_goals
 import trajectory_goals
 import time_constraint
-import util
+import utils
 
 
 Goal:

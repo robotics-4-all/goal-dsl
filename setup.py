@@ -39,10 +39,12 @@ if sys.argv[-1].startswith('publish'):
 
 
 setup(
-    package_data={'': ['*.tx']},
     keywords='goaldsl',
     name='goaldsl',
     packages=find_packages(include=['goal_dsl', 'goal_dsl.*']),
+    package_data={
+        'goal_dsl': ['templates/*.jinja', 'grammar/*.tx'],  # Include grammar and template files
+    },
     install_requires=required,
     test_suite='tests',
     url='https://github.com/robotics-4-all/goal-dsl',

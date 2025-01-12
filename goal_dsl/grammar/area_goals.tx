@@ -1,7 +1,7 @@
 import entity
-import data_types
+import types
 import time_constraint
-import util
+import utils
 
 
 AreaGoal:
@@ -16,11 +16,11 @@ AreaGoal:
 RectangleAreaGoal:
     'Goal<RectangleArea>' name=ID
     (
-        ('entity:' entity=[Entity:FQN|+pm:entities*])
+        //('entity:' entity=[Entity:FQN|+pm:entities*])
         ('bottomLeftEdge:' bottomLeftEdge=Point )
-        ('lengthX:' lengthX=NUMBER )
-        ('lengthY:' lengthY=NUMBER )
-        ('tag:' type=AreaGoalTag )
+        ('lengthX:' lengthX=NUMBER)
+        ('lengthY:' lengthY=NUMBER)
+        ('tag:' tag=AreaGoalTag )
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#  // Any order
     'end'
@@ -29,9 +29,9 @@ RectangleAreaGoal:
 PolylineAreaGoal:
     'Goal<PolylineArea>' name=ID
     (
-        ('entity:' entity=[Entity:FQN|+pm:entities*])
+        // ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('points:' '[' points+=Point[','] ']' )
-        ('tag:' type=AreaGoalTag )
+        ('tag:' tag=AreaGoalTag )
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#  // Any order
     'end'
@@ -41,8 +41,8 @@ MovingAreaGoal:
     'Goal<MovingArea>' name=ID
     (
         ('entity:' entity=[Entity:FQN|+pm:entities*])
-        ('radius:' radius=NUMBER )
-        ('tag:' type=AreaGoalTag )
+        ('radius:' radius=NUMBER)
+        ('tag:' tag=AreaGoalTag)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#  // Any order
     'end'
@@ -51,10 +51,10 @@ MovingAreaGoal:
 CircularAreaGoal:
     'Goal<CircularArea>' name=ID
     (
-        ('entity:' entity=[Entity:FQN|+pm:entities*])
+        //('entity:' entity=[Entity:FQN|+pm:entities*])
         ('center:' center=Point)
         ('radius:' radius=NUMBER)
-        ('tag:' type=AreaGoalTag)
+        ('tag:' tag=AreaGoalTag)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
     'end'
@@ -63,10 +63,10 @@ CircularAreaGoal:
 StraightLine:
     'Goal<StraightLine>' name=ID
     (
-        ('entity:' entity=[Entity:FQN|+pm:entities*])
+        //('entity:' entity=[Entity:FQN|+pm:entities*])
         ('startPoint:' startPoint=Point)
         ('endPoint:' endPoint=Point)
-        ('tag:' type=AreaGoalTag)
+        ('tag:' tag=AreaGoalTag)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
     'end'

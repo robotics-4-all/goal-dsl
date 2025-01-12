@@ -7,8 +7,9 @@ Broker<MQTT> MyMQTTBroker
 end
 
 Entity WaterValve
-    topic: 'garden.water_valve'
     type: actuator
+    topic: 'garden.water_valve'
+    source: MyMQTTBroker
     attributes:
         - state: bool
 end
@@ -16,13 +17,15 @@ end
 Entity OrganicsMixer
     type: actuator
     topic: 'garden.organic_mixer'
+    source: MyMQTTBroker
     attributes:
         - state: bool
 end
 
 Entity RobotArmPose
-    topic: 'robot.arm.pose'
     type: sensor
+    topic: 'robot.arm.pose'
+    source: MyMQTTBroker
     attributes:
         - pose: dict
 end
@@ -41,9 +44,9 @@ end
 Goal<WaypointTrajectory> Goal_3
     entity: RobotArmPose
     points: [
-        Point3D(0, 0, 0), Point3D(0, 10, 0), Point3D(0, 20, 0), Point3D(10, 20, 0),
-        Point3D(10, 10, 0), Point3D(10, 0, 0), Point3D(20, 0, 0), Point3D(20, 10, 0),
-        Point3D(20, 20, 0)
+        Point3D(0, 0, 0), Point3D(0, 10, 0), Point3D(0, 20, 0),
+        Point3D(10, 20, 0), Point3D(10, 10, 0), Point3D(10, 0, 0),
+        Point3D(20, 0, 0), Point3D(20, 10, 0), Point3D(20, 20, 0)
     ]
     maxDeviation: 0.1
     timeConstraints:

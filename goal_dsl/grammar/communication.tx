@@ -1,12 +1,13 @@
-import util
+import utils
+import types
 
-Broker:
+MessageBroker:
     AMQPBroker | MQTTBroker | RedisBroker
 ;
 
 
 BrokerConnection:
-    'ref' ':' ref=[Broker:FQN]
+    'ref' ':' ref=[MessageBroker:FQN]
     'auth' ':' auth=Authentication
 ;
 
@@ -46,6 +47,9 @@ MQTTBroker:
         ('host:' host=STRING)
         ('port:' port=INT)
         ('ssl' ':' ssl=BOOL)?
+        ('basePath:' basePath=STRING)?
+        ('webPath:' webPath=STRING)?
+        ('webPort:' webPort=INT)?
         ('auth' ':' auth=Authentication)?
     )#
     'end'
@@ -63,3 +67,28 @@ RedisBroker:
     'end'
 ;
 
+
+RESTEndpoint:
+    'RESTEndpoint' name=ID
+    (
+        ('verb:' verb=RESTVerb)
+        ('host:' host=STRING)
+        ('port:' port=INT)
+        ('path:' path=STRING)
+        ('base_url:' baseUrl=STRING)?
+        (
+        'params:'
+            ('query:' '-' queryParams*=Property['-'])?
+            ('path:' '-' pathParams*=Property['-'])?
+            ('body:' '-' bodyParams*=Property['-'])?
+        ('headers:' '-' headers*=Property['-'])?
+        )?
+    )#
+    'end'
+;
+
+RESTVerb:
+    'GET'   |
+    'POST'  |
+    'PUT'
+;

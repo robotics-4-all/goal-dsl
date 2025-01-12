@@ -1,23 +1,42 @@
 import communication
-import data_types
-import util
+import types
+import utils
+
+
+EntitySource: (ref=[MessageBroker])|(ref=[RESTEndpoint]);
+// EntitySource: BrokerSource | RESTSource;
+// EntityStateSource: BrokerSource | RESTSource | DBSource;
+
+// BrokerSource: ref=[MessageBroker];
+
+// RESTSource: ref=[RESTEndpoint];
+
+// DBSource: DBSQLSource | DBNoSQLSource;
+
+// DBSQLSource: ref=[DBSQLEntry];
+
+// DBSQLSource: ref=[DBSQLEntry];
+
 
 Entity:
     'Entity' name=ID
-        (
-			('type:' etype=EntityType)
-			('topic:' topic=STRING)
-			('freq:' freq=NUMBER)?
-			('broker:' broker=[Broker])?
-			('attributes:' '-' attributes*=Attribute['-'])
-		)#
+    (
+        ('type:' etype=EntityType)
+        ('topic:' topic=STRING)?
+        ('source:' source=EntitySource)
+        ('description:' description=STRING)?
+        ('freq:' freq=NUMBER)?
+        ('attributes:' '-' attributes*=Attribute['-'])
+    )#
     'end'
 ;
 
 EntityType:
     'sensor'    |
     'actuator'  |
-    'hybrid'
+    'hybrid'    |
+    'robot'     |
+    'other'
 ;
 
 Attribute:
@@ -53,7 +72,7 @@ BoolAttribute:
 ;
 
 ListAttribute:
-    name=ID ':' 'list' ('=' '[' default*=Attribute[','] ']')?
+    name=ID ':' 'list' ('=' '[' default*=OBJECT[','] ']')?
         ('->' generator=ListValueGen)?
 ;
 
@@ -72,6 +91,7 @@ NumericValueGen:
     LinearFun       |
     SawFun			|
     GaussianFun     |
+    SinusFun		|
     ReplayFun       |
     ReplayFileFun
 ;
@@ -84,6 +104,10 @@ DictValueGen: ReplayFun | ReplayFileFun;
 
 GaussianFun:
     'gaussian' '(' value=NUMBER ',' maxValue=NUMBER ',' sigma=NUMBER ')'
+;
+
+SinusFun:
+    'sinus' '(' dc=NUMBER ',' amplitude=NUMBER ',' step=NUMBER ')'
 ;
 
 ConstantFun:
