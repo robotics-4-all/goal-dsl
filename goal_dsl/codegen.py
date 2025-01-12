@@ -62,7 +62,6 @@ def generate(model_fpath: str,
 
 def generate_str(model_str: str):
     model = build_model_str(model_str)
-
     scenarios = get_model_scenarios(model)
     entities = get_model_entities(model)
 
@@ -77,10 +76,7 @@ def generate_str(model_str: str):
         wgoals = scenario.goals
 
         set_defaults(scenario, broker, wgoals)
-
-        goals = [goal.goal for goal in wgoals]
-
-        goals = process_goals(goals)
+        goals = process_goals([goal.goal for goal in wgoals])
         scenario.scoreWeights = [goal.weight for goal in wgoals]
 
         code = template.render(broker=broker,
@@ -111,7 +107,7 @@ def process_goals(goals):
             _goals.append(_cgoals)
             goal.goals = _cgoals
         else:
-            print(f'[X] {goal.__class__.__name__} not yet supported by the code generator!!')
+            logger.info(f'[X] {goal.__class__.__name__} not yet supported by the code generator!!')
         goal_max_min_duration_from_tc(goal)
         _goals.append(goal)
     return _goals
@@ -129,17 +125,17 @@ def goal_max_min_duration_from_tc(goal):
     max_duration = None
     min_duration = None
     if goal.timeConstraints is None:
-        print(f'[*] - Goal <{goal.name}> does not have any time constraints.')
+        logger.info(f'[*] - Goal <{goal.name}> does not have any time constraints.')
     elif len(goal.timeConstraints) == 0:
-        print(f'[*] - Goal <{goal.name}> does not have any time constraints.')
+        logger.info(f'[*] - Goal <{goal.name}> does not have any time constraints.')
     else:
         for tc in goal.timeConstraints:
             if tc.__class__.__name__ != 'TimeConstraintDuration':
                 continue
             max_duration = tc.time if tc.comparator == '<' else max_duration
             min_duration = tc.time if tc.comparator == '>' else min_duration
-    print(f'[*] - Goal <{goal.name}> max duration: {max_duration} seconds')
-    print(f'[*] - Goal <{goal.name}> min duration: {min_duration} seconds')
+    logger.info(f'[*] - Goal <{goal.name}> max duration: {max_duration} seconds')
+    logger.info(f'[*] - Goal <{goal.name}> min duration: {min_duration} seconds')
     goal.max_duration = max_duration
     goal.min_duration = min_duration
 
@@ -154,33 +150,33 @@ def make_condition_lambda(condition):
 def report_goals(scenario: list):
     for wgoal in scenario.goals:
         goal = wgoal.goal
-        print(f'[*] {goal.name} -> {wgoal.weight}')
+        logger.info(f'[*] {goal.name} -> {wgoal.weight}')
 
 
 def report_broker(broker):
     if broker.__class__.__name__ == 'AMQPBroker':
-        print('[*] AMQP Broker')
-        print(f' host: {broker.host}')
-        print(f' port: {broker.port}')
-        print(f' vhost: {broker.vhost}')
-        print(f' exchange: {broker.exchange}')
-        print(f' username: {broker.auth.username}')
-        print(f' password: {broker.auth.password}')
+        logger.info('[*] AMQP Broker')
+        logger.info(f' host: {broker.host}')
+        logger.info(f' port: {broker.port}')
+        logger.info(f' vhost: {broker.vhost}')
+        logger.info(f' exchange: {broker.exchange}')
+        logger.info(f' username: {broker.auth.username}')
+        logger.info(f' password: {broker.auth.password}')
     elif broker.__class__.__name__ == 'RedisBroker':
-        print('[*] Redis Broker')
-        print(f' host: {broker.host}')
-        print(f' port: {broker.port}')
-        print(f' db: {broker.db}')
-        print(f' username: {broker.auth.username}')
-        print(f' password: {broker.auth.password}')
+        logger.info('[*] Redis Broker')
+        logger.info(f' host: {broker.host}')
+        logger.info(f' port: {broker.port}')
+        logger.info(f' db: {broker.db}')
+        logger.info(f' username: {broker.auth.username}')
+        logger.info(f' password: {broker.auth.password}')
     elif broker.__class__.__name__ == 'MQTTBroker':
-        print('[*] MQTT Broker')
-        print(f' host: {broker.host}')
-        print(f' port: {broker.port}')
-        print(f' username: {broker.auth.username}')
-        print(f' password: {broker.auth.password}')
+        logger.info('[*] MQTT Broker')
+        logger.info(f' host: {broker.host}')
+        logger.info(f' port: {broker.port}')
+        logger.info(f' username: {broker.auth.username}')
+        logger.info(f' password: {broker.auth.password}')
     else:
-        print(broker)
+        logger.info(broker)
         raise ValueError(f'broker class ({broker}) not supported!!')
 
 

@@ -211,6 +211,16 @@ if __name__ == '__main__':
         max_duration={{ goal.max_duration }},
         min_duration={{ goal.min_duration }},
     )
+        {% elif goal.__class__.__name__ == 'MovingAreaGoal' %}
+    g = MovingAreaGoal(
+        name='{{ goal.name }}',
+        motion_entity={{ goal.entity.name }},
+        entities=[{{ ", ".join(entity_names) }}],
+        radius={{ goal.radius }},
+        tag=AreaGoalTag.{{ goal.tag }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
         {% endif %}
     cg.add_goal(cg)
         {% endfor %}
