@@ -38,11 +38,12 @@ def generate(model_fpath: str,
 
     entity_names = [e.name for e in entities]
 
+    rtmonitor = model.rtmonitor
+
     for scenario in scenarios:
-        broker = scenario.broker
         wgoals = scenario.goals
 
-        set_defaults(scenario, broker, wgoals)
+        set_defaults(scenario, rtmonitor, wgoals)
 
         goals = [goal.goal for goal in wgoals]
 
@@ -51,7 +52,7 @@ def generate(model_fpath: str,
 
         out_file = path.join(out_dir, f"{scenario.name}.py")
         with open(path.join(out_file), 'w') as f:
-            f.write(template.render(broker=broker,
+            f.write(template.render(rtmonitor=rtmonitor,
                                     scenario=scenario,
                                     entities=entities,
                                     entity_names=entity_names,
@@ -71,16 +72,17 @@ def generate_str(model_str: str):
 
     entity_names = [e.name for e in entities]
 
+    rtmonitor = model.rtmonitor
+
     for scenario in scenarios:
         # TODO: Only one scenario is supported for now
-        broker = scenario.broker
         wgoals = scenario.goals
 
-        set_defaults(scenario, broker, wgoals)
+        set_defaults(scenario, rtmonitor, wgoals)
         goals = process_goals([goal.goal for goal in wgoals])
         scenario.scoreWeights = [goal.weight for goal in wgoals]
 
-        code = template.render(broker=broker,
+        code = template.render(rtmonitor=rtmonitor,
                                scenario=scenario,
                                entities=entities,
                                entity_names=entity_names,
@@ -114,7 +116,7 @@ def process_goals(goals):
     return _goals
 
 
-def set_defaults(scenario, broker, wgoals):
+def set_defaults(scenario, rtmonitor, wgoals):
     sweights = [goal.weight for goal in wgoals]
     if 0 in sweights or len(sweights) == 0:
         sweights = [1 / len(scenario.goals)] * len(scenario.goals)

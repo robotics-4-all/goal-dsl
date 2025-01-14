@@ -71,9 +71,14 @@ Goal<EntityStateCondition> Goal_3
         (TempSensor3.temp - TempSensor2.temp < 10)
 end
 
+RTMonitor
+    broker: HomeMQTT
+    eventTopic: "myscenario.event"
+    logsTopic: "myscenario.log"
+end
+
 
 Scenario MyScenario
-    broker: HomeMQTT
     goals:
         - Goal_1 -> 0.5
         - Goal_2 -> 0.25

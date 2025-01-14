@@ -77,7 +77,6 @@ end
 
 
 Scenario MyScenario
-    broker: HomeMQTT
     goals:
         - Goal_1 -> 0.5
         - Goal_2 -> 0.25

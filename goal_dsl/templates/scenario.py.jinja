@@ -55,32 +55,33 @@ entities_list.append({{ entity.name }})
 
 
 if __name__ == '__main__':
-    {% if scenario.broker.__class__.__name__ == 'AMQPBroker' %}
+    {% if rtmonitor and rtmonitor.broker.__class__.__name__ == 'AMQPBroker' %}
     broker = AMQPBroker(
-        host='{{ scenario.broker.host }}',
-        port={{ scenario.broker.port }},
-        username='{{ scenario.broker.username }}',
-        password='{{ scenario.broker.password }}',
-        vhost='{{ scenario.broker.vhost }}',
+        host='{{ rtmonitor.broker.host }}',
+        port={{ rtmonitor.broker.port }},
+        username='{{ rtmonitor.broker.username }}',
+        password='{{ rtmonitor.broker.password }}',
+        vhost='{{ rtmonitor.broker.vhost }}',
     )
-    {% elif scenario.broker.__class__.__name__ == 'RedisBroker' %}
+    {% elif rtmonitor and rtmonitor.broker.__class__.__name__ == 'RedisBroker' %}
     broker = RedisBroker(
-        host='{{ scenario.broker.host }}',
-        port={{ scenario.broker.port }},
-        db={{ scenario.broker.db }},  # default DB number is 0
-        username='{{ scenario.broker.username }}',
-        password='{{ scenario.broker.password }}',
+        host='{{ rtmonitor.broker.host }}',
+        port={{ rtmonitor.broker.port }},
+        db={{ rtmonitor.broker.db }},  # default DB number is 0
+        username='{{ rtmonitor.broker.username }}',
+        password='{{ rtmonitor.broker.password }}',
     )
-    {% elif scenario.broker.__class__.__name__ == 'MQTTBroker' %}
+    {% elif rtmonitor and rtmonitor.broker.__class__.__name__ == 'MQTTBroker' %}
     broker = MQTTBroker(
-        host='{{ scenario.broker.host }}',
-        port={{ scenario.broker.port }},
-        username='{{ scenario.broker.username }}',
-        password='{{ scenario.broker.password }}',
+        host='{{ rtmonitor.broker.host }}',
+        port={{ rtmonitor.broker.port }},
+        username='{{ rtmonitor.broker.username }}',
+        password='{{ rtmonitor.broker.password }}',
     )
     {% else %}
     broker = None
     {% endif %}
+
     t = Scenario(
         name='{{ scenario.name }}',
         broker=broker,

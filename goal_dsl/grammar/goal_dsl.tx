@@ -11,6 +11,7 @@ GoalDSLModel:
     imports*=Import
     (metadata=Metadata)?
     (
+        (rtmonitor=RTMonitor)?
         (brokers*=MessageBroker)
         (entities*=Entity)
         (goals*=Goal)
@@ -21,14 +22,26 @@ GoalDSLModel:
 
 
 Metadata:
-    'Metadata' name=ID
+    'Metadata'
     (
+        ('name:' name=ID)
         ('version:' version=STRING)
         ('author:' author=STRING)?
         ('email:' email=STRING)?
         ('description:' description=STRING)?
-    )#
     'end'
+    )#
+;
+
+RTMonitor:
+    'RTMonitor'
+    (
+        ('broker:' broker=[MessageBroker])
+		('namespace:' ns=STRING)?
+		('eventTopic:' eTopic=STRING)?
+		('logsTopic:' lTopic=STRING)?
+    'end'
+    )#
 ;
 
 
@@ -37,7 +50,6 @@ Scenario:
     (
         ('goals:' '-' goals*=WeightedGoal['-'])
         ('concurrent:' concurrent=BOOL)?
-        ('broker:' broker=[MessageBroker:FQN|+m:brokers*])?
     )#
     'end'
 ;

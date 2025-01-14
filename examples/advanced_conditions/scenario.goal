@@ -26,5 +26,4 @@ Scenario MyScenario
         - Goal_2 -> 0.25
         - Goal_3 -> 0.25
     concurrent: True
-    broker: MyMQTTBroker
 end
