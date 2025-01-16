@@ -58,8 +58,8 @@ end
 
 RTMonitor
     broker: HomeMQTT
-    eventTopic: "myscenario.event"
-    logsTopic: "myscenario.log"
+    eventTopic: "goaldsl.{U_ID}.event"
+    logsTopic: "goaldsl.{U_ID}.log"
 end
 
 
