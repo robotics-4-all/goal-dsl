@@ -48,21 +48,6 @@ Goal<EntityStateCondition> Goal_2
         AirQualitySensor1.gas <= 25
 end
 
-/*
-Goal<EntityStateCondition> Goal_3
-    condition:
-        mean(AirQualitySensor1.gas, 10) <= 25
-end
-*/
-
-/*
-Goal<EntityStateCondition> Goal_2
-    condition:
-        (mean(AirQualitySensor1.gas, 10) <= 25) and
-        (std(AirQualitySensor1.humidity, 10) < 0.5)
-end
-*/
-
 
 Goal<EntityStateCondition> Goal_3
     condition:
