@@ -1,4 +1,5 @@
-{% import 'goal_macros.jinja' as macros %}
+{% import 'goal_macros.jinja' as goal_macros %}
+{% import 'broker_macros.jinja' as broker_macros %}
 #!/usr/bin/env python3
 
 import os
@@ -36,28 +37,11 @@ entities_list = []
     topic='{{ entity.topic }}',
     attributes={{ entity.attr_list }},
     {% if entity.source.ref.__class__.__name__ == 'AMQPBroker' %}
-    source=AMQPBroker(
-        host='{{ entity.source.ref.host }}',
-        port={{ entity.source.ref.port }},
-        username='{{ entity.source.ref.username }}',
-        password='{{ entity.source.ref.password }}',
-        vhost='{{ entity.source.ref.vhost }}',
-    )
+    source={{ broker_macros.amqp_broker(entity.source.ref) }},
     {% elif entity.source.ref.__class__.__name__ == 'RedisBroker' %}
-    source=RedisBroker(
-        host='{{ entity.source.ref.host }}',
-        port={{ entity.source.ref.port }},
-        db={{ entity.source.ref.db }},  # default DB number is 0
-        username='{{ entity.source.ref.username }}',
-        password='{{ entity.source.ref.password }}',
-    )
+    source={{ broker_macros.redis_broker(entity.source.ref) }},
     {% elif entity.source.ref.__class__.__name__ == 'MQTTBroker' %}
-    source=MQTTBroker(
-        host='{{ entity.source.ref.host }}',
-        port={{ entity.source.ref.port }},
-        username='{{ entity.source.ref.username }}',
-        password='{{ entity.source.ref.password }}',
-    )
+    source={{ broker_macros.mqtt_broker(entity.source.ref) }},
     {% endif %}
 )
 {% for attr in entity.attributes %}
@@ -71,28 +55,11 @@ entities_list.append({{ entity.name }})
 
 if __name__ == '__main__':
     {% if rtmonitor and rtmonitor.broker.__class__.__name__ == 'AMQPBroker' %}
-    broker = AMQPBroker(
-        host='{{ rtmonitor.broker.host }}',
-        port={{ rtmonitor.broker.port }},
-        username='{{ rtmonitor.broker.username }}',
-        password='{{ rtmonitor.broker.password }}',
-        vhost='{{ rtmonitor.broker.vhost }}',
-    )
+    broker = {{ broker_macros.amqp_broker(rtmonitor.broker) }}
     {% elif rtmonitor and rtmonitor.broker.__class__.__name__ == 'RedisBroker' %}
-    broker = RedisBroker(
-        host='{{ rtmonitor.broker.host }}',
-        port={{ rtmonitor.broker.port }},
-        db={{ rtmonitor.broker.db }},  # default DB number is 0
-        username='{{ rtmonitor.broker.username }}',
-        password='{{ rtmonitor.broker.password }}',
-    )
+    broker = {{ broker_macros.redis_broker(rtmonitor.broker) }}
     {% elif rtmonitor and rtmonitor.broker.__class__.__name__ == 'MQTTBroker' %}
-    broker = MQTTBroker(
-        host='{{ rtmonitor.broker.host }}',
-        port={{ rtmonitor.broker.port }},
-        username='{{ rtmonitor.broker.username }}',
-        password='{{ rtmonitor.broker.password }}',
-    )
+    broker = {{ broker_macros.mqtt_broker(rtmonitor.broker) }}
     {% else %}
     broker = None
     {% endif %}
@@ -105,90 +72,46 @@ if __name__ == '__main__':
 
     {% for goal in goals %}
     {% if goal.__class__.__name__ == 'EntityStateConditionGoal' %}
-    {{ macros.entity_state_condition_goal(goal, entity_names) }}
+    {{ goal_macros.entity_state_condition_goal(goal, entity_names) }}
     {% elif goal.__class__.__name__ == 'EntityStateChangeGoal' %}
-    {{ macros.entity_state_change_goal(goal) }}
+    {{ goal_macros.entity_state_change_goal(goal) }}
     {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
-    {{ macros.rectangle_area_goal(goal, entity_names) }}
+    {{ goal_macros.rectangle_area_goal(goal, entity_names) }}
     {% elif goal.__class__.__name__ == 'CircularAreaGoal' %}
-    {{ macros.circular_area_goal(goal, entity_names) }}
+    {{ goal_macros.circular_area_goal(goal, entity_names) }}
     {% elif goal.__class__.__name__ == 'MovingAreaGoal' %}
-    {{ macros.moving_area_goal(goal, entity_names) }}
+    {{ goal_macros.moving_area_goal(goal, entity_names) }}
     {% elif goal.__class__.__name__ == 'PositionGoal' %}
-    {{ macros.position_goal(goal, entity_names) }}
+    {{ goal_macros.position_goal(goal) }}
     {% elif goal.__class__.__name__ == 'OrientationGoal' %}
-    {{ macros.orientation_goal(goal, entity_names) }}
+    {{ goal_macros.orientation_goal(goal) }}
     {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
-    {{ macros.waipoint_trajectory_goal(goal, entity_names) }}
+    {{ goal_macros.waipoint_trajectory_goal(goal) }}
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
     cg = ComplexGoal(
         algorithm=ComplexGoalAlgorithm.{{ goal.algorithm }},
         max_duration={{ goal.max_duration }},
         min_duration={{ goal.min_duration }},
     )
-        {% for goal in goal.goals %}
-        {% if goal.__class__.__name__ == 'EntityStateConditionGoal' %}
-    g = EntityStateCondition(
-        name='{{ goal.name }}',
-        entities=[{{ ", ".join(entity_names) }}],
-        # condition='{{ goal.condition.cond_py.replace("'", "\"") }}',
-        condition={{ goal.condition.cond_lambda}},
-        max_duration={{ goal.max_duration }},
-        min_duration={{ goal.min_duration }},
-    )
-
-        {% elif goal.__class__.__name__ == 'EntityStateChangeGoal' %}
-    g = EntityStateChange(
-        entity={{ goal.entity.name }},
-        name='{{ goal.name }}',
-        max_duration={{ goal.max_duration }},
-        min_duration={{ goal.min_duration }},
-    )
-        {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
-    g = WaypointTrajectoryGoal(
-        topic='{{ goal.entity.topic }}',
-        points=[
-            {% for point in goal.points %}
-            Point(point.x, point.y, point.z),
-            {% endfor %}
-        ],
-        deviation={{ goal.maxDeviation }},
-        duration=({{ goal.min_duration }}, {{ goal.max_duration }}),
-    )
-        {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
-    g = RectangleAreaGoal(
-        name='{{ goal.name }}',
-        entities=[{{ ", ".join(entity_names) }}],
-        bottom_left_edge=Point({{ goal.bottomLeftEdge.x }}, {{ goal.bottomLeftEdge.y }}, {{ goal.bottomLeftEdge.z }}),
-        length_x={{ goal.lengthX}},
-        length_y={{ goal.lengthY}},
-        tag=AreaGoalTag.{{ goal.tag }},
-        max_duration={{ goal.max_duration }},
-        min_duration={{ goal.min_duration }},
-    )
-        {% elif goal.__class__.__name__ == 'CircularAreaGoal' %}
-    g = CircularAreaGoal(
-        name='{{ goal.name }}',
-        entities=[{{ ", ".join(entity_names) }}],
-        center=Point({{ goal.center.x }}, {{ goal.center.y }}, {{ goal.center.z }}),
-        radius={{ goal.radius }},
-        tag=AreaGoalTag.{{ goal.tag }},
-        max_duration={{ goal.max_duration }},
-        min_duration={{ goal.min_duration }},
-    )
-        {% elif goal.__class__.__name__ == 'MovingAreaGoal' %}
-    g = MovingAreaGoal(
-        name='{{ goal.name }}',
-        motion_entity={{ goal.entity.name }},
-        entities=[{{ ", ".join(entity_names) }}],
-        radius={{ goal.radius }},
-        tag=AreaGoalTag.{{ goal.tag }},
-        max_duration={{ goal.max_duration }},
-        min_duration={{ goal.min_duration }},
-    )
-        {% endif %}
+    {% for goal in goal.goals %}
+    {% if goal.__class__.__name__ == 'EntityStateConditionGoal' %}
+    {{ goal_macros.entity_state_condition_goal(goal, entity_names) }}
+    {% elif goal.__class__.__name__ == 'EntityStateChangeGoal' %}
+    {{ goal_macros.entity_state_change_goal(goal) }}
+    {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
+    {{ goal_macros.rectangle_area_goal(goal, entity_names) }}
+    {% elif goal.__class__.__name__ == 'CircularAreaGoal' %}
+    {{ goal_macros.circular_area_goal(goal, entity_names) }}
+    {% elif goal.__class__.__name__ == 'MovingAreaGoal' %}
+    {{ goal_macros.moving_area_goal(goal, entity_names) }}
+    {% elif goal.__class__.__name__ == 'PositionGoal' %}
+    {{ goal_macros.position_goal(goal) }}
+    {% elif goal.__class__.__name__ == 'OrientationGoal' %}
+    {{ goal_macros.orientation_goal(goal) }}
+    {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
+    {{ goal_macros.waipoint_trajectory_goal(goal) }}
     cg.add_goal(cg)
-        {% endfor %}
+    {% endfor %}
     ## More Goals to Generate here
     {% endif %}
     scenario.add_goal(g)
