@@ -119,7 +119,8 @@ def process_goals(goals):
 def set_defaults(scenario, rtmonitor, wgoals):
     sweights = [goal.weight for goal in wgoals]
     if 0 in sweights or len(sweights) == 0:
-        sweights = [1 / len(scenario.goals)] * len(scenario.goals)
+        sweights = [1.0 / len(scenario.goals)] * len(scenario.goals)
+        scenario.scoreWeights = sweights
     if scenario.concurrent is None:
         scenario.concurrent = True
 

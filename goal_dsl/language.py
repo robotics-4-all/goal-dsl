@@ -104,9 +104,31 @@ def verify_entity_attrs(entity):
 
 
 def model_proc(model, metamodel):
+    logger.info("Running model processor...")
     process_time_class(model)
+    process_goals(model)
     verify_entity_names(model)
     verify_broker_names(model)
+
+
+def process_goals(model):
+    _goals = get_children_of_type("RectangleAreaGoal", model) + \
+        get_children_of_type("CircularAreaGoal", model) + \
+        get_children_of_type("MovingAreaGoal", model)
+            #  get_children_of_type("DistanceBetweenEntitiesGoal", model) + \
+            #  get_children_of_type("TimeDifferenceGoal", model) + \
+            #  get_children_of_type("PositionDifferenceGoal", model) + \
+            #  get_children_of_type("TemperatureDifferenceGoal", model) + \
+            #  get_children_of_type("HumidityDifferenceGoal", model) + \
+            #  get_children_of_type("PressureDifferenceGoal", model) + \
+            #  get_children_of_type("LightIntensityDifferenceGoal", model) + \
+            #  get_children_of_type("SoundIntensityDifferenceGoal", model) + \
+            #  get_children_of_type("ColorDifferenceGoal", model) + \
+            #  get_children_of_type("PresenceGoal", model) + \
+            #  get_children_of_type("MovementGoal", model) + \
+    for goal in _goals:
+        if goal.entities is None:
+            goal.entities = [e for e in model.entities]
 
 
 def condition_processor(cond):
@@ -119,8 +141,20 @@ def nid_processor(nid):
     return nid
 
 
+def rectangle_area_goal_processor(goal):
+    if goal.entities is None:
+        goal.entities = []
+
+
+def circular_area_goal_processor(goal):
+    if goal.entities is None:
+        goal.entities = []
+
+
 obj_processors = {
-    "Condition": condition_processor,
+    # "RectangleAreaGoal": rectangle_area_goal_processor,
+    # "CircularAreaGoal": circular_area_goal_processor,
+    # "Condition": condition_processor,
     # 'ConditionList': condition_processor,
     # 'ConditionGroup': condition_processor,
     # 'PrimitiveCondition': condition_processor,
@@ -151,8 +185,8 @@ def get_metamodel(debug: bool = False, global_repo: bool = True):
     )
 
     metamodel.register_scope_providers(get_scope_providers())
-    metamodel.register_model_processor(model_proc)
     metamodel.register_obj_processors(obj_processors)
+    metamodel.register_model_processor(model_proc)
     return metamodel
 
 

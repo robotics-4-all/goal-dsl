@@ -119,9 +119,17 @@ if __name__ == '__main__':
         min_duration={{ goal.min_duration }},
     )
     {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
+    {% set _entities = [] %}
+    {% for e in goal.entities %}
+    {% set _ = _entities.append(e.name) %}
+    {% endfor %}
     g = RectangleAreaGoal(
         name='{{ goal.name }}',
+        {% if goal.entities %}
+        entities=[{{ ", ".join(_entities) }}],
+        {% else %}
         entities=[{{ ", ".join(entity_names) }}],
+        {% endif %}
         bottom_left_edge=Point({{ goal.bottomLeftEdge.x }}, {{ goal.bottomLeftEdge.y }}, {{ goal.bottomLeftEdge.z }}),
         length_x={{ goal.lengthX}},
         length_y={{ goal.lengthY}},
@@ -130,9 +138,17 @@ if __name__ == '__main__':
         min_duration={{ goal.min_duration }},
     )
     {% elif goal.__class__.__name__ == 'CircularAreaGoal' %}
+    {% set _entities = [] %}
+    {% for e in goal.entities %}
+    {% set _ = _entities.append(e.name) %}
+    {% endfor %}
     g = CircularAreaGoal(
         name='{{ goal.name }}',
+        {% if goal.entities %}
+        entities=[{{ ", ".join(_entities) }}],
+        {% else %}
         entities=[{{ ", ".join(entity_names) }}],
+        {% endif %}
         center=Point({{ goal.center.x }}, {{ goal.center.y }}, {{ goal.center.z }}),
         radius={{ goal.radius }},
         tag=AreaGoalTag.{{ goal.tag }},
@@ -140,10 +156,18 @@ if __name__ == '__main__':
         min_duration={{ goal.min_duration }},
     )
     {% elif goal.__class__.__name__ == 'MovingAreaGoal' %}
+    {% set _entities = [] %}
+    {% for e in goal.entities %}
+    {% set _ = _entities.append(e.name) %}
+    {% endfor %}
     g = MovingAreaGoal(
         name='{{ goal.name }}',
         motion_entity={{ goal.entity.name }},
+        {% if goal.entities %}
+        entities=[{{ ", ".join(_entities) }}],
+        {% else %}
         entities=[{{ ", ".join(entity_names) }}],
+        {% endif %}
         radius={{ goal.radius }},
         tag=AreaGoalTag.{{ goal.tag }},
         max_duration={{ goal.max_duration }},
