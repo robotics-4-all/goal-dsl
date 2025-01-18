@@ -111,3 +111,41 @@ g = WaypointTrajectoryGoal(
         min_duration={{ goal.min_duration }},
     )
 {% endmacro %}
+
+{% macro complex_goal(goal, entity_names) %}
+cg = ComplexGoal(
+        algorithm=ComplexGoalAlgorithm.{{ goal.algorithm }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+    {% for goal in goal.goals %}
+    {% if goal.__class__.__name__ == 'EntityStateConditionGoal' %}
+    {{ entity_state_condition_goal(goal, entity_names) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'EntityStateChangeGoal' %}
+    {{ entity_state_change_goal(goal) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
+    {{ rectangle_area_goal(goal, entity_names) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'CircularAreaGoal' %}
+    {{ circular_area_goal(goal, entity_names) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'MovingAreaGoal' %}
+    {{ moving_area_goal(goal, entity_names) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'PositionGoal' %}
+    {{ position_goal(goal) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'OrientationGoal' %}
+    {{ orientation_goal(goal) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
+    {{ waipoint_trajectory_goal(goal) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'ComplexGoal' %}
+    {{ complex_goal(goal, entity_names) }}
+    cg.add_goal(g)
+    {% endif %}
+    {% endfor %}
+{% endmacro %}
