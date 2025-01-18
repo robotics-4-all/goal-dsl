@@ -26,6 +26,8 @@ end
 
 Goal<MovingArea> Goal_1
     movingEntity: Robot1Pose
+    entities:
+        - Robot2Pose
     radius: 2
     tag: AVOID
 end

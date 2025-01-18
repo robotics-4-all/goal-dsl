@@ -29,7 +29,7 @@ RectangleAreaGoal:
 PolylineAreaGoal:
     'Goal<PolylineArea>' name=ID
     (
-        ('entities:' entities=[Entity:FQN|+pm:entities*])?
+        ('entities:' '-' entities+=[Entity:FQN|+pm:entities*]['-'])?
         ('points:' '[' points+=Point[','] ']' )
         ('tag:' tag=AreaGoalTag )
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
@@ -41,7 +41,7 @@ MovingAreaGoal:
     'Goal<MovingArea>' name=ID
     (
         ('movingEntity:' entity=[Entity:FQN|+pm:entities*])
-        ('entities:' entities=[Entity:FQN|+pm:entities*])?
+        ('entities:' '-' entities+=[Entity:FQN|+pm:entities*]['-'])?
         ('radius:' radius=NUMBER)
         ('tag:' tag=AreaGoalTag)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
@@ -52,7 +52,7 @@ MovingAreaGoal:
 CircularAreaGoal:
     'Goal<CircularArea>' name=ID
     (
-        ('entities:' entities=[Entity:FQN|+pm:entities*])?
+        ('entities:' '-' entities+=[Entity:FQN|+pm:entities*]['-'])?
         ('center:' center=Point)
         ('radius:' radius=NUMBER)
         ('tag:' tag=AreaGoalTag)
@@ -64,7 +64,7 @@ CircularAreaGoal:
 StraightLine:
     'Goal<StraightLine>' name=ID
     (
-        ('entities:' entities=[Entity:FQN|+pm:entities*])?
+        ('entities:' '-' entities+=[Entity:FQN|+pm:entities*]['-'])?
         ('startPoint:' startPoint=Point)
         ('endPoint:' endPoint=Point)
         ('tag:' tag=AreaGoalTag)
