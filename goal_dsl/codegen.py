@@ -48,7 +48,6 @@ def generate(model_fpath: str,
         goals = [goal.goal for goal in wgoals]
 
         goals = process_goals(goals)
-        scenario.scoreWeights = [goal.weight for goal in wgoals]
 
         out_file = path.join(out_dir, f"{scenario.name}.py")
         with open(path.join(out_file), 'w') as f:
@@ -80,7 +79,6 @@ def generate_str(model_str: str):
 
         set_defaults(scenario, rtmonitor, wgoals)
         goals = process_goals([goal.goal for goal in wgoals])
-        scenario.scoreWeights = [goal.weight for goal in wgoals]
 
         code = template.render(rtmonitor=rtmonitor,
                                scenario=scenario,

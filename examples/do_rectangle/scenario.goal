@@ -1,0 +1,82 @@
+Broker<MQTT> LocsysMQTT
+    host: 'locsys.issel.ee.auth.gr'
+    port: 8883
+    ssl: true
+    auth:
+        username: 'sensors'
+        password: 'issel.sensors'
+end
+
+Broker<MQTT> HomeMQTT
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Broker<Redis> LocalRedis
+    host: 'localhost'
+    port: 6379
+    ssl: false
+    auth:
+        username: ''
+        password: ''
+end
+
+Entity Robot1Pose
+    type: sensor
+    topic: 'robot_1.pose'
+    source: LocalRedis
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+Entity Robot2Pose
+    type: sensor
+    topic: 'robot_2.pose'
+    source: LocalRedis
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+Goal<CircularArea> Goal_1
+    center: Point3D(5, 0, 0)
+    radius: 0.2
+    tag: ENTER
+end
+
+Goal<CircularArea> Goal_2
+    center: Point3D(5, 5, 0)
+    radius: 0.2
+    tag: ENTER
+end
+
+Goal<CircularArea> Goal_3
+    center: Point3D(0, 5, 0)
+    radius: 0.2
+    tag: ENTER
+end
+
+Goal<CircularArea> Goal_4
+    center: Point3D(0, 0, 0)
+    radius: 0.2
+    tag: ENTER
+end
+
+RTMonitor
+    broker: LocalRedis
+    eventTopic: "goaldsl.{U_ID}.event"
+    logsTopic: "goaldsl.{U_ID}.log"
+end
+
+Scenario DoRectangleScenario
+    goals:
+        - Goal_1
+        - Goal_2
+        - Goal_3
+        - Goal_4
+    concurrent: False
+end
