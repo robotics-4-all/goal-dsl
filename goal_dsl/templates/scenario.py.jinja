@@ -5,12 +5,24 @@ from statistics import stdev as std, mean as mean, variance as var
 
 from goalee import Scenario, RedisBroker, MQTTBroker, AMQPBroker
 from goalee.entity import Entity
-from goalee.area_goals import *
-from goalee.complex_goal import *
-from goalee.types import Point
+from goalee.types import Point, Orientation
+from goalee.area_goals import (
+    RectangleAreaGoal,
+    CircularAreaGoal,
+    MovingAreaGoal
+)
+from goalee.complex_goal import (
+    ComplexGoal,
+    ComplexGoalAlgorithm
+)
 from goalee.entity_goals import (
     EntityStateChange,
     EntityStateCondition
+)
+from goalee.pose_goals import (
+    PoseGoal,
+    PositionGoal,
+    OrientationGoal
 )
 
 entities_list = []
@@ -176,7 +188,15 @@ if __name__ == '__main__':
     {% elif goal.__class__.__name__ == 'PositionGoal' %}
     g = PositionGoal(
         entity={{ goal.entity.name }},
-        position=Point({{ goal.point.x }}, {{ goal.point.y }}, {{ goal.point.z }}),
+        position=Point(x={{ goal.point.x or 0 }}, y={{ goal.point.y or 0 }}, z={{ goal.point.z or 0 }}),
+        deviation={{ goal.maxDeviation }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+    {% elif goal.__class__.__name__ == 'OrientationGoal' %}
+    g = OrientationGoal(
+        entity={{ goal.entity.name }},
+        orientation=Orientation(z={{ goal.orientation.z or 0 }}),
         deviation={{ goal.maxDeviation }},
         max_duration={{ goal.max_duration }},
         min_duration={{ goal.min_duration }},
