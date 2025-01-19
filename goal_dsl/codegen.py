@@ -109,6 +109,7 @@ def process_goals(goals):
             goal.goals = _cgoals
         else:
             logger.info(f'[X] {goal.__class__.__name__} not yet supported by the code generator!!')
+        logger.info(f"[X] Transforming Goal <{goal.__class__.__name__}:{goal.name}> time constraints")
         goal_max_min_duration_from_tc(goal)
         _goals.append(goal)
     return _goals
@@ -132,10 +133,10 @@ def goal_max_min_duration_from_tc(goal):
         logger.info(f'[*] - Goal <{goal.name}> does not have any time constraints.')
     else:
         for tc in goal.timeConstraints:
-            if tc.__class__.__name__ != 'TimeConstraintDuration':
+            if tc.__class__.__name__ != 'TimeConstraint':
                 continue
-            max_duration = tc.time if tc.comparator == '<' else max_duration
-            min_duration = tc.time if tc.comparator == '>' else min_duration
+            max_duration = tc.time if str(tc.comparator) == '<' else max_duration
+            min_duration = tc.time if str(tc.comparator) == '>' else min_duration
     logger.info(f'[*] - Goal <{goal.name}> max duration: {max_duration} seconds')
     logger.info(f'[*] - Goal <{goal.name}> min duration: {min_duration} seconds')
     goal.max_duration = max_duration

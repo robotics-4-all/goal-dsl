@@ -18,7 +18,6 @@ end
 Broker<Redis> LocalRedis
     host: 'localhost'
     port: 6379
-    ssl: false
     auth:
         username: ''
         password: ''
@@ -26,16 +25,7 @@ end
 
 Entity Robot1Pose
     type: sensor
-    topic: 'robot_1.pose'
-    source: LocalRedis
-    attributes:
-        - position: dict
-        - orientation: dict
-end
-
-Entity Robot2Pose
-    type: sensor
-    topic: 'robot_2.pose'
+    topic: 'gn_robot_1.pose.internal'
     source: LocalRedis
     attributes:
         - position: dict
@@ -43,27 +33,35 @@ Entity Robot2Pose
 end
 
 Goal<CircularArea> Goal_1
-    center: Point3D(5, 0, 0)
-    radius: 0.2
+    center: Point3D(100, 5, 0)
+    radius: 0.5
     tag: ENTER
+    timeConstraints:
+        - FROM_GOAL_START(<60)
 end
 
 Goal<CircularArea> Goal_2
-    center: Point3D(5, 5, 0)
-    radius: 0.2
+    center: Point3D(100, 10, 0)
+    radius: 0.5
     tag: ENTER
+    timeConstraints:
+        - FROM_GOAL_START(<60)
 end
 
 Goal<CircularArea> Goal_3
-    center: Point3D(0, 5, 0)
-    radius: 0.2
+    center: Point3D(95, 10, 0)
+    radius: 0.5
     tag: ENTER
+    timeConstraints:
+        - FROM_GOAL_START(<60)
 end
 
 Goal<CircularArea> Goal_4
-    center: Point3D(0, 0, 0)
-    radius: 0.2
+    center: Point3D(95, 5, 0)
+    radius: 0.5
     tag: ENTER
+    timeConstraints:
+        - FROM_GOAL_START(<60)
 end
 
 RTMonitor
