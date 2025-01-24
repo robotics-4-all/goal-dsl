@@ -20,7 +20,7 @@ class PoseMessage(PubSubMessage):
     position: Dict[str, float] = Field(
         default_factory=lambda: {'x': 0.0, 'y': 0.0, 'z': 0.0})
     orientation: Dict[str, float] = Field(
-        default_factory=lambda: {'x': 0.0, 'y': 0.0, 'z': 0.0})
+        default_factory=lambda: {'roll': 0.0, 'pitch': 0.0, 'yaw': 0.0})
 
 
 class Robot(Node):
@@ -39,6 +39,7 @@ class Robot(Node):
         vel = self.velocity
         current_x = self.pose.position['x']
         current_y = self.pose.position['y']
+
         distance = ((x - current_x)**2 + (y - current_y)**2)**0.5
         distance_x = x - current_x
         distance_y = y - current_y
@@ -82,7 +83,7 @@ if __name__ == '__main__':
     conn_params = ConnectionParameters(reconnect_attempts=0)
 
     robot_1 = Robot(name='robot_1', connection_params=conn_params,
-                    pose_uri='robot_1.pose', heartbeats=False)
+                    pose_uri='gn_robot_1.pose.internal', heartbeats=False)
 
     try:
         robot_1.run()
