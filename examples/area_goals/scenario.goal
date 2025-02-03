@@ -31,6 +31,9 @@ Goal<RectangleArea> Goal_1
     lengthX: 5
     lengthY: 5
     tag: ENTER
+    timeConstraints:
+        - FOR_TIME(>60)
+        - FROM_GOAL_START(<180)
 end
 
 Goal<CircularArea> Goal_2
