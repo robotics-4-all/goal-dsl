@@ -1,21 +1,47 @@
-#.
 GoalDSL is an external Domain-Specific Language (DSL) for the behaviour verification of IoT-enabled CPS applications and systems, based on a goal-driven approach. The general idea is that goal-driven rules can be defined for entities (smart objects, virtual artefacts, etc.) in a CPS, a smart environment or a digital twin.
 
 Goal-driven verification scenarios can be defined based on messages arriving at specific topics of a message broker. For example, a goal may define a rule to wait until receiving a message from the in-house robot or until the temperature in the bedroom reaches a specific value. To expand this idea to the context of Cyber-Physical Systems and Smart Home Automation, beyond topic-related goals, it is useful to be able to define goals for mobile smart objects (e.g. robots) and for monitoring the state of smart objects and act on them. For example, in robotics it is common to require definition of goals related to the pose of the robot, or to follow a trajectory, to pass from a specific point or reach a destination target. Concerning smart home specific goals, the language supports goals which monitor the attribute values of entities. In a nutshell, our approach can be used to verify that the implementation meets expected functional standards, regarding application development for smart environments.
 
 # Table of contents
-1. [Installation](#installation)
-2. [Goal Types](#goaltypes)
-3. [Time Constraints for Goals](#timeconstraints)
-4. [Communication Middleware / Message Broker](#middleware)
-5. [Scenario](#scenario)
-6. [Other Concepts of the Language](#other)
-7. [Multiple model files -  Import models](#multifile)
-8. [Validation](#validation)
-8. [Code Generation](#generation)
-9. [Metamodel](#metamodel)
-10. [Examples](#examples)
-11. [Extra](#extra)
+- [Table of contents](#table-of-contents)
+  - [Installation ](#installation-)
+  - [Features](#features)
+  - [Usage](#usage)
+  - [Data Sources](#data-sources)
+  - [Message Broker](#message-broker)
+    - [Entities](#entities)
+      - [Definition of attribute functions for virtual/digital entities](#definition-of-attribute-functions-for-virtualdigital-entities)
+    - [Conditions](#conditions)
+      - [Condition Formatting:](#condition-formatting)
+      - [Lists and Dictionaries:](#lists-and-dictionaries)
+      - [Operators](#operators)
+      - [Build-in simple aggregation functions](#build-in-simple-aggregation-functions)
+      - [Writing Conditions](#writing-conditions)
+    - [Entity Goals](#entity-goals)
+      - [EntityStateChange](#entitystatechange)
+      - [EntityStateCondition](#entitystatecondition)
+    - [Area Goals](#area-goals)
+      - [Rectangle Area](#rectangle-area)
+      - [Circular Area](#circular-area)
+      - [Polyline Area](#polyline-area)
+      - [Mobile Area](#mobile-area)
+    - [Pose Goals](#pose-goals)
+      - [PositionGoal](#positiongoal)
+      - [OrientationGoal](#orientationgoal)
+      - [PoseGoal](#posegoal)
+    - [Trajectory Goals](#trajectory-goals)
+      - [WaypointTrajectoryGoal](#waypointtrajectorygoal)
+    - [Complex Goals](#complex-goals)
+  - [Time Constraints ](#time-constraints-)
+  - [Scenario ](#scenario-)
+  - [Other Concepts of the Language ](#other-concepts-of-the-language-)
+    - [Point](#point)
+    - [Orientation](#orientation)
+  - [Import](#import)
+  - [Validation ](#validation-)
+  - [Code Generation ](#code-generation-)
+  - [Examples ](#examples-)
+  - [Extra ](#extra-)
 
 
 ## Installation <a name="installation"></a>
@@ -28,31 +54,99 @@ cd goal-dsl
 pip install .
 ```
 
+## Features
+
+- **Declarative Syntax**: Define goals and their relationships in a clear and concise manner.
+- **Extensible**: Easily add custom goals and actions to fit your specific use case.
+- **Integration-Friendly**: Designed to work seamlessly with robotics frameworks and middleware.
+- **Human-Readable**: Goals are defined in a way that is easy to understand and maintain.
+
+Currently the DSL supports the following types of goals
+
+- **Entity Goals**
+    - EntityStateChange
+    - EntityStateCondition
+- **Area Goals**
+    - RectangleArea
+    - CircularArea
+    - PolylineArea
+    - MovingArea
+- **Pose Goals**
+    - PositionGoal
+    - OrientationGoal
+    - PoseGoal
+- **Trajectory Goals**
+    - StraightLineTrajectoryGoal
+    - WaypointTrajectoryGoal
+- **Complex Goal**
+
+## Usage
+
+
+## Data Sources
+
+**TBD!!**
+
+## Message Broker
+
+The Broker acts as the communication layer for messages where each device has
+its own Topic which is basically a mailbox for sending and receiving messages.
+SmartAutomation DSL supports Brokers which support the MQTT, AMQP and Redis
+protocols. You can define a Broker using the syntax in the following example:
+
+```
+Broker<MQTT> HomeMQTT
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+```
+
+```
+Broker<Redis> LocalRedis
+    host: 'localhost'
+    port: 6379
+    ssl: false
+    auth:
+        username: ''
+        password: ''
+end
+```
+
+- **host**: Host IP address or hostname for the Broker
+- **port**: Broker Port number
+- **auth**: Authentication credentials. Unified for all communication brokers
+    - **username**: Username used for authentication
+    - **password**: Password used for authentication
+- **vhost (Optional)**: Vhost parameter. Only for AMQP brokers
+- **ssl (Optional)**: Enable/Disable ssl channel encryption
+- **topicExchange (Optional)**: (Optional) Exchange parameter. Only for AMQP brokers
+- **rpcExchange (FUTURE SUPPORT)**: Exchange parameter. Only for AMQP brokers
+- **db (Optional)**: Database number parameter. Only for Redis brokers
+
+
 ### Entities
 
-Entities are your connected smart devices that send and receive information
-using a message broker. Entities have the following required properties:
+Entities are your connected smart devices that send and receive information using a message broker. Entities have the following required properties:
 
 - A unique name
-- A broker to connect to
-- A topic to send/receive messages
-- A set of attributes
+- A data source to connect (e.g. Message Broker, REST Service, DB Entry etc)
+- A URI to send/receive messages
+- A number of Attributes, which define the Data Model of the Entity
 
-**Attributes** are what define the structure and the type of information in the
-messages the Entity sends to the communication broker.
+**Attributes** are what define the structure and the type of information in the messages the Entity sends to the communication broker.
 
 Entity definitions follow the syntax of the below examples, for both sensor and actuator types. The difference between the two is that sensors are considered "Producers" while actuators are "Consumers" in the environment. Sensor Entities have an extra property, that is the `freq` to set the publishing frequency of either physical or virtual.
 
 ```
-Entity weather_station
+Entity TempSensor1
     type: sensor
-    freq: 5
-    topic: "bedroom.weather_station"
-    source: cloud_broker
+    topic: 'bedroom.temperature'
+    source: MyMQTTBroker
     attributes:
-        - temperature: float
-        - humidity: float
-        - pressure: float
+        - temp: float
 end
 ```
 
@@ -66,11 +160,24 @@ Entity bedroom_lamp
 end
 ```
 
+```
+Entity Robot1Pose
+    type: sensor
+    topic: 'robot_1.pose'
+    source: HomeMQTT
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+```
+
+
+
 - **type**: The Entity type. Currently supports `sensor`, `actuator` or `hybrid`
 - **topic**: The Topic in the Broker used by the Entity to send and receive
 messages. Note that / should be substituted with .
 (e.g: bedroom/aircondition -> bedroom.aircondition).
-- **broker**: The name property of a previously defined Broker which the
+- **source**: The name property of a previously defined Data Source (e.g. Broker) which the
 Entity uses to communicate.
 - **attributes**: Attributes have a name and a type. As can be seen in the above
 example, HA-Auto supports int, float, string, bool, list and dictionary types.
@@ -92,7 +199,7 @@ Supported data types for Attributes:
 - **list**: List / Array
 - **dict**: Dictionary
 
-#### Attribute value generation for virtual Entities
+#### Definition of attribute functions for virtual/digital entities
 
 SmAuto provides a code generator which can be utilized to transform Entities models
 into executable source code in Python.
@@ -163,15 +270,11 @@ entity_name.attribute_name
 You can combine two conditions into a more complex one using logical operators.
 The general format of the Condition is:
 
-`(condition_1) LOGICAL_OP (condition_2)`
+`(condition_1) <LOGICAL_OP> (condition_2)`
 
 Make sure to not forget the parenthesis.
 
-`condition_1 AND condition_2 AND condition_3`
-
-will have to be rephrased to an equivalent like:
-
-`((condition_1) AND (condition_2)) AND (condition_3)`
+`(condition_1) AND (condition_2) AND (condition_3)`
 
 
 #### Lists and Dictionaries:
@@ -194,25 +297,21 @@ of the language.
 - BooleanValueOperator: `is` , `is not`;
 - List and Dictionary Operators: `==`, `!=`
 
-#### Build-in attribute processing functions
+#### Build-in simple aggregation functions
 
 The language provides buildi-in functions which can be applied to attribute references
 when defining a Condition.
 
 ```
 condition:
-    (mean(bedroom_temp_sensor.temperature, 10) > 28) and
-    (std(bedroom_temp_sensor.temperature, 10) > 1)
+    condition: (mean(TempSensor1.temp, 5) > 0.5 ) and
+        (std(TempSensor2.temp, 3) < 1)
 
 condition:
-    bedroom_humidity_sensor.humidity in range(30, 60)
+    condition: TempSensor1.temp * 2 > TempSensor2.temp + 1
 
 condition:
-    bedroom_temp_sensor.temperature in range(24, 26) and
-    bedroom_humidity_sensor.humidity in range(30, 60)
-
-condition:
-    var(mean(bedroom_temp_sensor.temperature, 10), 10) >= 0.1
+    var(mean(TempSensor1.temp, 10), 10) >= 0.1
 ```
 
 
@@ -229,32 +328,13 @@ condition:
 Bellow you will find some example conditions.
 
 ```
-(bedroom_humidity.humidity < 0.3) AND (bedroom_humidifier.state == 0)
-
-((bedroom_human_detector.position != []) AND
-    (bedroom_thermometer.temperature < 27.5)
-) AND (bedroom_thermostat.state == 0)
+AirQualitySensor1.gas <= 25
 ```
-
-## Goal Types <a name="goaltypes"></a>
-
-- **Entity Goals**
-    - EntityStateChange
-    - EntityStateCondition
-- **Area Goals**
-    - RectangleArea
-    - CircularArea
-    - PolylineArea
-    - StraightLineArea
-    - MovingArea
-- **Pose Goals**
-    - PositionGoal
-    - OrientationGoal
-    - PoseGoal
-- **Trajectory Goals**
-    - StraightLineTrajectoryGoal
-    - StraightLineTrajectoryGoal
-- **Complex Goal**
+```
+(TempSensor1.temp > 10) and
+    (TempSensor2.temp > 10) and
+    (TempSensor2.temp - TempSensor1.temp < 2)
+```
 
 
 ### Entity Goals
@@ -315,28 +395,49 @@ A rectangle area defined by (centerPoint, radius) that has to either be reached
 or avoided.
 
 ```
-Goal<RectangleArea> GoalA
-    entity: my_robot
-    bottomLeftEdge: Point2D(2.0, 6.0)
-    lengthX: 3.0
-    lengthY: 4.0
+Goal<RectangleArea> Goal_1
+    entities:
+        - Robot1Pose
+    bottomLeftEdge: Point3D(0, 0, 0)
+    lengthX: 5
+    lengthY: 5
     tag: ENTER
+    timeConstraints:
+        - FOR_TIME(5)
+        - FROM_GOAL_START(<180)
 end
 ```
+
+Where:
+- entities (Optional): List of Entities to monitor. If no entities are defined then it will monitor all included in the model Entities.
+- bottomLeftEdge: The bottom left point of the rectangle to build the area
+- lengthX: The length of the rectangle on the X axis
+- lengthY: The length of the rectangle on the Y axis
+- timeConstraints: List of time constraints (see relevant section)
+- tag: `ENTER` or `AVOID`
 
 #### Circular Area
 A circular area defined by (centerPoint, radius).
 
 ```
-Goal<CircularArea> GoalB
-    entity: my_robot
-    center: Point2D(2.0, 6.0)
-    radius: 3.0
+Goal<CircularArea> Goal_2
+    center: Point3D(5, 5, 0)
+    radius: 5
     tag: AVOID
 end
 ```
 
+Where:
+- entities (Optional): List of Entities to monitor. If no entities are defined then it will monitor all included in the model Entities.
+- center: The center of the circle to build the area
+- radius: The radius of the circle
+- timeConstraints: List of time constraints (see relevant section)
+- tag: `ENTER` or `AVOID`
+
 #### Polyline Area
+
+**UNDER DEVELOPMENT!!**
+
 A polyline area defined by a list of Points.
 
 ```
@@ -347,26 +448,27 @@ Goal<PolylineArea> GoalC
 end
 ```
 
-#### Straight Line
-A straight line in the environment, defined by (startPoint, finishPoint) that has to be either reached or avoided.
-
-```
-Goal<StraightLine> GoalD
-    entity: my_robot
-    startPoint: Point2D(2.0, 7.6);
-    endPoint: Point2D(2.0, 7.6);
-    tag: AVOID;
-end
-```
 
 #### Mobile Area
 This type of Goal can be used for mobile objects, such as robots.
 
 ```
-Goal<MobileArea> GoalD
-    radius: 46;  // 46cm
-    tag: AVOID;
-}
+Entity Robot2Pose
+    type: sensor
+    topic: 'robot_2.pose'
+    source: HomeMQTT
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+Goal<MovingArea> Goal_1
+    movingEntity: Robot1Pose
+    entities:
+        - Robot2Pose
+    radius: 2
+    tag: AVOID
+end
 ```
 
 
@@ -379,12 +481,18 @@ Mostly used in mobile robot applications.
 Reach a specific position in space.
 
 ```
-Goal<Position> Goal_5
+Goal<Position> Goal_3
     entity: RobotArmPose
     position: Point3D(0, 0, 0)
     maxDeviation: 0.1
     timeConstraints:
         - FROM_GOAL_START(<60)
+end
+
+Goal<Position> Goal_1
+    entity: Robot1Pose
+    position: Point3D(1, 1, 0)
+    maxDeviation: 0.1
 end
 ```
 
@@ -392,9 +500,10 @@ end
 Reach a specific orientation in space.
 
 ```
-Goal<Orientation> Goal_5
-    orientation: Orientation2D(1.0);  // rad
-    maxDeviation: 0.2; // rad
+Goal<Orientation> Goal_2
+    entity: Robot2Pose
+    orientation: Orientation2D(1)
+    maxDeviation: 0.1
 end
 ```
 
@@ -402,21 +511,22 @@ end
 Reach a specific pose (orientation, position) in space.
 
 ```
-PoseGoal ExamplePoseGoal -> {
-    position: Point2D(0.0, 0.0);
-    orientation: Orientation2D(1.0);  // rad?
-    maxDeviationPos: 0.2;
-    maxDeviationOri: 0.2;
-}
+Goal<Pose> Goal_1
+    entity: Robot2Pose
+    orientation: Orientation2D(1)
+    position: Point3D(1, 1, 0)
+    maxDeviationOri: 0.1
+    maxDeviationPos: 1
+end
 ```
 
 ### Trajectory Goals
 
 Use this type to define goals for a thing to follow/track a trajectory. Mostly used in mobile robot applications.
 
-#### StraightLineTrajectoryGoal
+<!-- #### StraightLineTrajectoryGoal
 A straight line trajectory goal, defined by (startPoint, finishPoint,
-    maxDeviation).
+    maxDeviation). -->
 
 #### WaypointTrajectoryGoal
 A custom trajectory goal, defined by (list of points, maxDeviation).
@@ -494,37 +604,6 @@ values.
 The `expression` can use one of the values `>`, `<`, `>=`, `<=` and `==`.
 
 
-## Communication Middleware / Message Broker <a name="middleware"></a>
-
-The Broker acts as the communication layer for messages where each device has
-its own Topic which is basically a mailbox for sending and receiving messages.
-SmartAutomation DSL supports Brokers which support the MQTT, AMQP and Redis
-protocols. You can define a Broker using the syntax in the following example:
-
-```
-Broker<MQTT> hassio_mqtt
-    host: "localhost"
-    port: 1883
-    auth:
-        username: "my_username"
-        password: "my_password"
-end
-```
-
-- **type**: The first line can be `MQTT`, `AMQP` or `Redis` according to the broker type
-- **host**: Host IP address or hostname for the Broker
-- **port**: Broker Port number
-- **auth**: Authentication credentials. Unified for all communication brokers
-    - **username**: Username used for authentication
-    - **password**: Password used for authentication
-- **vhost (Optional)**: Vhost parameter. Only for AMQP brokers
-- **ssl (Optional)**: Enable/Disable ssl channel encryption
-- **topicExchange (Optional)**: (Optional) Exchange parameter. Only for AMQP brokers
-- **rpcExchange (FUTURE SUPPORT)**: Exchange parameter. Only for AMQP brokers
-- **db (Optional)**: Database number parameter. Only for Redis brokers
-
-
-
 ## Scenario <a name="scenario"></a>
 
 **Scenario** defines a set of goals which are assigned to be executed for a
@@ -541,7 +620,6 @@ Scenario ScenarioB
         - Goal_3 -> 0.2
         - Goal_4 -> 0.2
         - Goal_5 -> 0.2
-    broker: MyMQTTBroker
     concurrent: false
 end
 ```
@@ -578,84 +656,143 @@ Orientation3D(x, y, z)
 ```
 
 
-## Multiple model files -  Import models <a name="multifile"></a>
+## Import
 
 The language supports multi-file models via model imports.
 A nested model import layer is implemented, enabling pythonic imports
 of models defined in other files.
 
 ```
-// File area_goals.goal
+// File datasources.goal
 
-RectangleAreaGoal GoalA -> {
-    centerPoint: Point2D(2.0, 6.0);
-    sideLength: 3.0;
-    type: ENTER;
-}
+Broker<MQTT> MyMQTTBroker
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
 
-CircularAreaGoal GoalB -> {
-    centerPoint: Point2D(2.0, 6.0);
-    radius: 3.0;
-    type: AVOID;
-}
 ```
 
 ```
-// File complex_goals.goal
+// File entities.goal
 
-// area_goals.goal file exists in current directory.
-// Includes GoalA and GoalB goals
-import area_goals.goal as area_goals;
+import datasources.goal
 
-ComplexGoal GoalC -> {
-    algorithm: ALL_ACCOMPLISHED;
-    addGoal(area_goals.GoalA);
-    addGoal(area_goals.GoalB);
-}
+Entity TempSensor1
+    type: sensor
+    topic: 'bedroom.temperature'
+    source: MyMQTTBroker
+    attributes:
+        - temp: float
+end
+
+Entity TempSensor2
+    type: sensor
+    topic: 'bathroom.temperature'
+    source: MyMQTTBroker
+    attributes:
+        - temp: float
+end
+
+Entity TempSensor3
+    type: sensor
+    topic: 'livingroom.temperature'
+    source: MyMQTTBroker
+    attributes:
+        - temp: float
+end
+
+Entity AirQualitySensor1
+    type: sensor
+    topic: 'kitchen.airq'
+    source: MyMQTTBroker
+    attributes:
+        - gas: float
+        - humidity: float
+end
+```
+
+```
+// File scenario.goal
+
+import entities.goal
+
+Goal<EntityStateChange> Goal_1
+    entity: TempSensor1
+end
+
+Goal<EntityStateCondition> Goal_2
+    condition: mean(TempSensor1.temp, 5) > 10
+end
+
+Goal<EntityStateCondition> Goal_3
+    condition: mean(TempSensor1.temp, 10) > 10
+end
+
+Goal<EntityStateCondition> Goal_4
+    condition: (mean(TempSensor1.temp, 5) > 0.5 ) and
+        (std(TempSensor2.temp, 3) < 1)
+end
+
+Goal<EntityStateCondition> Goal_5
+    condition: TempSensor1.temp * 2 > 10
+end
+
+Goal<EntityStateCondition> Goal_6
+    condition: TempSensor1.temp * 2 > TempSensor2.temp + 1
+end
+
+Scenario MyScenario
+    goals:
+        - Goal_1
+        - Goal_2
+        - Goal_3
+        - Goal_4
+        - Goal_5
+    concurrent: True
+end
 ```
 
 
 ## Validation <a name="validation"></a>
 
-To validate a model description file, simply execute:
+Validation is perfomed using either the CLI or the REST API of the DSL.
 
-```
-textx check target.goal --language goal_dsl
+In the case of the CLI, `validate` is a subcommand of `goaldsl`.
+
+To validate a GoalDSL model file, execute:
+
+```bash
+goaldsl validate scenario.goal
 ```
 
 If the model passes the validation rules (grammar) you should see something
 like:
 
-```
-[I] ➜ textx check target.goal --language goal_dsl
+```bash
+[I] ➜ goaldsl validate scenario.goal
 target.goal: OK.
 ```
 
 
 ## Code Generation <a name="generation"></a>
 
-The code-generator is shipped as a separate package which you will have to
-manually install. Once installed, it will be listed in **textx generators**
-and can be used via the textx cli.
+Code generation is perfomed using either the CLI or the REST API of the DSL.
 
-Install Goal-DSL python source generator from: https://github.com/robotics-4-all/goal-gen
+In the case of the CLI, `gen` is a subcommand of `goaldsl`.
 
-Then execute the following command:
 
+To generate the source code of a GoalDSL model, execute:
+
+```bash
+goaldsl gen scenario.goal
 ```
-textx generate target.goal --target goalee
-```
-
-## Metamodel <a name="metamodel"></a>
-
-The abstract metamodel of the DSL, that defines the concepts, their relations and top-level constraints, is shown below.
-
-![bridges_1](./docs/images/GoalDSLMetamodel.png)
-
 
 ## Examples <a name="examples"></a>
 
-Several examples can be found [here](./examples/).
+Several examples of usage can be found under the [examples directory](./examples/) of this repository.
 
 ## Extra <a name="extra"></a>
 

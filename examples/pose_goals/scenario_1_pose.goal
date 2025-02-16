@@ -1,0 +1,40 @@
+Broker<MQTT> HomeMQTT
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Entity Robot1Pose
+    type: sensor
+    topic: 'robot_1.pose'
+    source: HomeMQTT
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+Entity Robot2Pose
+    type: sensor
+    topic: 'robot_2.pose'
+    source: HomeMQTT
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+
+Goal<Pose> Goal_1
+    entity: Robot2Pose
+    orientation: Orientation2D(1)
+    position: Point3D(1, 1, 0)
+    maxDeviationOri: 0.1
+    maxDeviationPos: 1
+end
+
+Scenario MyScenario
+    goals:
+        - Goal_1
+    concurrent: True
+end
