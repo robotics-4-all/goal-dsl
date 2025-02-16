@@ -1,6 +1,6 @@
 GoalDSL is an external Domain-Specific Language (DSL) for the behaviour verification of IoT-enabled CPS applications and systems, based on a goal-driven approach. The general idea is that goal-driven rules can be defined for entities (smart objects, virtual artefacts, etc.) in a CPS, a smart environment or a digital twin.
 
-Goal-driven verification scenarios can be defined based on messages arriving at specific topics of a message broker. For example, a goal may define a rule to wait until receiving a message from the in-house robot or until the temperature in the bedroom reaches a specific value. To expand this idea to the context of Cyber-Physical Systems and Smart Home Automation, beyond topic-related goals, it is useful to be able to define goals for mobile smart objects (e.g. robots) and for monitoring the state of smart objects and act on them. For example, in robotics it is common to require definition of goals related to the pose of the robot, or to follow a trajectory, to pass from a specific point or reach a destination target. Concerning smart home specific goals, the language supports goals which monitor the attribute values of entities. In a nutshell, our approach can be used to verify that the implementation meets expected functional standards, regarding application development for smart environments.
+Goal-driven verification scenarios can be defined based on the state of "Smart Entities" (physical or virtual/digital). For example, a goal may define a rule to wait until receiving a message from the in-house robot or until the temperature in the bedroom reaches a specific value. To expand this idea to the context of Cyber-Physical Systems and Smart Home Automation, beyond Entity-based goals, it is useful to be able to define goals for mobile smart objects (e.g. robots) and for monitoring the state of smart objects and act on them. For example, in CPS it is common to require definition of goals related to the pose of the robot, or to follow a trajectory, to pass from a specific point or reach a destination target. Concerning smart home specific goals, the language supports goals which monitor the attribute values of entities. In a nutshell, our approach can be used to verify that the implementation meets expected functional standards, regarding application development for smart environments.
 
 # Table of contents
 - [Table of contents](#table-of-contents)
@@ -230,7 +230,7 @@ it's own value and noise generators, using a simple grammar as evident below:
 -> <ValueGenerator> with noise <NoiseGenerator>
 ```
 
-**Supported Value Generators:**
+**Supported Generator Functions:**
 
 - **Constant**: `constant(value)`. Constant value
 - **Linear**: `linear(min, step)`. Linear function
@@ -247,9 +247,6 @@ it's own value and noise generators, using a simple grammar as evident below:
 
 Value generation and Noise are optional in the language and are features used
 by the Virtual Entity generator to transform Entity models into executable code.
-
-![SmAutoValueGenA](assets/images/Smauto_ValueGen_1.png)
-
 
 ### Conditions
 
