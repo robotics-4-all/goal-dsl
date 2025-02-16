@@ -145,5 +145,4 @@ Scenario ScenarioA
         - CG1
         - CG2
     concurrent: True
-    broker: MyMQTTBroker
 end

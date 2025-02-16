@@ -48,7 +48,7 @@ Entity weather_station
     type: sensor
     freq: 5
     topic: "bedroom.weather_station"
-    broker: cloud_broker
+    source: cloud_broker
     attributes:
         - temperature: float
         - humidity: float
@@ -60,7 +60,7 @@ end
 Entity bedroom_lamp
     type: actuator
     topic: "bedroom.lamp"
-    broker: cloud_platform_issel
+    source: cloud_platform_issel
     attributes:
         - power: bool
 end
@@ -108,7 +108,7 @@ Entity weather_station
     type: sensor
     freq: 5
     topic: "smauto.bme"
-    broker: home_mqtt_broker
+    source: home_mqtt_broker
     attributes:
         - temperature: float -> gaussian(10, 20, 5) with noise gaussian(1,1)
         - humidity: float -> linear(1, 0.2) with noise uniform (0, 1)
@@ -190,7 +190,7 @@ of the language.
 
 - String Operators: `~`, `!~`, `==`, `!=`, `has`
 - Numeric Operators: `>`, `>=`, `<`, `<=`, `==`, `!=`
-- Logical Operators: `AND`, `OR`, `NOT`, `XOR`, `NOR`, `XNOR`, `NAND`
+- Logical Operators: `and`, `or`, `not`, `xor`, `nor`, `xnor`, `nand`
 - BooleanValueOperator: `is` , `is not`;
 - List and Dictionary Operators: `==`, `!=`
 
@@ -201,14 +201,14 @@ when defining a Condition.
 
 ```
 condition:
-    (mean(bedroom_temp_sensor.temperature, 10) > 28) AND
+    (mean(bedroom_temp_sensor.temperature, 10) > 28) and
     (std(bedroom_temp_sensor.temperature, 10) > 1)
 
 condition:
     bedroom_humidity_sensor.humidity in range(30, 60)
 
 condition:
-    bedroom_temp_sensor.temperature in range(24, 26) AND
+    bedroom_temp_sensor.temperature in range(24, 26) and
     bedroom_humidity_sensor.humidity in range(30, 60)
 
 condition:

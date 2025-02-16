@@ -1,0 +1,28 @@
+{% macro amqp_broker(broker) %}
+AMQPBroker(
+        host='{{ broker.host }}',
+        port={{ broker.port }},
+        username='{{ broker.username }}',
+        password='{{ broker.password }}',
+        vhost='{{ broker.vhost }}',
+    )
+{% endmacro %}
+
+{% macro redis_broker(broker) %}
+RedisBroker(
+        host='{{ broker.host }}',
+        port={{ broker.port }},
+        db={{ broker.db }},  # default DB number is 0
+        username='{{ broker.username }}',
+        password='{{ broker.password }}',
+    )
+{% endmacro %}
+
+{% macro mqtt_broker(broker) %}
+MQTTBroker(
+        host='{{ broker.host }}',
+        port={{ broker.port }},
+        username='{{ broker.username }}',
+        password='{{ broker.password }}',
+    )
+{% endmacro %}

@@ -7,6 +7,7 @@ from typing import Dict
 from commlib.msg import PubSubMessage, MessageHeader
 from pydantic import Field
 from commlib.node import Node
+from commlib.transports.mqtt import ConnectionParameters
 
 
 """_summary_
@@ -69,24 +70,21 @@ class Robot(Node):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        from commlib.transports.redis import ConnectionParameters
-    elif sys.argv[1] == "redis":
-        from commlib.transports.redis import ConnectionParameters
-    elif sys.argv[1] == "mqtt":
-        from commlib.transports.mqtt import ConnectionParameters
-    elif sys.argv[1] == "amqp":
-        from commlib.transports.amqp import ConnectionParameters
-
     conn_params = ConnectionParameters(reconnect_attempts=0)
 
     robot_1 = Robot(name='robot_1', connection_params=conn_params,
                     pose_uri='robot_1.pose', heartbeats=False)
-
+    robot_2 = Robot(name='robot_2', connection_params=conn_params,
+                    pose_uri='robot_2.pose', heartbeats=False)
     try:
+        # Start the first robot
         robot_1.run()
-        robot_1.move(3, 3)
-        time.sleep(5)
-        robot_1.stop()
+        robot_1.move(3, 3) # Send robot_1 to (3, 3)
+        # robot_1.stop()
+        # Start the second robot
+        robot_2.run()
+        robot_2.move(2, 2)
     except KeyboardInterrupt:
         robot_1.stop()
+        robot_2.stop()
+

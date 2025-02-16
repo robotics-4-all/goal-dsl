@@ -104,9 +104,31 @@ def verify_entity_attrs(entity):
 
 
 def model_proc(model, metamodel):
+    logger.info("Running model processor...")
     process_time_class(model)
+    process_goals(model)
     verify_entity_names(model)
     verify_broker_names(model)
+
+
+def process_goals(model):
+    _goals = get_children_of_type("RectangleAreaGoal", model) + \
+        get_children_of_type("CircularAreaGoal", model) + \
+        get_children_of_type("MovingAreaGoal", model)
+            #  get_children_of_type("DistanceBetweenEntitiesGoal", model) + \
+            #  get_children_of_type("TimeDifferenceGoal", model) + \
+            #  get_children_of_type("PositionDifferenceGoal", model) + \
+            #  get_children_of_type("TemperatureDifferenceGoal", model) + \
+            #  get_children_of_type("HumidityDifferenceGoal", model) + \
+            #  get_children_of_type("PressureDifferenceGoal", model) + \
+            #  get_children_of_type("LightIntensityDifferenceGoal", model) + \
+            #  get_children_of_type("SoundIntensityDifferenceGoal", model) + \
+            #  get_children_of_type("ColorDifferenceGoal", model) + \
+            #  get_children_of_type("PresenceGoal", model) + \
+            #  get_children_of_type("MovementGoal", model) + \
+    for goal in _goals:
+        if goal.entities is None:
+            goal.entities = [e for e in model.entities]
 
 
 def condition_processor(cond):
@@ -119,8 +141,20 @@ def nid_processor(nid):
     return nid
 
 
+def rectangle_area_goal_processor(goal):
+    if goal.entities is None:
+        goal.entities = []
+
+
+def circular_area_goal_processor(goal):
+    if goal.entities is None:
+        goal.entities = []
+
+
 obj_processors = {
-    "Condition": condition_processor,
+    # "RectangleAreaGoal": rectangle_area_goal_processor,
+    # "CircularAreaGoal": circular_area_goal_processor,
+    # "Condition": condition_processor,
     # 'ConditionList': condition_processor,
     # 'ConditionGroup': condition_processor,
     # 'PrimitiveCondition': condition_processor,
@@ -151,8 +185,8 @@ def get_metamodel(debug: bool = False, global_repo: bool = True):
     )
 
     metamodel.register_scope_providers(get_scope_providers())
-    metamodel.register_model_processor(model_proc)
     metamodel.register_obj_processors(obj_processors)
+    metamodel.register_model_processor(model_proc)
     return metamodel
 
 
@@ -211,22 +245,17 @@ def build_model_str(model_str):
     mm = get_metamodel(debug=False)  # Get the metamodel for the language
     model = mm.model_from_str(model_str)  # Parse the model from the file
     conds = get_top_level_condition(model)  # Get the top-level conditions from the model
-    goals = get_model_goals(model)  # Get the goals from the model
     entities = get_model_entities(model)  # Get the entities from the model
 
-    logger.info(f"Goals: {goals}")
-    logger.info(f"Entities: {entities}")
-
-    build_condition_expressions(conds)  # Build the condition expressions for each top-level condition
+    build_condition_expressions(conds, model_str)  # Build the condition expressions for each top-level condition
     entity_attr_buffs = build_entity_attr_buff_tuples(conds)  # Build the entity attribute buffer tuples
     update_entity_attributes(entities, entity_attr_buffs)  # Update the entity attributes with buffer values
     return model  # Return the built model
 
 
-def build_condition_expressions(conds):
+def build_condition_expressions(conds, model_str: str = None):
     for cond in conds:
-        build_condition(cond)
-
+        build_condition(cond, model_str)
 
 def update_entity_attributes(entities, entity_attr_buffs):
     for entity in entities:
@@ -247,8 +276,11 @@ def update_entity_attributes_for_buffer(entity, entity_attr_buffs):
 
 def get_model_entities(model):
     entities = []
-    for m in model._tx_model_repository.all_models:
-        entities += m.entities
+    if model._tx_model_repository is not None and model._tx_model_repository.all_models:
+        for m in model._tx_model_repository.all_models:
+            entities += m.entities
+    else:
+        entities = model.entities
     return entities
 
 
@@ -269,14 +301,20 @@ def get_top_level_condition(model):
 
 def get_model_goals(model):
     goals = []
-    for m in model._tx_model_repository.all_models:
-        goals += m.goals
+    if model._tx_model_repository is not None and model._tx_model_repository.all_models:
+        for m in model._tx_model_repository.all_models:
+            goals += m.goals
+    else:
+        goals = model.goals
     return goals
 
 def get_model_scenarios(model):
     scenarios = []
-    for m in model._tx_model_repository.all_models:
-        scenarios += m.scenarios
+    if model._tx_model_repository is not None and model._tx_model_repository.all_models:
+        for m in model._tx_model_repository.all_models:
+            scenarios += m.scenarios
+    else:
+        scenarios = model.scenarios
     return scenarios
 
 
@@ -291,8 +329,8 @@ def build_entity_attr_buff_tuples(conds):
     return result
 
 
-def build_condition(cond):
-    cond_def = get_cond_definition(cond)
+def build_condition(cond, model_str: str = None):
+    cond_def = get_cond_definition(cond, model_str)
     cond.cond_def = cond_def
     cond.cond_py = transform_cond_py(cond)
 
@@ -305,6 +343,8 @@ def transform_cond_py(cond):
     cond_py = re.sub(r'mean\(([^,]+)\.([^,]+), (\d+)\)', r'mean(entities["\1"].get_buffer("\2", \3))', cond_py)
     cond_py = re.sub(r'std\(([^,]+)\.([^,]+), (\d+)\)', r'std(entities["\1"].get_buffer("\2"), \3)', cond_py)
     cond_py = re.sub(r'var\(([^,]+)\.([^,]+), (\d+)\)', r'var(entities["\1"].get_buffer("\2", \3))', cond_py)
+    cond_py = re.sub(r'max\(([^,]+)\.([^,]+), (\d+)\)', r'max(entities["\1"].get_buffer("\2", \3))', cond_py)
+    cond_py = re.sub(r'min\(([^,]+)\.([^,]+), (\d+)\)', r'min(entities["\1"].get_buffer("\2", \3))', cond_py)
     cond_py = re.sub(r'(\b\w+)\.(?!\d)(\w+\b)', r'entities["\1"].attributes["\2"]', cond_py)
     logger.info(f"Transformed Condition: {cond_py}")
     return cond_py
@@ -318,13 +358,16 @@ def is_float(string):
         return False
 
 
-def get_cond_definition(cond):
+def get_cond_definition(cond, model_str: str = None):
     model = get_model(cond)
     line_start, _ = model._tx_parser.pos_to_linecol(cond._tx_position)
     line_end, _ = model._tx_parser.pos_to_linecol(cond._tx_position_end)
     loc = get_location(cond)
-    f = open(loc["filename"])
-    lines = f.readlines()
+    if loc["filename"]:
+        f = open(loc["filename"])
+        lines = f.readlines()
+    else:
+        lines = model_str.split("\n")
     cond_def = "".join(lines[line_start-1:line_end]).replace("\n", "")
     cond_def = re.sub(' +', ' ', cond_def)
     return cond_def

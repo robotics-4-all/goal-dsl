@@ -24,14 +24,22 @@ Entity Robot2Pose
         - orientation: dict
 end
 
-Goal<MovingArea> Goal_1
+
+Goal<Orientation> Goal_1
     entity: Robot1Pose
-    radius: 2
-    tag: AVOID
+    orientation: Orientation2D(1)
+    maxDeviation: 0.1
+end
+
+Goal<Orientation> Goal_2
+    entity: Robot2Pose
+    orientation: Orientation2D(1)
+    maxDeviation: 0.1
 end
 
 Scenario MyScenario
     goals:
         - Goal_1
-    concurrent: False
+        - Goal_2
+    concurrent: True
 end

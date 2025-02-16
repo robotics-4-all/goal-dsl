@@ -26,8 +26,7 @@ PrimitiveCondition:
 AdvancedCondition: InRangeCondition | MathExpression;
 
 InRangeCondition:
-    attribute=AugmentedNumericAttr  'in range'
-        '[' min=NUMBER ',' max=NUMBER ']'
+    attribute=AugmentedNumericAttr 'in' 'range' '[' min=NUMBER ',' max=NUMBER ']'
 ;
 
 MathExpression:

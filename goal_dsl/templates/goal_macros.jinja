@@ -1,0 +1,156 @@
+{% macro entity_state_condition_goal(goal, entity_names) %}
+g = EntityStateCondition(
+        name='{{ goal.name }}',
+        entities=[{{ ", ".join(entity_names) }}],
+        condition={{ goal.condition.cond_lambda }},
+        for_duration={{ goal.for_duration }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
+{% macro entity_state_change_goal(goal) %}
+g = EntityStateChange(
+        entity={{ goal.entity.name }},
+        name='{{ goal.name }}',
+        for_duration={{ goal.for_duration }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
+{% macro rectangle_area_goal(goal, entity_names) %}
+{% set _entities = [] %}
+{% for e in goal.entities %}
+{% set _ = _entities.append(e.name) %}
+{% endfor %}
+g = RectangleAreaGoal(
+        name='{{ goal.name }}',
+        {% if goal.entities %}
+        entities=[{{ ", ".join(_entities) }}],
+        {% else %}
+        entities=[{{ ", ".join(entity_names) }}],
+        {% endif %}
+        bottom_left_edge=Point({{ goal.bottomLeftEdge.x }}, {{ goal.bottomLeftEdge.y }}, {{ goal.bottomLeftEdge.z }}),
+        length_x={{ goal.lengthX}},
+        length_y={{ goal.lengthY}},
+        tag=AreaGoalTag.{{ goal.tag }},
+        for_duration={{ goal.for_duration }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
+{% macro circular_area_goal(goal, entity_names) %}
+{% set _entities = [] %}
+{% for e in goal.entities %}
+{% set _ = _entities.append(e.name) %}
+{% endfor %}
+g = CircularAreaGoal(
+        name='{{ goal.name }}',
+        {% if goal.entities %}
+        entities=[{{ ", ".join(_entities) }}],
+        {% else %}
+        entities=[{{ ", ".join(entity_names) }}],
+        {% endif %}
+        center=Point({{ goal.center.x }}, {{ goal.center.y }}, {{ goal.center.z }}),
+        radius={{ goal.radius }},
+        tag=AreaGoalTag.{{ goal.tag }},
+        for_duration={{ goal.for_duration }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
+{% macro moving_area_goal(goal, entity_names) %}
+{% set _entities = [] %}
+{% for e in goal.entities %}
+{% set _ = _entities.append(e.name) %}
+{% endfor %}
+g = MovingAreaGoal(
+        name='{{ goal.name }}',
+        motion_entity={{ goal.entity.name }},
+        {% if goal.entities %}
+        entities=[{{ ", ".join(_entities) }}],
+        {% else %}
+        entities=[{{ ", ".join(entity_names) }}],
+        {% endif %}
+        radius={{ goal.radius }},
+        tag=AreaGoalTag.{{ goal.tag }},
+        for_duration={{ goal.for_duration }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
+{% macro position_goal(goal) %}
+g = PositionGoal(
+        entity={{ goal.entity.name }},
+        position=Point(x={{ goal.point.x or 0 }}, y={{ goal.point.y or 0 }}, z={{ goal.point.z or 0 }}),
+        deviation={{ goal.maxDeviation }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
+{% macro orientation_goal(goal) %}
+g = OrientationGoal(
+        entity={{ goal.entity.name }},
+        orientation=Orientation(z={{ goal.orientation.z or 0 }}),
+        deviation={{ goal.maxDeviation }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
+{% macro waipoint_trajectory_goal(goal) %}
+g = WaypointTrajectoryGoal(
+        entity=[{{ goal.entity.name }}],
+        points=[
+            {% for point in goal.points %}
+            Point({{ point.x }}, {{ point.y }}, {{ point.z }}),
+            {% endfor %}
+        ],
+        deviation={{ goal.maxDeviation }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
+{% macro complex_goal(goal, entity_names) %}
+cg = ComplexGoal(
+        algorithm=ComplexGoalAlgorithm.{{ goal.algorithm }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+    {% for goal in goal.goals %}
+    {% if goal.__class__.__name__ == 'EntityStateConditionGoal' %}
+    {{ entity_state_condition_goal(goal, entity_names) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'EntityStateChangeGoal' %}
+    {{ entity_state_change_goal(goal) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
+    {{ rectangle_area_goal(goal, entity_names) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'CircularAreaGoal' %}
+    {{ circular_area_goal(goal, entity_names) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'MovingAreaGoal' %}
+    {{ moving_area_goal(goal, entity_names) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'PositionGoal' %}
+    {{ position_goal(goal) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'OrientationGoal' %}
+    {{ orientation_goal(goal) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
+    {{ waipoint_trajectory_goal(goal) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'ComplexGoal' %}
+    {{ complex_goal(goal, entity_names) }}
+    cg.add_goal(g)
+    {% endif %}
+    {% endfor %}
+{% endmacro %}
