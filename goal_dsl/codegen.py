@@ -119,14 +119,15 @@ def set_defaults(scenario, rtmonitor, wgoals):
     sweights = [goal.weight for goal in wgoals]
     if 0 in sweights or len(sweights) == 0:
         sweights = [1.0 / len(scenario.goals)] * len(scenario.goals)
-        scenario.scoreWeights = sweights
+    scenario.scoreWeights = sweights
     if scenario.concurrent is None:
-        scenario.concurrent = True
+        scenario.concurrent = False
 
 
 def goal_max_min_duration_from_tc(goal):
     max_duration = None
     min_duration = None
+    for_duration = None
     if goal.timeConstraints is None:
         logger.info(f'[*] - Goal <{goal.name}> does not have any time constraints.')
     elif len(goal.timeConstraints) == 0:
@@ -135,12 +136,17 @@ def goal_max_min_duration_from_tc(goal):
         for tc in goal.timeConstraints:
             if tc.__class__.__name__ != 'TimeConstraint':
                 continue
-            max_duration = tc.time if str(tc.comparator) == '<' else max_duration
-            min_duration = tc.time if str(tc.comparator) == '>' else min_duration
+            elif tc.type == 'FROM_GOAL_START':
+                max_duration = tc.time if str(tc.comparator) == '<' else max_duration
+                min_duration = tc.time if str(tc.comparator) == '>' else min_duration
+            elif tc.type == 'FOR_TIME':
+                for_duration = tc.time
     logger.info(f'[*] - Goal <{goal.name}> max duration: {max_duration} seconds')
     logger.info(f'[*] - Goal <{goal.name}> min duration: {min_duration} seconds')
+    logger.info(f'[*] - Goal <{goal.name}> for duration: {for_duration} seconds')
     goal.max_duration = max_duration
     goal.min_duration = min_duration
+    goal.for_duration = for_duration
 
 
 # def make_condition_lambda(condition):
@@ -149,6 +155,7 @@ def goal_max_min_duration_from_tc(goal):
 #     return cond.cond_expr
 def make_condition_lambda(condition):
     return f'lambda entities: True if {condition.cond_py} else False'
+
 
 def report_goals(scenario: list):
     for wgoal in scenario.goals:
