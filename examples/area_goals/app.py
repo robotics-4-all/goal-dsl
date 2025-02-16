@@ -86,6 +86,7 @@ if __name__ == '__main__':
     try:
         robot_1.run()
         robot_1.move(3, 3)
+        time.sleep(5)
         robot_1.stop()
     except KeyboardInterrupt:
         robot_1.stop()

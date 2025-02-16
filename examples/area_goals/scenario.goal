@@ -17,7 +17,7 @@ end
 
 Entity Robot2Pose
     type: sensor
-    topic: 'robot_1.pose'
+    topic: 'robot_2.pose'
     source: HomeMQTT
     attributes:
         - position: dict
@@ -31,6 +31,9 @@ Goal<RectangleArea> Goal_1
     lengthX: 5
     lengthY: 5
     tag: ENTER
+    timeConstraints:
+        - FOR_TIME(5)
+        - FROM_GOAL_START(<180)
 end
 
 Goal<CircularArea> Goal_2

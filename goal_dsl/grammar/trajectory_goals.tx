@@ -30,3 +30,15 @@ WaypointTrajectoryGoal:
     )#
     'end'
 ;
+
+CurveTrajectoryGoal:
+    'Goal<StraightLineTrajectory>' name=ID
+    (
+        ('entity:' entity=[Entity:FQN|+pm:entities*])
+        ('startPoint:' startPoint=Point)
+        ('finishPoint:' finishPoint=Point)
+        ('maxDeviation:' maxDeviation=NUMBER)
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+    )#
+    'end'
+;

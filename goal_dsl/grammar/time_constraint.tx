@@ -1,7 +1,7 @@
 TimeConstraint:
-    type=TimeConstraintType '(' comparator=ArithmeticComparator time=FLOAT ')'
+    type=TimeConstraintType '(' comparator?=ArithmeticComparator time=FLOAT ')'
 ;
 
 ArithmeticComparator: '>' | '<' | '==' | '>=' | '<=';
 
-TimeConstraintType: 'FROM_APP_START' | 'FROM_GOAL_START';
+TimeConstraintType: 'FROM_APP_START' | 'FROM_GOAL_START' | 'FOR_TIME';
