@@ -219,16 +219,19 @@ def build_model(model_path):
     mm = get_metamodel(debug=False)  # Get the metamodel for the language
     model = mm.model_from_file(model_path)  # Parse the model from the file
     conds = get_top_level_condition(model)  # Get the top-level conditions from the model
-    goals = get_model_goals(model)  # Get the goals from the model
     entities = get_model_entities(model)  # Get the entities from the model
-
-    logger.info(f"Goals: {goals}")
-    logger.info(f"Entities: {entities}")
 
     build_condition_expressions(conds)  # Build the condition expressions for each top-level condition
     entity_attr_buffs = build_entity_attr_buff_tuples(conds)  # Build the entity attribute buffer tuples
     update_entity_attributes(entities, entity_attr_buffs)  # Update the entity attributes with buffer values
     return model  # Return the built model
+
+
+def report(model):
+    goals = get_model_goals(model)
+    entities = get_model_entities(model)
+    logger.info(f"Goals: {goals}")
+    logger.info(f"Entities: {entities}")
 
 
 def build_model_str(model_str):
@@ -316,6 +319,14 @@ def get_model_scenarios(model):
     else:
         scenarios = model.scenarios
     return scenarios
+
+
+def get_scondition_goals(model):
+    return get_children_of_type("EntityStateSConditionGoal", model)
+
+
+def _transform_scondition(cond_str: str) -> str:
+    return re.sub(r"(?<!get_buffer\.)\.", '[""]', cond_str)
 
 
 def build_entity_attr_buff_tuples(conds):

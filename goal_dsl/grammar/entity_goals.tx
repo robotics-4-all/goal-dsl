@@ -23,3 +23,12 @@ EntityStateConditionGoal:
     )#
     'end'
 ;
+
+EntityStateSConditionGoal:
+    'Goal<EntityStateCondition>' name=ID
+    (
+        ('condition:' condition=STRING)
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+    )#
+    'end'
+;
