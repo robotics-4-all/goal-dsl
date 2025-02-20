@@ -24,6 +24,56 @@ Broker<Redis> LocalRedis
         password: ''
 end
 
+DataType ColorRgb
+    r: int
+    g: int
+    b: int
+end
+
+DataType Position
+    x: float
+    y: float
+    z: float
+end
+
+DataType Orientation
+    roll: float
+    pitch: float
+    yaw: float
+end
+
+DataType Pose
+    position: Position
+    orientation: Orientation
+end
+
+Entity LightsA
+    type: actuator
+    topic: 'bedroom.actuator.lights'
+    source: LocalRedis
+    attributes:
+        - color: ColorRgb
+end
+
+/*
+Entity MyRobot
+    type: robot
+    source: LocalRedis
+    attributes: -
+    subentities
+        Entity Position
+            type: sensor
+            topic: 'myRobot.sensor.position'
+            source: LocalRedis
+            attributes:
+                - x: float
+                - y: float
+                - z: float
+        end
+    end
+end
+*/
+
 Entity TempSensor1
     type: sensor
     topic: 'bedroom.sensor.temperature'

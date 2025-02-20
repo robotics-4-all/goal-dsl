@@ -22,11 +22,27 @@ Entity:
     'Entity' name=ID
     (
         ('type:' etype=EntityType)
-        ('topic:' topic=STRING)?
+        ('attributes:' '-' attributes*=Attribute['-'])
         ('source:' source=EntitySource)
+        ('topic:' topic=STRING)?
         ('description:' description=STRING)?
         ('freq:' freq=NUMBER)?
+    )#
+    'end'
+;
+
+CEntity:
+    'CEntity' name=ID
+    (
+        ('type:' etype=EntityType)
         ('attributes:' '-' attributes*=Attribute['-'])
+        ('source:' source=EntitySource)
+        ('topic:' topic=STRING)?
+        ('description:' description=STRING)?
+        ('freq:' freq=NUMBER)?
+        ('subentities'
+            subentities*=Entity
+        'end')?
     )#
     'end'
 ;
@@ -45,7 +61,12 @@ Attribute:
     StringAttribute     |
     TimeAttribute       |
     ListAttribute       |
-    DictAttribute
+    DictAttribute       |
+    ObjectAttribute
+;
+
+ObjectAttribute:
+    name=ID ':' dtype=[CustomDataType:FQN|+m:types]
 ;
 
 NumericAttribute:

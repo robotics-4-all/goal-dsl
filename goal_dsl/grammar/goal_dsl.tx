@@ -5,6 +5,7 @@ import communication
 import goal
 import entity
 import utils
+import types
 
 
 GoalDSLModel:
@@ -13,6 +14,7 @@ GoalDSLModel:
     (
         (rtmonitor=RTMonitor)?
         (brokers*=MessageBroker)
+        (types*=CustomDataType)
         (entities*=Entity)
         (goals*=Goal)
         (restEndpoints*=RESTEndpoint)
