@@ -49,7 +49,7 @@ end
 
 Entity LightsA
     type: actuator
-    topic: 'bedroom.actuator.lights'
+    uri: 'bedroom.actuator.lights'
     source: LocalRedis
     attributes:
         - color: ColorRgb
@@ -63,7 +63,7 @@ Entity MyRobot
     subentities
         Entity Position
             type: sensor
-            topic: 'myRobot.sensor.position'
+            uri: 'myRobot.sensor.position'
             source: LocalRedis
             attributes:
                 - x: float
@@ -76,7 +76,7 @@ end
 
 Entity TempSensor1
     type: sensor
-    topic: 'bedroom.sensor.temperature'
+    uri: 'bedroom.sensor.temperature'
     source: LocalRedis
     attributes:
         - temp: float
@@ -84,7 +84,7 @@ end
 
 Entity TempSensor2
     type: sensor
-    topic: 'bathroom.sensor.temperature'
+    uri: 'bathroom.sensor.temperature'
     source: LocalRedis
     attributes:
         - temp: float
@@ -92,7 +92,7 @@ end
 
 Entity TempSensor3
     type: sensor
-    topic: 'livingroom.sensor.temperature'
+    uri: 'livingroom.sensor.temperature'
     source: LocalRedis
     attributes:
         - temp: float
@@ -100,7 +100,7 @@ end
 
 Entity AirQualitySensor1
     type: sensor
-    topic: 'kitchen.sensor.airq'
+    uri: 'kitchen.sensor.airq'
     source: LocalRedis
     attributes:
         - gas: float

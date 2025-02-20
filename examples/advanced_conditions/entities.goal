@@ -8,7 +8,7 @@ end
 
 Entity TempSensor1
     type: sensor
-    topic: 'bedroom.temperature'
+    uri: 'bedroom.temperature'
     source: MyMQTTBroker
     attributes:
         - temp: float
@@ -16,7 +16,7 @@ end
 
 Entity TempSensor2
     type: sensor
-    topic: 'bathroom.temperature'
+    uri: 'bathroom.temperature'
     source: MyMQTTBroker
     attributes:
         - temp: float
@@ -24,7 +24,7 @@ end
 
 Entity TempSensor3
     type: sensor
-    topic: 'livingroom.temperature'
+    uri: 'livingroom.temperature'
     source: MyMQTTBroker
     attributes:
         - temp: float
@@ -32,7 +32,7 @@ end
 
 Entity AirQualitySensor1
     type: sensor
-    topic: 'kitchen.airq'
+    uri: 'kitchen.airq'
     source: MyMQTTBroker
     attributes:
         - gas: float
