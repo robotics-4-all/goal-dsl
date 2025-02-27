@@ -4,7 +4,7 @@ import entity
 import utils
 
 
-EntityGoal: EntityStateChangeGoal | EntityStateConditionGoal;
+EntityGoal: EntityStateChangeGoal | EntityStateConditionGoal | EntityPyConditionGoal;
 
 EntityStateChangeGoal:
     'Goal<EntityStateChange>' name=ID
@@ -24,8 +24,8 @@ EntityStateConditionGoal:
     'end'
 ;
 
-EntityStateSConditionGoal:
-    'Goal<EntityStateCondition>' name=ID
+EntityPyConditionGoal:
+    'Goal<EntityPyCondition>' name=ID
     (
         ('condition:' condition=STRING)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?

@@ -110,6 +110,11 @@ def model_proc(model, metamodel):
     verify_entity_names(model)
     verify_broker_names(model)
 
+    goals = get_model_pycond_goals(model)
+    for goal in goals:
+        extract_object_dot_access(goal.condition)
+    # print(goals)
+
 
 def process_goals(model):
     _goals = get_children_of_type("RectangleAreaGoal", model) + \
@@ -151,7 +156,20 @@ def circular_area_goal_processor(goal):
         goal.entities = []
 
 
+def extract_object_dot_access(input_string):
+    print(input_string)
+    pattern = r"\b[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)+\b"
+    matches = re.findall(pattern, input_string)
+    print(matches)
+    return matches
+
+
+def entity_pycondition_processor(goal):
+    _cond =  goal.condition
+
+
 obj_processors = {
+    # 'EntityPyCondition': entity_pycondition_processor,
     # "RectangleAreaGoal": rectangle_area_goal_processor,
     # "CircularAreaGoal": circular_area_goal_processor,
     # "Condition": condition_processor,
@@ -185,8 +203,8 @@ def get_metamodel(debug: bool = False, global_repo: bool = True):
     )
 
     metamodel.register_scope_providers(get_scope_providers())
-    metamodel.register_obj_processors(obj_processors)
     metamodel.register_model_processor(model_proc)
+    metamodel.register_obj_processors(obj_processors)
     return metamodel
 
 
@@ -285,6 +303,11 @@ def get_model_entities(model):
     else:
         entities = model.entities
     return entities
+
+
+def get_model_pycond_goals(model):
+    conds = get_children_of_type("EntityPyConditionGoal", model)
+    return conds
 
 
 def get_model_conditions(model):
