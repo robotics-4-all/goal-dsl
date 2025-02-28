@@ -9,6 +9,17 @@ g = EntityStateCondition(
     )
 {% endmacro %}
 
+{% macro entity_pycondition_goal(goal, entity_names) %}
+g = EntityStateCondition(
+        name='{{ goal.name }}',
+        entities=[{{ ", ".join(entity_names) }}],
+        condition='{{ goal.cond_py.replace('\'', '\"') }}',
+        for_duration={{ goal.for_duration }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
 {% macro entity_state_change_goal(goal) %}
 g = EntityStateChange(
         entity={{ goal.entity.name }},

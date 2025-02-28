@@ -74,6 +74,9 @@ if __name__ == '__main__':
     {% if goal.__class__.__name__ == 'EntityStateConditionGoal' %}
     {{ goal_macros.entity_state_condition_goal(goal, entity_names) }}
     scenario.add_goal(g)
+    {% elif goal.__class__.__name__ == 'EntityPyConditionGoal' %}
+    {{ goal_macros.entity_pycondition_goal(goal, entity_names) }}
+    scenario.add_goal(g)
     {% elif goal.__class__.__name__ == 'EntityStateChangeGoal' %}
     {{ goal_macros.entity_state_change_goal(goal) }}
     scenario.add_goal(g)

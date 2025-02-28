@@ -24,7 +24,7 @@ class PrimitiveDataType(object):
         return self.name
 
 
-type_builtins = {
+BUILTIN_TYPES = {
     'int': PrimitiveDataType(None, 'int'),
     'int32': PrimitiveDataType(None, 'int32'),
     'int64': PrimitiveDataType(None, 'int64'),
@@ -37,6 +37,11 @@ type_builtins = {
     'float64': PrimitiveDataType(None, 'float64'),
     'str': PrimitiveDataType(None, 'str')
 }
+
+
+BUILDIN_MATH_FUNCTIONS = [
+    "max", "min", "sum", "mean", "std", "var"
+]
 
 
 CUSTOM_CLASSES = [
@@ -93,6 +98,17 @@ def verify_entity_names(model):
         verify_entity_attrs(e)
 
 
+def verify_goal_names(model):
+    _ids = []
+    goals = get_children_of_type("Goal", model)
+    for goal in goals:
+        if goal.name in _ids:
+            raise TextXSemanticError(
+                f"Goal with name <{goal.name}> already exists", **get_location(goal)
+            )
+        _ids.append(goal.name)
+
+
 def verify_entity_attrs(entity):
     _ids = []
     for attr in entity.attributes:
@@ -109,10 +125,11 @@ def model_proc(model, metamodel):
     process_goals(model)
     verify_entity_names(model)
     verify_broker_names(model)
+    verify_goal_names(model)
 
     goals = get_model_pycond_goals(model)
     for goal in goals:
-        extract_object_dot_access(goal.condition)
+        entity_pycondition_processor(goal)
     # print(goals)
 
 
@@ -157,7 +174,6 @@ def circular_area_goal_processor(goal):
 
 
 def extract_object_dot_access(input_string):
-    print(input_string)
     pattern = r"\b[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)+\b"
     matches = re.findall(pattern, input_string)
     print(matches)
@@ -165,11 +181,29 @@ def extract_object_dot_access(input_string):
 
 
 def entity_pycondition_processor(goal):
-    _cond =  goal.condition
+    # eattrs = extract_object_dot_access(goal.condition)
+    logger.info(f"Transforming Condition: {goal.condition}")
+    cond_py = goal.condition
+    if any(builtin_type in cond_py for builtin_type in BUILDIN_MATH_FUNCTIONS):
+        # cond_py = re.sub(r'mean\(([^,]+)\.([^,]+)\.([^,]+), (\d+)\)', r'mean(entities["\1"]["\2"].get_buffer("\3", \4))', cond_py)
+        # cond_py = re.sub(r'std\(([^,]+)\.([^,]+)\.([^,]+), (\d+)\)', r'std(entities["\1"]["\2"].get_buffer("\3"), \4)', cond_py)
+        # cond_py = re.sub(r'var\(([^,]+)\.([^,]+)\.([^,]+), (\d+)\)', r'var(entities["\1"]["\2"].get_buffer("\3", \4))', cond_py)
+        # cond_py = re.sub(r'max\(([^,]+)\.([^,]+)\.([^,]+), (\d+)\)', r'max(entities["\1"]["\2"].get_buffer("\3", \4))', cond_py)
+        # cond_py = re.sub(r'min\(([^,]+)\.([^,]+)\.([^,]+), (\d+)\)', r'min(entities["\1"]["\2"].get_buffer("\3", \4))', cond_py)
+
+        cond_py = re.sub(r'mean\(([^,]+)\.([^,]+), (\d+)\)', r'mean(entities["\1"].get_buffer("\2", \3))', cond_py)
+        cond_py = re.sub(r'std\(([^,]+)\.([^,]+), (\d+)\)', r'std(entities["\1"].get_buffer("\2"), \3)', cond_py)
+        cond_py = re.sub(r'var\(([^,]+)\.([^,]+), (\d+)\)', r'var(entities["\1"].get_buffer("\2", \3))', cond_py)
+        cond_py = re.sub(r'max\(([^,]+)\.([^,]+), (\d+)\)', r'max(entities["\1"].get_buffer("\2", \3))', cond_py)
+        cond_py = re.sub(r'min\(([^,]+)\.([^,]+), (\d+)\)', r'min(entities["\1"].get_buffer("\2", \3))', cond_py)
+    cond_py = re.sub(r'(\b\w+)\.(\w+)\.(\w+)', r'entities["\1"].attributes["\2"]["\3"]', cond_py)
+    cond_py = re.sub(r'(\b\w+)\.(\w+)', r'entities["\1"].attributes["\2"]', cond_py)
+    goal.cond_py = cond_py
+    logger.info(f"Transformed Condition: {cond_py}")
 
 
 obj_processors = {
-    # 'EntityPyCondition': entity_pycondition_processor,
+    'EntityPyCondition': entity_pycondition_processor,
     # "RectangleAreaGoal": rectangle_area_goal_processor,
     # "CircularAreaGoal": circular_area_goal_processor,
     # "Condition": condition_processor,
@@ -196,7 +230,7 @@ def get_metamodel(debug: bool = False, global_repo: bool = True):
         classes=[
             PrimitiveDataType
         ],
-        builtins=type_builtins,
+        builtins=BUILTIN_TYPES,
         # global_repository=GLOBAL_REPO,
         global_repository=global_repo,
         debug=debug,
@@ -358,8 +392,6 @@ def build_entity_attr_buff_tuples(conds):
     for cond in conds:
         matches = re.findall(pattern, cond.cond_def)
         result += [(entity, attribute, int(number)) for entity, attribute, number in matches]
-    # matches = re.findall(pattern, cond.cond_def)
-    # result = [(entity, attribute, int(number)) for entity, attribute, number in matches]
     return result
 
 

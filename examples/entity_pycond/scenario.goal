@@ -49,16 +49,40 @@ end
 
 Entity LightsA
     type: actuator
-    uri: 'bedroom.actuator.lights'
-    source: LocalRedis
+    uri: 'bedroom.lights'
+    source: HomeMQTT
     attributes:
         - color: ColorRgb
 end
 
+Entity TemperatureSensorA
+    type: sensor
+    uri: 'bedroom.temperature'
+    source: HomeMQTT
+    attributes:
+        - temperature: float
+end
 
 Goal<EntityPyCondition> Goal_1
     condition:
+        "TemperatureSensorA.temperature <= 10"
+end
+
+Goal<EntityPyCondition> Goal_2
+    condition:
         "LightsA.color.r <= 10 and LightsA.color.g <= 10"
+end
+
+
+Goal<EntityPyCondition> Goal_3
+    condition:
+        "mean(TemperatureSensorA.temperature, 5) > 10"
+end
+
+
+Goal<EntityPyCondition> Goal_4
+    condition:
+        "mean(LightsA.color.r, 5) > 10"
 end
 
 
@@ -72,5 +96,8 @@ end
 Scenario MyScenario
     goals:
         - Goal_1
+        - Goal_2
+        - Goal_3
+        - Goal_4
     concurrent: True
 end
