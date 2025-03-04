@@ -85,7 +85,8 @@ end
 Scenario MyScenario
     goals:
         - Goal_1 -> 0.5
-        - Goal_2 -> 0.25
-        - Goal_3 -> 0.25
+        - Goal_2 -> 0.5
+    fatals:
+        - Goal_3
     concurrent: True
 end

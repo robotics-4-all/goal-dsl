@@ -52,8 +52,8 @@ Scenario:
     'Scenario' name=ID
     (
         ('goals:' '-' goals*=WeightedGoal['-'])
-        ('antigoals:' '-' goals*=WeightedGoal['-'])?
-        ('fatals:' '-' goals*=Goal['-'])?
+        ('antigoals:' '-' antigoals*=WeightedGoal['-'])?
+        ('fatals:' '-' fatals*=[Goal:FQN|+m:goals*]['-'])?
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
         ('concurrent:' concurrent=BOOL)?
     )#
