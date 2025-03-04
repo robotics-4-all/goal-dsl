@@ -128,6 +128,15 @@ def build_entity_attr_buff_tuples(conds):
     return result
 
 
+def build_entity_attr_map(entities):
+    entity_attr_map = {}
+    for entity in entities:
+        entity_attr_map[entity.name] = {}
+        for attr in entity.attributes:
+            entity_attr_map[entity.name][attr.name] = None
+    return entity_attr_map
+
+
 def model_proc(model, metamodel):
     logger.info("Running model processor...")
     process_time_class(model)
@@ -143,9 +152,9 @@ def model_proc(model, metamodel):
     entity_attr_buffs = build_entity_attr_buff_tuples(conds)  # Build the entity attribute buffer tuples
     update_entity_attributes(entities, entity_attr_buffs)  # Update the entity attributes with buffer values
 
-    goals = get_model_pycond_goals(model)
-    for goal in goals:
-        entity_pycondition_processor(goal)
+    entity_attr_map = build_entity_attr_map(entities)  # Build the entity attribute map
+    # print(entity_attr_map)
+    logger.info("Model processing completed")
 
 
 def build_condition_expressions(conds, model_str: str = None):
@@ -200,6 +209,8 @@ def nid_processor(nid):
 def goal_obj_processor(goal):
     if not hasattr(goal, "entities") or goal.entities is None:
         goal.entities = []
+    if goal.__class__.__name__ == 'EntityPyConditionGoal':
+        pycondition_processor(goal)
 
 
 def extract_object_dot_access(input_string):
@@ -208,9 +219,12 @@ def extract_object_dot_access(input_string):
     return matches
 
 
-def entity_pycondition_processor(goal):
+def pycondition_processor(goal):
     logger.info(f"Transforming Condition: {goal.condition}")
     cond_py = goal.condition
+    cond_py = cond_py.lstrip().rstrip()  # Remove leading/trailing spaces
+    cond_py = re.sub(' +', ' ', cond_py)  # Remove extra spaces
+    cond_py = re.sub(r'\n', '', cond_py)  # Remove newlines
 
     def replace_math_functions(match):
         entity_name = match.group(2)
@@ -235,18 +249,13 @@ def entity_pycondition_processor(goal):
             return f"entities[\"{entity_name}\"].attributes[\"{attribute_path}\"]"
 
     cond_py = re.sub(r'(\b\w+)\.([\w.]+)', replace_attributes, cond_py)
-
     goal.cond_py = cond_py
     logger.info(f"Transformed Condition: {cond_py}")
 
 
-def entity_obj_processor(entity):
-    pass
-
-
 obj_processors = {
     'Goal': goal_obj_processor,
-    'Entity': entity_obj_processor
+    'NID': nid_processor,
 }
 
 
