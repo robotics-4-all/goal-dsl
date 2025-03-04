@@ -6,6 +6,7 @@ import goal
 import entity
 import utils
 import types
+import time_constraint
 
 
 GoalDSLModel:
@@ -51,6 +52,9 @@ Scenario:
     'Scenario' name=ID
     (
         ('goals:' '-' goals*=WeightedGoal['-'])
+        ('antigoals:' '-' goals*=WeightedGoal['-'])?
+        ('fatals:' '-' goals*=Goal['-'])?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
         ('concurrent:' concurrent=BOOL)?
     )#
     'end'

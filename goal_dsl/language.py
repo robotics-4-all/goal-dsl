@@ -208,22 +208,6 @@ def extract_object_dot_access(input_string):
     return matches
 
 
-# def entity_pycondition_processor(goal):
-#     # eattrs = extract_object_dot_access(goal.condition)
-#     logger.info(f"Transforming Condition: {goal.condition}")
-#     cond_py = goal.condition
-#     if any(builtin_type in cond_py for builtin_type in BUILDIN_MATH_FUNCTIONS):
-#         cond_py = re.sub(r'mean\(([^,]+)\.([^,]+), (\d+)\)', r'mean(entities["\1"].get_buffer("\2", \3))', cond_py)
-#         cond_py = re.sub(r'std\(([^,]+)\.([^,]+), (\d+)\)', r'std(entities["\1"].get_buffer("\2"), \3)', cond_py)
-#         cond_py = re.sub(r'var\(([^,]+)\.([^,]+), (\d+)\)', r'var(entities["\1"].get_buffer("\2", \3))', cond_py)
-#         cond_py = re.sub(r'max\(([^,]+)\.([^,]+), (\d+)\)', r'max(entities["\1"].get_buffer("\2", \3))', cond_py)
-#         cond_py = re.sub(r'min\(([^,]+)\.([^,]+), (\d+)\)', r'min(entities["\1"].get_buffer("\2", \3))', cond_py)
-#     cond_py = re.sub(r'(\b\w+)\.(\w+)\.(\w+)', r'entities["\1"].attributes["\2"]["\3"]', cond_py)
-#     cond_py = re.sub(r'(\b\w+)\.(\w+)', r'entities["\1"].attributes["\2"]', cond_py)
-#     goal.cond_py = cond_py
-#     logger.info(f"Transformed Condition: {cond_py}")
-
-
 def entity_pycondition_processor(goal):
     logger.info(f"Transforming Condition: {goal.condition}")
     cond_py = goal.condition

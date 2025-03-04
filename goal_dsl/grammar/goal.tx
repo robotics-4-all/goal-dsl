@@ -32,6 +32,7 @@ ComplexGoalAlgorithmType:
     'ALL_ACCOMPLISHED'               |
     'NONE_ACCOMPLISHED'              |
     'AT_LEAST_ONE_ACCOMPLISHED'      |
+    'JUST_ONE_ACCOMPLISHED'          |
     'EXACTLY_X_ACCOMPLISHED'         |
 	'ALL_ACCOMPLISHED_ORDERED'       |
     'EXACTLY_X_ACCOMPLISHED_ORDERED'
