@@ -22,8 +22,8 @@ g = EntityStateCondition(
 
 {% macro entity_state_change_goal(goal) %}
 g = EntityStateChange(
-        entity={{ goal.entity.name }},
         name='{{ goal.name }}',
+        entity={{ goal.entity.name }},
         for_duration={{ goal.for_duration }},
         max_duration={{ goal.max_duration }},
         min_duration={{ goal.min_duration }},
@@ -140,6 +140,9 @@ cg = ComplexGoal(
     cg.add_goal(g)
     {% elif goal.__class__.__name__ == 'EntityStateChangeGoal' %}
     {{ entity_state_change_goal(goal) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'EntityPyConditionGoal' %}
+    {{ entity_pycondition_goal(goal, entity_names) }}
     cg.add_goal(g)
     {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
     {{ rectangle_area_goal(goal, entity_names) }}
