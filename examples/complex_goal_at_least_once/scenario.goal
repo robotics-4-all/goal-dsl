@@ -181,8 +181,16 @@ Goal<Complex> CG_1
     strategy: AT_LEAST_ONE_ACCOMPLISHED
 end
 
+Goal<Position> RobotGoToPosition
+    entity: gn_robot_118_pose
+    position: Point3D(22, 38, 0)
+    maxDeviation: 2
+end
+
 Scenario MyScenario
     goals:  // Shall be accomplished. Count positive on the overall score
+        - RobotGoToPosition
+    fatals:
         - CG_1
     concurrent: False
 end
