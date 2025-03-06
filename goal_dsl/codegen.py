@@ -49,6 +49,12 @@ def generate(model_fpath: str,
 
         goals = process_goals(goals)
 
+        scenario.goals = goals
+
+        scenario.fatals = process_goals(scenario.fatals)
+
+        scenario.antigoals = process_goals(scenario.antigoals)
+
         out_file = path.join(out_dir, f"{scenario.name}.py")
         with open(path.join(out_file), 'w') as f:
             f.write(template.render(rtmonitor=rtmonitor,
@@ -119,7 +125,7 @@ def set_defaults(scenario, rtmonitor, wgoals):
     sweights = [goal.weight for goal in wgoals]
     if 0 in sweights or len(sweights) == 0:
         sweights = [1.0 / len(scenario.goals)] * len(scenario.goals)
-    scenario.scoreWeights = sweights
+    scenario.goalWeights = sweights
     if scenario.concurrent is None:
         scenario.concurrent = False
 

@@ -174,7 +174,7 @@ Goal<EntityStateChange> RobotCrash
     entity: gn_robot_118_crash
 end
 
-Goal<Complex> CG_Fatal
+Goal<Complex> CG_1
     goals:
         - Checkpoint_1_Fail
         - RobotCrash
@@ -183,6 +183,6 @@ end
 
 Scenario MyScenario
     goals:  // Shall be accomplished. Count positive on the overall score
-        - CG_Fatal
+        - CG_1
     concurrent: False
 end

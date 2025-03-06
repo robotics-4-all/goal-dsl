@@ -64,45 +64,119 @@ if __name__ == '__main__':
     broker = None
     {% endif %}
 
+    goals_l = []
+    {% for goal in scenario.goals %}
+    {% if goal.__class__.__name__ == 'EntityStateConditionGoal' %}
+    {{ goal_macros.entity_state_condition_goal(goal, entity_names) }}
+    goals_l.append(g)
+    {% elif goal.__class__.__name__ == 'EntityPyConditionGoal' %}
+    {{ goal_macros.entity_pycondition_goal(goal, entity_names) }}
+    goals_l.append(g)
+    {% elif goal.__class__.__name__ == 'EntityStateChangeGoal' %}
+    {{ goal_macros.entity_state_change_goal(goal) }}
+    goals_l.append(g)
+    {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
+    {{ goal_macros.rectangle_area_goal(goal, entity_names) }}
+    goals_l.append(g)
+    {% elif goal.__class__.__name__ == 'CircularAreaGoal' %}
+    {{ goal_macros.circular_area_goal(goal, entity_names) }}
+    goals_l.append(g)
+    {% elif goal.__class__.__name__ == 'MovingAreaGoal' %}
+    {{ goal_macros.moving_area_goal(goal, entity_names) }}
+    goals_l.append(g)
+    {% elif goal.__class__.__name__ == 'PositionGoal' %}
+    {{ goal_macros.position_goal(goal) }}
+    goals_l.append(g)
+    {% elif goal.__class__.__name__ == 'OrientationGoal' %}
+    {{ goal_macros.orientation_goal(goal) }}
+    goals_l.append(g)
+    {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
+    {{ goal_macros.waipoint_trajectory_goal(goal) }}
+    goals_l.append(g)
+    {% elif goal.__class__.__name__ == 'ComplexGoal' %}
+    cg = {{ goal_macros.complex_goal(goal, entity_names) }}
+    goals_l.append(cg)
+    {% endif %}
+    {% endfor %}
+
+    antigoals_l = []
+    {% for goal in scenario.antigoals %}
+    {% if goal.__class__.__name__ == 'EntityStateConditionGoal' %}
+    {{ goal_macros.entity_state_condition_goal(goal, entity_names) }}
+    antigoals_l.append(g)
+    {% elif goal.__class__.__name__ == 'EntityPyConditionGoal' %}
+    {{ goal_macros.entity_pycondition_goal(goal, entity_names) }}
+    antigoals_l.append(g)
+    {% elif goal.__class__.__name__ == 'EntityStateChangeGoal' %}
+    {{ goal_macros.entity_state_change_goal(goal) }}
+    antigoals_l.append(g)
+    {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
+    {{ goal_macros.rectangle_area_goal(goal, entity_names) }}
+    antigoals_l.append(g)
+    {% elif goal.__class__.__name__ == 'CircularAreaGoal' %}
+    {{ goal_macros.circular_area_goal(goal, entity_names) }}
+    antigoals_l.append(g)
+    {% elif goal.__class__.__name__ == 'MovingAreaGoal' %}
+    {{ goal_macros.moving_area_goal(goal, entity_names) }}
+    antigoals_l.append(g)
+    {% elif goal.__class__.__name__ == 'PositionGoal' %}
+    {{ goal_macros.position_goal(goal) }}
+    antigoals_l.append(g)
+    {% elif goal.__class__.__name__ == 'OrientationGoal' %}
+    {{ goal_macros.orientation_goal(goal) }}
+    antigoals_l.append(g)
+    {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
+    {{ goal_macros.waipoint_trajectory_goal(goal) }}
+    antigoals_l.append(g)
+    {% elif goal.__class__.__name__ == 'ComplexGoal' %}
+    cg = {{ goal_macros.complex_goal(goal, entity_names) }}
+    antigoals_l.append(cg)
+    {% endif %}
+    {% endfor %}
+
+    fatals_l = []
+    {% for goal in scenario.fatals %}
+    {% if goal.__class__.__name__ == 'EntityStateConditionGoal' %}
+    {{ goal_macros.entity_state_condition_goal(goal, entity_names) }}
+    fatals_l.append(g)
+    {% elif goal.__class__.__name__ == 'EntityPyConditionGoal' %}
+    {{ goal_macros.entity_pycondition_goal(goal, entity_names) }}
+    fatals_l.append(g)
+    {% elif goal.__class__.__name__ == 'EntityStateChangeGoal' %}
+    {{ goal_macros.entity_state_change_goal(goal) }}
+    fatals_l.append(g)
+    {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
+    {{ goal_macros.rectangle_area_goal(goal, entity_names) }}
+    fatals_l.append(g)
+    {% elif goal.__class__.__name__ == 'CircularAreaGoal' %}
+    {{ goal_macros.circular_area_goal(goal, entity_names) }}
+    fatals_l.append(g)
+    {% elif goal.__class__.__name__ == 'MovingAreaGoal' %}
+    {{ goal_macros.moving_area_goal(goal, entity_names) }}
+    fatals_l.append(g)
+    {% elif goal.__class__.__name__ == 'PositionGoal' %}
+    {{ goal_macros.position_goal(goal) }}
+    fatals_l.append(g)
+    {% elif goal.__class__.__name__ == 'OrientationGoal' %}
+    {{ goal_macros.orientation_goal(goal) }}
+    fatals_l.append(g)
+    {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
+    {{ goal_macros.waipoint_trajectory_goal(goal) }}
+    fatals_l.append(g)
+    {% elif goal.__class__.__name__ == 'ComplexGoal' %}
+    cg = {{ goal_macros.complex_goal(goal, entity_names) }}
+    fatals_l.append(cg)
+    {% endif %}
+    {% endfor %}
+
     scenario = Scenario(
         name='{{ scenario.name }}',
         broker=broker,
-        score_weights={{ scenario.scoreWeights }}
+        score_weights={{ scenario.goalWeights }},
+        goals=goals_l,
+        antigoals=antigoals_l,
+        fatals=fatals_l,
     )
-
-    {% for goal in goals %}
-    {% if goal.__class__.__name__ == 'EntityStateConditionGoal' %}
-    {{ goal_macros.entity_state_condition_goal(goal, entity_names) }}
-    scenario.add_goal(g)
-    {% elif goal.__class__.__name__ == 'EntityPyConditionGoal' %}
-    {{ goal_macros.entity_pycondition_goal(goal, entity_names) }}
-    scenario.add_goal(g)
-    {% elif goal.__class__.__name__ == 'EntityStateChangeGoal' %}
-    {{ goal_macros.entity_state_change_goal(goal) }}
-    scenario.add_goal(g)
-    {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
-    {{ goal_macros.rectangle_area_goal(goal, entity_names) }}
-    scenario.add_goal(g)
-    {% elif goal.__class__.__name__ == 'CircularAreaGoal' %}
-    {{ goal_macros.circular_area_goal(goal, entity_names) }}
-    scenario.add_goal(g)
-    {% elif goal.__class__.__name__ == 'MovingAreaGoal' %}
-    {{ goal_macros.moving_area_goal(goal, entity_names) }}
-    scenario.add_goal(g)
-    {% elif goal.__class__.__name__ == 'PositionGoal' %}
-    {{ goal_macros.position_goal(goal) }}
-    scenario.add_goal(g)
-    {% elif goal.__class__.__name__ == 'OrientationGoal' %}
-    {{ goal_macros.orientation_goal(goal) }}
-    scenario.add_goal(g)
-    {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
-    {{ goal_macros.waipoint_trajectory_goal(goal) }}
-    scenario.add_goal(g)
-    {% elif goal.__class__.__name__ == 'ComplexGoal' %}
-    cg = {{ goal_macros.complex_goal(goal, entity_names) }}
-    scenario.add_goal(cg)
-    {% endif %}
-    {% endfor %}
 
     {% if rtmonitor %}
     try:
