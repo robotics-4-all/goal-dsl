@@ -34,7 +34,7 @@ entities_list = []
 {{ entity.name }} = Entity(
     name='{{ entity.name }}',
     etype='{{ entity.etype }}',
-    topic='{{ entity.uri }}',
+    topic='{{ entity.uri }}'.format(**{k: os.environ.get(k, "") for k in os.environ}).replace('..', '.'),
     attributes={{ entity.attr_list }},
     {% if entity.source.ref.__class__.__name__ == 'AMQPBroker' %}
     source={{ broker_macros.amqp_broker(entity.source.ref) }},

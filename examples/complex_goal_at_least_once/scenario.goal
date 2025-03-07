@@ -39,7 +39,7 @@ end
 
 Entity traffic_light_line_data
     type: sensor
-    uri: "streamsim.6530f9263773c5f7858b6b33.world.world.sensor.alarm.linear_alarm.traffic_light_line.data"
+    uri: "streamsim.{U_ID}.world.world.sensor.alarm.linear_alarm.traffic_light_line.data"
     source: LocalRedis
     freq: 1.0
     attributes:
@@ -48,7 +48,7 @@ end
 
 Entity ef_light_120_state
     type: sensor
-    uri: "streamsim.6530f9263773c5f7858b6b33.world.world.actuator.visual.leds.ef_light_120.state"
+    uri: "streamsim.{U_ID}.world.world.actuator.visual.leds.ef_light_120.state"
     source: LocalRedis
     freq: -1
     attributes:
@@ -58,7 +58,7 @@ end
 
 Entity gn_human_121_pose
     type: sensor
-    uri: "streamsim.6530f9263773c5f7858b6b33.actor.human.gn_human_121.pose"
+    uri: "streamsim.{U_ID}.actor.human.gn_human_121.pose"
     source: LocalRedis
     freq: -1
     attributes:
@@ -68,7 +68,7 @@ end
 
 Entity gn_human_121_properties
     type: sensor
-    uri: "streamsim.6530f9263773c5f7858b6b33.actor.human.gn_human_121.properties"
+    uri: "streamsim.{U_ID}.actor.human.gn_human_121.properties"
     source: LocalRedis
     freq: -1
     attributes:
@@ -84,7 +84,7 @@ end
 
 Entity auto_robot_pose
     type: sensor
-    uri: "streamsim.6530f9263773c5f7858b6b33.auto_robot.pose"
+    uri: "streamsim.{U_ID}.auto_robot.pose"
     source: LocalRedis
     freq: -1.0
     attributes:
@@ -94,7 +94,7 @@ end
 
 Entity auto_robot_crash
     type: sensor
-    uri: "streamsim.6530f9263773c5f7858b6b33.auto_robot.crash"
+    uri: "streamsim.{U_ID}.auto_robot.crash"
     source: LocalRedis
     freq: -1.0
     attributes:
@@ -104,7 +104,7 @@ end
 
 Entity gn_robot_118_pose
     type: sensor
-    uri: "streamsim.6530f9263773c5f7858b6b33.gn_robot_118.pose"
+    uri: "streamsim.{U_ID}.gn_robot_118.pose"
     source: LocalRedis
     freq: -1.0
     attributes:
@@ -114,7 +114,7 @@ end
 
 Entity gn_robot_118_crash
     type: sensor
-    uri: "streamsim.6530f9263773c5f7858b6b33.gn_robot_118.crash"
+    uri: "streamsim.{U_ID}.gn_robot_118.crash"
     source: LocalRedis
     freq: -1.0
     attributes:
@@ -124,7 +124,7 @@ end
 
 Entity gn_robot_118_camera_detect
     type: sensor
-    uri: "streamsim.6530f9263773c5f7858b6b33.gn_robot_118.sensor.visual.camera.gn_robot_118_camera.detection"
+    uri: "streamsim.{U_ID}.gn_robot_118.sensor.visual.camera.gn_robot_118_camera.detection"
     source: LocalRedis
     freq: -1.0
     attributes:
@@ -133,7 +133,7 @@ end
 
 Entity ef_light_120_set
     type: actuator
-    uri: "streamsim.6530f9263773c5f7858b6b33.world.world.actuator.visual.leds.ef_light_120.set"
+    uri: "streamsim.{U_ID}.world.world.actuator.visual.leds.ef_light_120.set"
     source: LocalRedis
     attributes:
         - luminosity: str
@@ -144,7 +144,7 @@ end
 
 Entity auto_robot_motion_set
     type: actuator
-    uri: "streamsim.6530f9263773c5f7858b6b33.auto_robot.actuator.motion.twist.auto_robot_skid_steer.set"
+    uri: "streamsim.{U_ID}.auto_robot.actuator.motion.twist.auto_robot_skid_steer.set"
     source: LocalRedis
     attributes:
         - linear: float
@@ -153,7 +153,7 @@ end
 
 Entity gn_robot_118_motion_set
     type: actuator
-    uri: "streamsim.6530f9263773c5f7858b6b33.gn_robot_118.actuator.motion.twist.gn_robot_118_skid_steer.set"
+    uri: "streamsim.{U_ID}.gn_robot_118.actuator.motion.twist.gn_robot_118_skid_steer.set"
     source: LocalRedis
     attributes:
         - linear: float
