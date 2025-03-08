@@ -52,8 +52,7 @@ Entity ef_light_120_state
     source: LocalRedis
     freq: -1
     attributes:
-        - luminosity: str
-        - color: dict
+        - state: dict
 end
 
 Entity gn_human_121_pose
@@ -162,12 +161,12 @@ end
 
 Goal<EntityPyCondition> Checkpoint_1
     condition:
-        "traffic_light_line_data.value > 0 and ef_light_120.color.g > 0"
+        "traffic_light_line_data.value > 0 and ef_light_120.state.g > 0"
 end
 
 Goal<EntityPyCondition> Checkpoint_1_Fail
     condition:
-        "'gn_robot_118' in traffic_light_line_data.value and ef_light_120_state.color.r > 0"
+        "'gn_robot_118' in traffic_light_line_data.value and ef_light_120_state.state.r > 0"
 end
 
 Goal<EntityStateChange> RobotCrash
