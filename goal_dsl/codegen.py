@@ -92,18 +92,25 @@ def process_goals(goals):
             goal.condition.cond_lambda = cond_lambda
             logger.info(f'[*] - Goal <{goal.name}> condition lambda: {cond_lambda}')
         elif goal.__class__.__name__ == 'EntityPyConditionGoal':
+            # TODO
             pass
         elif goal.__class__.__name__ == 'EntityStateChangeGoal':
+            # TODO
             pass
         elif goal.__class__.__name__ == 'RectangleAreaGoal':
+            # TODO
             pass
         elif goal.__class__.__name__ == 'CircularAreaGoal':
+            # TODO
             pass
         elif goal.__class__.__name__ == 'PositionGoal':
+            # TODO
             pass
         elif goal.__class__.__name__ == 'OrientationGoal':
+            # TODO
             pass
         elif goal.__class__.__name__ == 'PoseGoal':
+            # TODO
             pass
         elif goal.__class__.__name__ == 'ComplexGoal':
             _cgoals = process_goals(goal.goals)

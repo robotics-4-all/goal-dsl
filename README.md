@@ -143,7 +143,7 @@ Entity definitions follow the syntax of the below examples, for both sensor and 
 ```
 Entity TempSensor1
     type: sensor
-    topic: 'bedroom.temperature'
+    uri: 'bedroom.temperature'
     source: MyMQTTBroker
     attributes:
         - temp: float
@@ -153,7 +153,7 @@ end
 ```
 Entity bedroom_lamp
     type: actuator
-    topic: "bedroom.lamp"
+    uri: "bedroom.lamp"
     source: cloud_platform_issel
     attributes:
         - power: bool
@@ -163,7 +163,7 @@ end
 ```
 Entity Robot1Pose
     type: sensor
-    topic: 'robot_1.pose'
+    uri: 'robot_1.pose'
     source: HomeMQTT
     attributes:
         - position: dict
@@ -174,7 +174,7 @@ end
 
 
 - **type**: The Entity type. Currently supports `sensor`, `actuator` or `hybrid`
-- **topic**: The Topic in the Broker used by the Entity to send and receive
+- **uri**: The URI (Broker, REST etc) used by the Entity to send and receive
 messages. Note that / should be substituted with .
 (e.g: bedroom/aircondition -> bedroom.aircondition).
 - **source**: The name property of a previously defined Data Source (e.g. Broker) which the
@@ -214,7 +214,7 @@ For this purpose, the language supports (Optional) definition of a `Value Genera
 Entity weather_station
     type: sensor
     freq: 5
-    topic: "smauto.bme"
+    uri: "smauto.bme"
     source: home_mqtt_broker
     attributes:
         - temperature: float -> gaussian(10, 20, 5) with noise gaussian(1,1)
@@ -452,7 +452,7 @@ This type of Goal can be used for mobile objects, such as robots.
 ```
 Entity Robot2Pose
     type: sensor
-    topic: 'robot_2.pose'
+    uri: 'robot_2.pose'
     source: HomeMQTT
     attributes:
         - position: dict
@@ -679,7 +679,7 @@ import datasources.goal
 
 Entity TempSensor1
     type: sensor
-    topic: 'bedroom.temperature'
+    uri: 'bedroom.temperature'
     source: MyMQTTBroker
     attributes:
         - temp: float
@@ -687,7 +687,7 @@ end
 
 Entity TempSensor2
     type: sensor
-    topic: 'bathroom.temperature'
+    uri: 'bathroom.temperature'
     source: MyMQTTBroker
     attributes:
         - temp: float
@@ -695,7 +695,7 @@ end
 
 Entity TempSensor3
     type: sensor
-    topic: 'livingroom.temperature'
+    uri: 'livingroom.temperature'
     source: MyMQTTBroker
     attributes:
         - temp: float
@@ -703,7 +703,7 @@ end
 
 Entity AirQualitySensor1
     type: sensor
-    topic: 'kitchen.airq'
+    uri: 'kitchen.airq'
     source: MyMQTTBroker
     attributes:
         - gas: float
