@@ -96,6 +96,7 @@ g = MovingAreaGoal(
 
 {% macro position_goal(goal) %}
 g = PositionGoal(
+        name='{{ goal.name }}',
         entity={{ goal.entity.name }},
         position=Point(x={{ goal.point.x or 0 }}, y={{ goal.point.y or 0 }}, z={{ goal.point.z or 0 }}),
         deviation={{ goal.maxDeviation }},
@@ -106,6 +107,7 @@ g = PositionGoal(
 
 {% macro orientation_goal(goal) %}
 g = OrientationGoal(
+        name='{{ goal.name }}',
         entity={{ goal.entity.name }},
         orientation=Orientation(z={{ goal.orientation.z or 0 }}),
         deviation={{ goal.maxDeviation }},
@@ -116,8 +118,9 @@ g = OrientationGoal(
 
 {% macro waipoint_trajectory_goal(goal) %}
 g = WaypointTrajectoryGoal(
-        entity=[{{ goal.entity.name }}],
-        points=[
+        name='{{ goal.name }}',
+        entity={{ goal.entity.name }},
+        waypoints=[
             {% for point in goal.points %}
             Point({{ point.x }}, {{ point.y }}, {{ point.z }}),
             {% endfor %}
@@ -130,6 +133,7 @@ g = WaypointTrajectoryGoal(
 
 {% macro complex_goal(goal, entity_names) %}
 cg = ComplexGoal(
+        name='{{ goal.name }}',
         algorithm=ComplexGoalAlgorithm.{{ goal.algorithm }},
         max_duration={{ goal.max_duration }},
         min_duration={{ goal.min_duration }},
