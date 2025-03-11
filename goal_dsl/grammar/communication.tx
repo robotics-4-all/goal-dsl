@@ -6,6 +6,7 @@ MessageBroker:
 ;
 
 
+// DEPRECATED - DO NOT USE!!
 BrokerConnection:
     'ref' ':' ref=[MessageBroker:FQN]
     'auth' ':' auth=Authentication
@@ -88,7 +89,8 @@ RESTEndpoint:
 ;
 
 RESTVerb:
-    'GET'   |
-    'POST'  |
-    'PUT'
+    'GET'       |
+    'POST'      |
+    'PUT'       |
+    'DELETE'
 ;

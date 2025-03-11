@@ -4,7 +4,12 @@ import entity
 import utils
 
 
-EntityGoal: EntityStateChangeGoal | EntityStateConditionGoal | EntityPyConditionGoal;
+EntityGoal:
+    EntityStateChangeGoal       |
+    EntityStateConditionGoal    |
+    EntityPyConditionGoal       |
+    EntityAttrStreamGoal
+;
 
 EntityStateChangeGoal:
     'Goal<EntityStateChange>' name=ID
@@ -31,4 +36,40 @@ EntityPyConditionGoal:
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
     'end'
+;
+
+EntityAttrStreamGoal:
+    'Goal<EntityAttrStream>' name=ID
+    (
+        ('streams:' '-' streams+=AttrStreamDefinition['-'])
+        // ('strategy:' strategy=[EntityAttrStreamStrategy])
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+    )#
+    'end'
+;
+
+/*
+EntityAttrStreamGoal:
+    'Goal<EntityAttrStream>' name=ID
+    (
+        ('stream:' stream=AttrStreamDefinition)
+        ('strategy:' strategy=[EntityAttrStreamStrategy])
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+    )#
+    'end'
+;
+*/
+
+AttrStreamDefinition:
+    attr=[Attribute:FQN|+pm:entities.attributes*] ':' '[' values+=BASETYPE[','] ']' '->' strategy=[EntityAttrStreamStrategy]
+;
+
+EntityAttrStreamStrategy:
+    'ALL'               |
+    'NONE'              |
+    'AT_LEAST_ONE'      |
+    'JUST_ONE'          |
+    'EXACTLY_X'         |
+	'ALL_ORDERED'       |
+    'EXACTLY_X_ORDERED'
 ;
