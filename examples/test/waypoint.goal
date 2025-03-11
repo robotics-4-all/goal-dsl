@@ -1,0 +1,175 @@
+Metadata
+    name: zyKoI
+    version: "0.1.0"
+    author: "AUTHOR_NAME_HERE"
+    email: "CONTACT_EMAIL_HERE"
+    description: "BRIEF_DESCRIPTION"
+end
+
+Broker<MQTT> LocsysMQTT
+    host: 'locsys.issel.ee.auth.gr'
+    port: 8883
+    ssl: true
+    auth:
+        username: '*****'
+        password: '*****'
+end
+
+Broker<MQTT> LocalMQTT
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Broker<Redis> LocalRedis
+    host: 'localhost'
+    port: 6379
+    auth:
+        username: ''
+        password: ''
+end
+
+RTMonitor
+    broker: LocalRedis
+    eventTopic: "goaldsl.{U_ID}.event"
+    logsTopic: "goaldsl.{U_ID}.log"
+end
+
+Entity traffic_light_line_data
+    type: sensor
+    uri: "streamsim.6530f9263773c5f7858b6b33.world.world.sensor.alarm.linear_alarm.traffic_light_line.data"
+    source: LocalRedis
+    freq: 1.0
+    attributes:
+        - value: float
+end
+
+Entity ef_light_120_state
+    type: sensor
+    uri: "streamsim.6530f9263773c5f7858b6b33.world.world.actuator.visual.leds.ef_light_120.state"
+    source: LocalRedis
+    freq: -1
+    attributes:
+        - luminosity: str
+        - color: dict
+end
+
+Entity gn_human_121_pose
+    type: sensor
+    uri: "streamsim.6530f9263773c5f7858b6b33.actor.human.gn_human_121.pose"
+    source: LocalRedis
+    freq: -1
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+Entity gn_human_121_properties
+    type: sensor
+    uri: "streamsim.6530f9263773c5f7858b6b33.actor.human.gn_human_121.properties"
+    source: LocalRedis
+    freq: -1
+    attributes:
+        - move: bool
+        - sound: bool
+        - lang: str
+        - range: float
+        - speech: str
+        - emotion: str
+        - gender: str
+        - age: float
+end
+
+Entity auto_robot_pose
+    type: sensor
+    uri: "streamsim.6530f9263773c5f7858b6b33.auto_robot.pose"
+    source: LocalRedis
+    freq: -1.0
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+Entity auto_robot_crash
+    type: sensor
+    uri: "streamsim.6530f9263773c5f7858b6b33.auto_robot.crash"
+    source: LocalRedis
+    freq: -1.0
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+Entity gn_robot_118_pose
+    type: sensor
+    uri: "streamsim.6530f9263773c5f7858b6b33.gn_robot_118.pose"
+    source: LocalRedis
+    freq: -1.0
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+Entity gn_robot_118_crash
+    type: sensor
+    uri: "streamsim.6530f9263773c5f7858b6b33.gn_robot_118.crash"
+    source: LocalRedis
+    freq: -1.0
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+Entity gn_robot_118_camera_detect
+    type: sensor
+    uri: "streamsim.6530f9263773c5f7858b6b33.gn_robot_118.sensor.visual.camera.gn_robot_118_camera.detection"
+    source: LocalRedis
+    freq: -1.0
+    attributes:
+        - detection: dict
+end
+
+Entity ef_light_120_set
+    type: actuator
+    uri: "streamsim.6530f9263773c5f7858b6b33.world.world.actuator.visual.leds.ef_light_120.set"
+    source: LocalRedis
+    attributes:
+        - luminosity: str
+        - r: float
+        - g: float
+        - b: float
+end
+
+Entity auto_robot_motion_set
+    type: actuator
+    uri: "streamsim.6530f9263773c5f7858b6b33.auto_robot.actuator.motion.twist.auto_robot_skid_steer.set"
+    source: LocalRedis
+    attributes:
+        - linear: float
+        - angular: float
+end
+
+Entity gn_robot_118_motion_set
+    type: actuator
+    uri: "streamsim.6530f9263773c5f7858b6b33.gn_robot_118.actuator.motion.twist.gn_robot_118_skid_steer.set"
+    source: LocalRedis
+    attributes:
+        - linear: float
+        - angular: float
+end
+
+Goal<WaypointTrajectory> Goal_1
+    entity: gn_robot_118_pose
+    points: [Point3D(32.5, 39, 0), Point3D(26.5, 39, 0), Point3D(23.5, 39, 0)]
+    maxDeviation: 0.2
+end
+
+
+Scenario MyScenario
+    goals:
+        - Goal_1
+    concurrent: False
+end
+

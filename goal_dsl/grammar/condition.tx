@@ -11,7 +11,7 @@ Condition:
 ConditionGroup:
     '(' r=Condition ')'
     | PrimitiveCondition
-    | AdvancedCondition
+    | MathExpression
 ;
 
 PrimitiveCondition:
@@ -23,7 +23,6 @@ PrimitiveCondition:
     DictCondition
 ;
 
-AdvancedCondition: InRangeCondition | MathExpression;
 
 InRangeCondition:
     attribute=AugmentedNumericAttr 'in' 'range' '[' min=NUMBER ',' max=NUMBER ']'
@@ -83,8 +82,8 @@ MaxAttr:
     'max' '(' attribute=AugmentedNumericAttr  ',' size=INT ')'
 ;
 
-MultiplyAttr:
-    'mul' '(' attribute*=AugmentedNumericAttr[','] ')'
+InRangeAttr:
+    'in_range' '(' attribute=AugmentedNumericAttr  ',' min=NUMBER ',' max=NUMBER ')'
 ;
 
 
@@ -134,7 +133,7 @@ AugmentedNumericAttr:
     MeanAttr        |
     MinAttr         |
     MaxAttr         |
-    MultiplyAttr    |
+    InRangeAttr     |
     SimpleNumericAttr
 ;
 

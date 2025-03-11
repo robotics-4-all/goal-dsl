@@ -32,3 +32,15 @@ EntityPyConditionGoal:
     )#
     'end'
 ;
+
+EntityStateStreamGoal:
+    'Goal<EntityStateStream>' name=ID
+    (
+        ('entity:' entity=[Entity:FQN|+m:entities*])
+        // ('states:' '[' states+=Point[','] ']')
+        ('strategy:' maxDeviation=NUMBER)?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+    )#
+    'end'
+;
+
