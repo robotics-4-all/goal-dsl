@@ -71,6 +71,7 @@ Entity TemperatureSensorB
         - temperature: float
 end
 
+/*
 Goal<EntityAttrStream> Goal_1
     streams:
         - TemperatureSensorA.temperature: [0, 1, 2, 3, 4] -> ALL_ORDERED
@@ -78,7 +79,14 @@ Goal<EntityAttrStream> Goal_1
     timeConstraints:
         - FROM_GOAL_START(30)
 end
+*/
 
+Goal<EntityAttrStream> Goal_1
+    stream: TemperatureSensorA.temperature: [0, 1, 2, 3, 4]
+    strategy: ALL_ORDERED
+    timeConstraints:
+        - FROM_GOAL_START(30)
+end
 
 RTMonitor
     broker: HomeMQTT
