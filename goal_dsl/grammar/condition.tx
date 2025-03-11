@@ -23,11 +23,6 @@ PrimitiveCondition:
     DictCondition
 ;
 
-
-InRangeCondition:
-    attribute=AugmentedNumericAttr 'in' 'range' '[' min=NUMBER ',' max=NUMBER ']'
-;
-
 MathExpression:
     left=MathTerm (operator=PlusOrMinus right=MathTerm)*
 ;
@@ -44,12 +39,12 @@ MathFactor:
 ;
 
 MathOperand:
-    op=NUMBER |
+    op=NUMBER               |
     op=AugmentedNumericAttr |
-    op=AttributeValue
+    op=AttributeRef
 ;
 
-AttributeValue:
+AttributeRef:
     attribute=[Attribute:FQN|+pm:entities.attributes]
 ;
 

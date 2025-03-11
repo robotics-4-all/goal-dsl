@@ -3,7 +3,7 @@ import types
 import utils
 
 
-EntitySource: (ref=[MessageBroker])|(ref=[RESTEndpoint]);
+EntitySource: (ref=[MessageBroker]) | (ref=[RESTEndpoint]);
 // EntitySource: BrokerSource | RESTSource;
 // EntityStateSource: BrokerSource | RESTSource | DBSource;
 
@@ -36,7 +36,7 @@ CEntity:
     'CEntity' name=ID
     (
         ('type:' etype=EntityType)
-        ('attributes:' '-' attributes*=Attribute['-'])
+        ('attributes:' '-' attributes*=Attribute['-'])? // attributes are optional
         ('source:' source=EntitySource)
         ('uri:' uri=STRING)?
         ('description:' description=STRING)?
