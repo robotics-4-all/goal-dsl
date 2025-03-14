@@ -82,7 +82,7 @@ end
 
 Goal<EntityPyCondition> Goal_4
     condition:
-        "mean(LightsA.color.r, 5) > 10"
+        "TemperatureSensorA.temperature > 10.123"
 end
 
 
@@ -98,6 +98,6 @@ Scenario MyScenario
         - Goal_1
         - Goal_2
         - Goal_3
-        //- Goal_4
+        - Goal_4
     concurrent: True
 end

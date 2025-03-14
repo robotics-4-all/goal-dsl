@@ -240,7 +240,7 @@ def pycondition_processor(goal):
         attribute_path = match.group(3)
         number = match.group(4)
 
-        parts = attribute_path.split('.')
+        parts = [part for part in attribute_path.split('.') if not part.isdigit()]
         if len(parts) > 1:
             return f"{match.group(1)}(entities[\"{entity_name}\"].get_buffer(\"{parts[0]}\", {number}))[\"{'.'.join(parts[1:])}\"]"
         else:
@@ -251,13 +251,13 @@ def pycondition_processor(goal):
     def replace_attributes(match):
         entity_name = match.group(1)
         attribute_path = match.group(2)
-        parts = attribute_path.split('.')
+        parts = [part for part in attribute_path.split('.') if not part.isdigit()]
         if len(parts) > 1:
             return f"entities[\"{entity_name}\"].attributes[\"{parts[0]}\"][\"{'.'.join(parts[1:])}\"]"
         else:
             return f"entities[\"{entity_name}\"].attributes[\"{attribute_path}\"]"
 
-    cond_py = re.sub(r'(\b\w+)\.([\w.]+)', replace_attributes, cond_py)
+    cond_py = re.sub(r'(\b\w+)\.((?!\d+\b)[\w.]+)', replace_attributes, cond_py)
     goal.cond_py = cond_py
     logger.info(f"Transformed Condition: {cond_py}")
 
