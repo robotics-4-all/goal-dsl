@@ -211,12 +211,21 @@ def goal_obj_processor(goal):
         goal.entities = []
     if goal.__class__.__name__ == 'EntityPyConditionGoal':
         pycondition_processor(goal)
+    if goal.__class__.__name__ == 'EntityAttrStreamGoal':
+        attr_stream_processor(goal)
 
 
 def extract_object_dot_access(input_string):
     pattern = r"\b[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)+\b"
     matches = re.findall(pattern, input_string)
     return matches
+
+
+def attr_stream_processor(goal):
+    attr = goal.stream.attr
+    entity = goal.stream.attr.parent
+    goal.attr = attr
+    goal.entity = entity
 
 
 def pycondition_processor(goal):
