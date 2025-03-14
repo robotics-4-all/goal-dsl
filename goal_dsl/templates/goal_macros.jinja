@@ -32,6 +32,7 @@ g = EntityStateChange(
 
 {% macro entity_attrstream_goal(goal, entity_names) %}
 g = EntityAttrStream(
+        name='{{ goal.name }}',
         entity={{ goal.entity.name }},
         attr='{{ goal.attr.name }}',
         value={{ goal.stream.values }},
