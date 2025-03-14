@@ -2,4 +2,4 @@
 
 IMAGE_ID=goaldsl
 
-docker build -t ${IMAGE_ID} .
+docker build -t ${IMAGE_ID} $@ .
