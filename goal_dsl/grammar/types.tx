@@ -1,5 +1,6 @@
 import utils
 
+
 Time:
     hour=INT ':' minute=INT (':' second=INT)?
 ;

@@ -32,46 +32,15 @@ Entity TempSensor1
         - temp: float
 end
 
-Entity TempSensor2
-    type: sensor
-    uri: 'bathroom.sensor.temperature'
-    source: LocalRedis
-    attributes:
-        - temp: float
-end
-
-Entity TempSensor3
-    type: sensor
-    uri: 'livingroom.sensor.temperature'
-    source: LocalRedis
-    attributes:
-        - temp: float
-end
-
-Entity AirQualitySensor1
-    type: sensor
-    uri: 'kitchen.sensor.airq'
-    source: LocalRedis
-    attributes:
-        - gas: float
-        - humidity: float
-end
 
 Goal<EntityStateChange> Goal_1
     entity: TempSensor1
 end
 
-Goal<EntityStateCondition> Goal_2
-    condition:
-        AirQualitySensor1.gas <= 25
-end
 
-
-Goal<EntityStateCondition> Goal_3
-    condition:
-        (TempSensor1.temp > 10) and
-        (TempSensor2.temp > 10) and
-        (TempSensor3.temp - TempSensor2.temp < 10)
+Goal<Repeater> Goal_Repeater
+    goal: Goal_1
+    times: 10
 end
 
 
@@ -84,9 +53,6 @@ end
 
 Scenario MyScenario
     goals:
-        - Goal_1 -> 0.5
-        - Goal_2 -> 0.5
-    fatals:
-        - Goal_3
+        - Goal_Repeater
     concurrent: True
 end

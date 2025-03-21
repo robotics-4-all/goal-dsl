@@ -24,6 +24,54 @@ Broker<Redis> LocalRedis
         password: ''
 end
 
+DataType ColorRgb
+    r: int
+    g: int
+    b: int
+end
+
+DataType Position
+    x: float
+    y: float
+    z: float
+end
+
+DataType Orientation
+    roll: float
+    pitch: float
+    yaw: float
+end
+
+DataType Pose
+    position: Position
+    orientation: Orientation
+end
+
+Entity LightsA
+    type: actuator
+    uri: 'bedroom.actuator.lights'
+    source: LocalRedis
+    attributes:
+        - color: ColorRgb
+end
+
+CEntity MyRobot
+    type: robot
+    source: LocalRedis
+    attributes: -
+    subentities
+        Entity Position
+            type: sensor
+            uri: 'myRobot.sensor.position'
+            source: LocalRedis
+            attributes:
+                - x: float
+                - y: float
+                - z: float
+        end
+    end
+end
+
 Entity TempSensor1
     type: sensor
     uri: 'bedroom.sensor.temperature'
@@ -74,7 +122,6 @@ Goal<EntityStateCondition> Goal_3
         (TempSensor3.temp - TempSensor2.temp < 10)
 end
 
-
 RTMonitor
     broker: HomeMQTT
     eventTopic: "goaldsl.{U_ID}.event"
@@ -85,8 +132,7 @@ end
 Scenario MyScenario
     goals:
         - Goal_1 -> 0.5
-        - Goal_2 -> 0.5
-    fatals:
-        - Goal_3
+        - Goal_2 -> 0.25
+        - Goal_3 -> 0.25
     concurrent: True
 end

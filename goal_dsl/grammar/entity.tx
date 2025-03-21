@@ -3,7 +3,7 @@ import types
 import utils
 
 
-EntitySource: (ref=[MessageBroker])|(ref=[RESTEndpoint]);
+EntitySource: (ref=[MessageBroker]) | (ref=[RESTEndpoint]);
 // EntitySource: BrokerSource | RESTSource;
 // EntityStateSource: BrokerSource | RESTSource | DBSource;
 
@@ -17,16 +17,33 @@ EntitySource: (ref=[MessageBroker])|(ref=[RESTEndpoint]);
 
 // DBSQLSource: ref=[DBSQLEntry];
 
+Entity: SEntity | CEntity;
 
-Entity:
+SEntity:
     'Entity' name=ID
     (
         ('type:' etype=EntityType)
-        ('topic:' topic=STRING)?
+        ('attributes:' '-' attributes*=Attribute['-'])
         ('source:' source=EntitySource)
+        ('uri:' uri=STRING)?
         ('description:' description=STRING)?
         ('freq:' freq=NUMBER)?
-        ('attributes:' '-' attributes*=Attribute['-'])
+    )#
+    'end'
+;
+
+CEntity:
+    'CEntity' name=ID
+    (
+        ('type:' etype=EntityType)
+        ('attributes:' '-' attributes*=Attribute['-'])? // attributes are optional
+        ('source:' source=EntitySource)
+        ('uri:' uri=STRING)?
+        ('description:' description=STRING)?
+        ('freq:' freq=NUMBER)?
+        ('subentities'
+            entities*=Entity
+        'end')?
     )#
     'end'
 ;
@@ -45,7 +62,12 @@ Attribute:
     StringAttribute     |
     TimeAttribute       |
     ListAttribute       |
-    DictAttribute
+    DictAttribute       |
+    ObjectAttribute
+;
+
+ObjectAttribute:
+    name=ID ':' dtype=[CustomDataType:FQN|+m:types]
 ;
 
 NumericAttribute:

@@ -11,7 +11,7 @@ Condition:
 ConditionGroup:
     '(' r=Condition ')'
     | PrimitiveCondition
-    | AdvancedCondition
+    | MathExpression
 ;
 
 PrimitiveCondition:
@@ -21,12 +21,6 @@ PrimitiveCondition:
     StringCondition     |
     ListCondition       |
     DictCondition
-;
-
-AdvancedCondition: InRangeCondition | MathExpression;
-
-InRangeCondition:
-    attribute=AugmentedNumericAttr 'in' 'range' '[' min=NUMBER ',' max=NUMBER ']'
 ;
 
 MathExpression:
@@ -45,12 +39,12 @@ MathFactor:
 ;
 
 MathOperand:
-    op=NUMBER |
+    op=NUMBER               |
     op=AugmentedNumericAttr |
-    op=AttributeValue
+    op=AttributeRef
 ;
 
-AttributeValue:
+AttributeRef:
     attribute=[Attribute:FQN|+pm:entities.attributes]
 ;
 
@@ -83,8 +77,8 @@ MaxAttr:
     'max' '(' attribute=AugmentedNumericAttr  ',' size=INT ')'
 ;
 
-MultiplyAttr:
-    'mul' '(' attribute*=AugmentedNumericAttr[','] ')'
+InRangeAttr:
+    'in_range' '(' attribute=AugmentedNumericAttr  ',' min=NUMBER ',' max=NUMBER ')'
 ;
 
 
@@ -134,7 +128,7 @@ AugmentedNumericAttr:
     MeanAttr        |
     MinAttr         |
     MaxAttr         |
-    MultiplyAttr    |
+    InRangeAttr     |
     SimpleNumericAttr
 ;
 

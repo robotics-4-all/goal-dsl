@@ -8,7 +8,7 @@ end
 
 Entity TemperatureSensorList
     type: sensor
-    topic: 'garden.temperature'
+    uri: 'garden.temperature'
     source: MyMQTTBroker
     attributes:
         - regionA: float
@@ -19,7 +19,7 @@ end
 
 Entity HumiditySensorList
     type: sensor
-    topic: 'garden.humidity'
+    uri: 'garden.humidity'
     source: MyMQTTBroker
     attributes:
         - regionA: float
@@ -30,7 +30,7 @@ end
 
 Entity AirQualitySensorList
     type: sensor
-    topic: 'garden.air_quality'
+    uri: 'garden.air_quality'
     source: MyMQTTBroker
     attributes:
         - regionA: float
@@ -41,14 +41,14 @@ end
 
 Entity WindowRegionA
     type: actuator
-    topic: 'garden.regionA.window'
+    uri: 'garden.regionA.window'
     source: MyMQTTBroker
     attributes:
         - state: bool
 end
 
 Entity WindowRegionB
-    topic: 'garden.regionB.window'
+    uri: 'garden.regionB.window'
     source: MyMQTTBroker
     type: actuator
     attributes:
@@ -57,7 +57,7 @@ end
 
 Entity WindowRegionC
     type: actuator
-    topic: 'garden.regionC.window'
+    uri: 'garden.regionC.window'
     source: MyMQTTBroker
     attributes:
         - state: bool
@@ -65,7 +65,7 @@ end
 
 Entity WindowRegionD
     type: actuator
-    topic: 'garden.regionD.window'
+    uri: 'garden.regionD.window'
     source: MyMQTTBroker
     attributes:
         - state: bool

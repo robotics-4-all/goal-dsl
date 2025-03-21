@@ -9,7 +9,7 @@ end
 Entity TempSensor1
     type: sensor
     source: HomeMQTT
-    topic: 'bedroom.sensor.temperature'
+    uri: 'bedroom.sensor.temperature'
     attributes:
         - temp: float
 end
@@ -17,7 +17,7 @@ end
 Entity TempSensor2
     type: sensor
     source: HomeMQTT
-    topic: 'bedroom.sensor.temperature'
+    uri: 'bedroom.sensor.temperature'
     attributes:
         - temp: float
 end
@@ -25,7 +25,7 @@ end
 Entity TempSensor3
     type: sensor
     source: HomeMQTT
-    topic: 'bedroom.sensor.temperature'
+    uri: 'bedroom.sensor.temperature'
     attributes:
         - temp: float
 end

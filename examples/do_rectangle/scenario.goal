@@ -25,7 +25,7 @@ end
 
 Entity Robot1Pose
     type: sensor
-    topic: 'gn_robot_1.pose.internal'
+    uri: 'gn_robot_1.pose.internal'
     source: LocalRedis
     attributes:
         - position: dict

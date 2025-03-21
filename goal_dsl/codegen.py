@@ -25,10 +25,27 @@ def generate(model_fpath: str,
     # Create output folder
     if out_dir in (None, ""):
         out_dir = srcgen_folder
-    model = build_model(model_fpath)
     if not path.exists(out_dir):
         mkdir(out_dir)
 
+    model = build_model(model_fpath)
+
+    scenario_code: dict  = _generate_internal(model)
+
+    for name, code in scenario_code.items():
+        out_file = path.join(out_dir, f"{name}.py")
+        with open(path.join(out_file), 'w') as f:
+            f.write(code)
+            chmod(out_file, 509)
+
+
+def generate_str(model_str: str):
+    model = build_model_str(model_str)
+    scenario_code: dict  = _generate_internal(model)
+    return scenario_code
+
+
+def _generate_internal(model):
     scenarios = get_model_scenarios(model)
     entities = get_model_entities(model)
 
@@ -39,6 +56,8 @@ def generate(model_fpath: str,
     entity_names = [e.name for e in entities]
 
     rtmonitor = model.rtmonitor
+
+    scenario_code = {}
 
     for scenario in scenarios:
         wgoals = scenario.goals
@@ -49,44 +68,19 @@ def generate(model_fpath: str,
 
         goals = process_goals(goals)
 
-        out_file = path.join(out_dir, f"{scenario.name}.py")
-        with open(path.join(out_file), 'w') as f:
-            f.write(template.render(rtmonitor=rtmonitor,
-                                    scenario=scenario,
-                                    entities=entities,
-                                    entity_names=entity_names,
-                                    goals=goals))
-        chmod(out_file, 509)
-        return out_dir
+        scenario.goals = goals
 
+        scenario.fatals = process_goals(scenario.fatals)
 
-def generate_str(model_str: str):
-    model = build_model_str(model_str)
-    scenarios = get_model_scenarios(model)
-    entities = get_model_entities(model)
-
-    for e in entities:
-        e.attr_list = [attr.name for attr in e.attributes]
-        e.attr_buff = [getattr(attr, "buffer", None) for attr in e.attributes]
-
-    entity_names = [e.name for e in entities]
-
-    rtmonitor = model.rtmonitor
-
-    for scenario in scenarios:
-        # TODO: Only one scenario is supported for now
-        wgoals = scenario.goals
-
-        set_defaults(scenario, rtmonitor, wgoals)
-        goals = process_goals([goal.goal for goal in wgoals])
+        scenario.antigoals = process_goals(scenario.antigoals)
 
         code = template.render(rtmonitor=rtmonitor,
                                scenario=scenario,
                                entities=entities,
                                entity_names=entity_names,
                                goals=goals)
-        return code
-
+        scenario_code[scenario.name] = code
+    return scenario_code
 
 def process_goals(goals):
     _goals = []
@@ -97,12 +91,30 @@ def process_goals(goals):
             cond_lambda = make_condition_lambda(goal.condition)
             goal.condition.cond_lambda = cond_lambda
             logger.info(f'[*] - Goal <{goal.name}> condition lambda: {cond_lambda}')
+        elif goal.__class__.__name__ == 'EntityPyConditionGoal':
+            # TODO
+            pass
         elif goal.__class__.__name__ == 'EntityStateChangeGoal':
+            # TODO
             pass
         elif goal.__class__.__name__ == 'RectangleAreaGoal':
+            # TODO
             pass
         elif goal.__class__.__name__ == 'CircularAreaGoal':
+            # TODO
             pass
+        elif goal.__class__.__name__ == 'PositionGoal':
+            # TODO
+            pass
+        elif goal.__class__.__name__ == 'OrientationGoal':
+            # TODO
+            pass
+        elif goal.__class__.__name__ == 'PoseGoal':
+            # TODO
+            pass
+        elif goal.__class__.__name__ == 'GoalRepeater':
+            _g = process_goals([goal.goal])
+            _goals.append(_g)
         elif goal.__class__.__name__ == 'ComplexGoal':
             _cgoals = process_goals(goal.goals)
             _goals.append(_cgoals)
@@ -119,7 +131,7 @@ def set_defaults(scenario, rtmonitor, wgoals):
     sweights = [goal.weight for goal in wgoals]
     if 0 in sweights or len(sweights) == 0:
         sweights = [1.0 / len(scenario.goals)] * len(scenario.goals)
-    scenario.scoreWeights = sweights
+    scenario.goalWeights = sweights
     if scenario.concurrent is None:
         scenario.concurrent = False
 
@@ -149,10 +161,6 @@ def goal_max_min_duration_from_tc(goal):
     goal.for_duration = for_duration
 
 
-# def make_condition_lambda(condition):
-#     cond = Condition(condition)
-#     cond.build()
-#     return cond.cond_expr
 def make_condition_lambda(condition):
     return f'lambda entities: True if {condition.cond_py} else False'
 

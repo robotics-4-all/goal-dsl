@@ -5,6 +5,8 @@ import communication
 import goal
 import entity
 import utils
+import types
+import time_constraint
 
 
 GoalDSLModel:
@@ -13,6 +15,7 @@ GoalDSLModel:
     (
         (rtmonitor=RTMonitor)?
         (brokers*=MessageBroker)
+        (types*=CustomDataType)
         (entities*=Entity)
         (goals*=Goal)
         (restEndpoints*=RESTEndpoint)
@@ -49,6 +52,9 @@ Scenario:
     'Scenario' name=ID
     (
         ('goals:' '-' goals*=WeightedGoal['-'])
+        ('antigoals:' '-' antigoals*=WeightedGoal['-'])?
+        ('fatals:' '-' fatals*=[Goal:FQN|+m:goals*]['-'])?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
         ('concurrent:' concurrent=BOOL)?
     )#
     'end'

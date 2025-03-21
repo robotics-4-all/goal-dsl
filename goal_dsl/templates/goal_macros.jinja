@@ -9,11 +9,34 @@ g = EntityStateCondition(
     )
 {% endmacro %}
 
+{% macro entity_pycondition_goal(goal, entity_names) %}
+g = EntityStateCondition(
+        name='{{ goal.name }}',
+        entities=[{{ ", ".join(entity_names) }}],
+        condition='{{ goal.cond_py.replace('\'', '\"') }}',
+        for_duration={{ goal.for_duration }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
 {% macro entity_state_change_goal(goal) %}
 g = EntityStateChange(
-        entity={{ goal.entity.name }},
         name='{{ goal.name }}',
+        entity={{ goal.entity.name }},
         for_duration={{ goal.for_duration }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
+{% macro entity_attrstream_goal(goal, entity_names) %}
+g = EntityAttrStream(
+        name='{{ goal.name }}',
+        entity={{ goal.entity.name }},
+        attr='{{ goal.attr.name }}',
+        value={{ goal.stream.values }},
+        strategy=AttrStreamStrategy.{{ goal.strategy }},
         max_duration={{ goal.max_duration }},
         min_duration={{ goal.min_duration }},
     )
@@ -85,6 +108,7 @@ g = MovingAreaGoal(
 
 {% macro position_goal(goal) %}
 g = PositionGoal(
+        name='{{ goal.name }}',
         entity={{ goal.entity.name }},
         position=Point(x={{ goal.point.x or 0 }}, y={{ goal.point.y or 0 }}, z={{ goal.point.z or 0 }}),
         deviation={{ goal.maxDeviation }},
@@ -95,6 +119,7 @@ g = PositionGoal(
 
 {% macro orientation_goal(goal) %}
 g = OrientationGoal(
+        name='{{ goal.name }}',
         entity={{ goal.entity.name }},
         orientation=Orientation(z={{ goal.orientation.z or 0 }}),
         deviation={{ goal.maxDeviation }},
@@ -105,8 +130,9 @@ g = OrientationGoal(
 
 {% macro waipoint_trajectory_goal(goal) %}
 g = WaypointTrajectoryGoal(
-        entity=[{{ goal.entity.name }}],
-        points=[
+        name='{{ goal.name }}',
+        entity={{ goal.entity.name }},
+        waypoints=[
             {% for point in goal.points %}
             Point({{ point.x }}, {{ point.y }}, {{ point.z }}),
             {% endfor %}
@@ -117,8 +143,42 @@ g = WaypointTrajectoryGoal(
     )
 {% endmacro %}
 
+{% macro goal_repeater(goal, entity_names) %}
+{% if goal.goal.__class__.__name__ == 'EntityStateConditionGoal' %}
+{{ entity_state_condition_goal(goal.goal, entity_names) }}
+{% elif goal.goal.__class__.__name__ == 'EntityStateChangeGoal' %}
+{{ entity_state_change_goal(goal.goal) }}
+{% elif goal.goal.__class__.__name__ == 'EntityPyConditionGoal' %}
+{{ entity_pycondition_goal(goal.goal, entity_names) }}
+{% elif goal.goal.__class__.__name__ == 'EntityAttrStreamGoal' %}
+{{ entity_attrstream_goal(goal.goal, entity_names) }}
+{% elif goal.goal.__class__.__name__ == 'RectangleAreaGoal' %}
+{{ rectangle_area_goal(goal.goal, entity_names) }}
+{% elif goal.goal.__class__.__name__ == 'CircularAreaGoal' %}
+{{ circular_area_goal(goal.goal, entity_names) }}
+{% elif goal.goal.__class__.__name__ == 'MovingAreaGoal' %}
+{{ moving_area_goal(goal.goal, entity_names) }}
+{% elif goal.goal.__class__.__name__ == 'PositionGoal' %}
+{{ position_goal(goal.goal) }}
+{% elif goal.goal.__class__.__name__ == 'OrientationGoal' %}
+{{ orientation_goal(goal.goal) }}
+{% elif goal.goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
+{{ waipoint_trajectory_goal(goal.goal) }}
+{% elif goal.goal.__class__.__name__ == 'ComplexGoal' %}
+{{ complex_goal(goal.goal, entity_names) }}
+{% endif %}
+    gr = GoalRepeater(
+        goal=g,
+        times={{ goal.times }},
+        name='{{ goal.name }}',
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
 {% macro complex_goal(goal, entity_names) %}
 cg = ComplexGoal(
+        name='{{ goal.name }}',
         algorithm=ComplexGoalAlgorithm.{{ goal.algorithm }},
         max_duration={{ goal.max_duration }},
         min_duration={{ goal.min_duration }},
@@ -129,6 +189,12 @@ cg = ComplexGoal(
     cg.add_goal(g)
     {% elif goal.__class__.__name__ == 'EntityStateChangeGoal' %}
     {{ entity_state_change_goal(goal) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'EntityPyConditionGoal' %}
+    {{ entity_pycondition_goal(goal, entity_names) }}
+    cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'EntityAttrStreamGoal' %}
+    {{ entity_attrstream_goal(goal, entity_names) }}
     cg.add_goal(g)
     {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
     {{ rectangle_area_goal(goal, entity_names) }}
@@ -148,6 +214,9 @@ cg = ComplexGoal(
     {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
     {{ waipoint_trajectory_goal(goal) }}
     cg.add_goal(g)
+    {% elif goal.__class__.__name__ == 'GoalRepeater' %}
+    {{ goal_repeater(goal, entity_names) }}
+    cg.add_goal(gr)
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
     {{ complex_goal(goal, entity_names) }}
     cg.add_goal(g)

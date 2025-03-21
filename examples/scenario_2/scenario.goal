@@ -8,7 +8,7 @@ end
 
 Entity WaterValve
     type: actuator
-    topic: 'garden.water_valve'
+    uri: 'garden.water_valve'
     source: MyMQTTBroker
     attributes:
         - state: bool
@@ -16,7 +16,7 @@ end
 
 Entity OrganicsMixer
     type: actuator
-    topic: 'garden.organic_mixer'
+    uri: 'garden.organic_mixer'
     source: MyMQTTBroker
     attributes:
         - state: bool
@@ -24,7 +24,7 @@ end
 
 Entity RobotArmPose
     type: sensor
-    topic: 'robot.arm.pose'
+    uri: 'robot.arm.pose'
     source: MyMQTTBroker
     attributes:
         - pose: dict

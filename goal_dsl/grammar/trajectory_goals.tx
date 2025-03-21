@@ -32,7 +32,7 @@ WaypointTrajectoryGoal:
 ;
 
 CurveTrajectoryGoal:
-    'Goal<StraightLineTrajectory>' name=ID
+    'Goal<CurveTrajectoryGoal>' name=ID
     (
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('startPoint:' startPoint=Point)

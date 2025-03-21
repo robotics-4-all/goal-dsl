@@ -25,16 +25,15 @@ Entity Robot2Pose
 end
 
 
-Goal<Pose> Goal_1
-    entity: Robot2Pose
-    orientation: Orientation2D(1)
-    position: Point3D(1, 1, 0)
-    maxDeviationOri: 0.1
-    maxDeviationPos: 1
+Goal<WaypointTrajectory> Goal_1
+    entity: Robot1Pose
+    points: [Point3D(2, 0, 0), Point3D(4, 0, 0), Point3D(6, 0, 0), Point3D(8, 0, 0)]
+    maxDeviation: 0.2
 end
+
 
 Scenario MyScenario
     goals:
         - Goal_1
-    concurrent: True
+    concurrent: False
 end
