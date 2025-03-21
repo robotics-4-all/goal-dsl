@@ -112,6 +112,9 @@ def process_goals(goals):
         elif goal.__class__.__name__ == 'PoseGoal':
             # TODO
             pass
+        elif goal.__class__.__name__ == 'GoalRepeater':
+            _g = process_goals([goal.goal])
+            _goals.append(_g)
         elif goal.__class__.__name__ == 'ComplexGoal':
             _cgoals = process_goals(goal.goals)
             _goals.append(_cgoals)

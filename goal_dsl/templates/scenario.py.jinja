@@ -32,6 +32,8 @@ from goalee.pose_goals import (
 
 from goalee.trajectory_goals import WaypointTrajectoryGoal
 
+from goalee.repeater import GoalRepeater
+
 entities_list = []
 
 {% for entity in entities %}
@@ -100,8 +102,11 @@ if __name__ == '__main__':
     {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
     {{ goal_macros.waipoint_trajectory_goal(goal) }}
     goals_l.append(g)
+    {% elif goal.__class__.__name__ == 'GoalRepeater' %}
+    {{ goal_macros.goal_repeater(goal, entity_names) }}
+    goals_l.append(gr)
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
-    cg = {{ goal_macros.complex_goal(goal, entity_names) }}
+    {{ goal_macros.complex_goal(goal, entity_names) }}
     goals_l.append(cg)
     {% endif %}
     {% endfor %}
@@ -135,8 +140,11 @@ if __name__ == '__main__':
     {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
     {{ goal_macros.waipoint_trajectory_goal(goal) }}
     antigoals_l.append(g)
+    {% elif goal.__class__.__name__ == 'GoalRepeater' %}
+    {{ goal_macros.goal_repeater(goal, entity_names) }}
+    antigoals_l.append(gr)
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
-    cg = {{ goal_macros.complex_goal(goal, entity_names) }}
+    {{ goal_macros.complex_goal(goal, entity_names) }}
     antigoals_l.append(cg)
     {% endif %}
     {% endfor %}
@@ -170,6 +178,9 @@ if __name__ == '__main__':
     {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
     {{ goal_macros.waipoint_trajectory_goal(goal) }}
     fatals_l.append(g)
+    {% elif goal.__class__.__name__ == 'GoalRepeater' %}
+    {{ goal_macros.goal_repeater(goal, entity_names) }}
+    fatals_l.append(gr)
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
     cg = {{ goal_macros.complex_goal(goal, entity_names) }}
     fatals_l.append(cg)
