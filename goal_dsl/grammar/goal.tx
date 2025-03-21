@@ -13,7 +13,8 @@ Goal:
     PositionGoal         |
     OrientationGoal      |
     TrajectoryGoal       |
-    ComplexGoal
+    ComplexGoal          |
+    GoalRepeater
 ;
 
 
@@ -24,6 +25,16 @@ ComplexGoal:
         ('strategy:' algorithm=[ComplexGoalAlgorithmType])
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
         ('xAccomplished:' xAccomplished=INT)?
+    )#
+    'end'
+;
+
+GoalRepeater:
+    'Goal<Repeater>' name=ID
+    (
+        ('goal:' goal=[Goal:FQN|+m:goals*])
+        ('times:' times=INT)
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
     'end'
 ;

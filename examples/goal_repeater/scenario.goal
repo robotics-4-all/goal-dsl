@@ -1,0 +1,58 @@
+Broker<MQTT> LocsysMQTT
+    host: 'locsys.issel.ee.auth.gr'
+    port: 8883
+    ssl: true
+    auth:
+        username: 'sensors'
+        password: 'issel.sensors'
+end
+
+Broker<MQTT> HomeMQTT
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Broker<Redis> LocalRedis
+    host: 'localhost'
+    port: 6379
+    ssl: false
+    auth:
+        username: ''
+        password: ''
+end
+
+Entity TempSensor1
+    type: sensor
+    uri: 'bedroom.sensor.temperature'
+    source: LocalRedis
+    attributes:
+        - temp: float
+end
+
+
+Goal<EntityStateChange> Goal_1
+    entity: TempSensor1
+end
+
+
+Goal<Repeater> Goal_Repeater
+    goal: Goal_1
+    times: 10
+end
+
+
+RTMonitor
+    broker: HomeMQTT
+    eventTopic: "goaldsl.{U_ID}.event"
+    logsTopic: "goaldsl.{U_ID}.log"
+end
+
+
+Scenario MyScenario
+    goals:
+        - Goal_Repeater
+    concurrent: True
+end
