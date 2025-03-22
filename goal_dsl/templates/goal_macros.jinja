@@ -225,7 +225,8 @@ cg_{{ ns.ccounter }} = ComplexGoal(
     cg_{{ns.ccounter}}.add_goal(gr)
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
     {{ complex_goal(goal, entity_names) }}
-    cg_{{ns.ccounter - 1}}.add_goal(cg_{{ns.ccounter}})
+    {% set ns.ccounter = ns.ccounter - 1 %}
+    cg_{{ns.ccounter}}.add_goal(cg_{{ns.ccounter + 1}})
     {% endif %}
     {% endfor %}
 {% endmacro %}
