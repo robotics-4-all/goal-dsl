@@ -182,7 +182,7 @@ if __name__ == '__main__':
     {{ goal_macros.goal_repeater(goal, entity_names) }}
     fatals_l.append(gr)
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
-    cg = {{ goal_macros.complex_goal(goal, entity_names) }}
+    {{ goal_macros.complex_goal(goal, entity_names) }}
     fatals_l.append(cg)
     {% endif %}
     {% endfor %}

@@ -1,0 +1,128 @@
+Metadata
+    name: Q0BOS
+    version: "0.1.0"
+    author: "AUTHOR_NAME_HERE"
+    email: "CONTACT_EMAIL_HERE"
+    description: "BRIEF_DESCRIPTION"
+end
+
+Broker<MQTT> LocsysMQTT
+    host: 'locsys.issel.ee.auth.gr'
+    port: 8883
+    ssl: true
+    auth:
+        username: '*****'
+        password: '*****'
+end
+
+Broker<MQTT> LocalMQTT
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Broker<Redis> LocalRedis
+    host: 'localhost'
+    port: 6379
+    auth:
+        username: ''
+        password: ''
+end
+
+RTMonitor
+    broker: LocalRedis
+    eventTopic: "goaldsl.{U_ID}.event"
+    logsTopic: "goaldsl.{U_ID}.log"
+end
+
+Entity TempSensorDining
+    type: sensor
+    uri: "streamsim.6530f9263773c5f7858b6b3.world.world.sensor.env.temperature.dining_temperature.data"
+    source: LocalRedis
+    freq: 1.0
+    attributes:
+        - value: float -> sinus(20, 5, 0.02)
+end
+
+Entity TempSensorTvRoom
+    type: sensor
+    uri: "streamsim.6530f9263773c5f7858b6b3.world.world.sensor.env.temperature.tv_room_temperature.data"
+    source: LocalRedis
+    freq: 1.0
+    attributes:
+        - value: float -> sinus(24, 2, 0.01)
+end
+
+Entity TempSensorHall
+    type: sensor
+    uri: "streamsim.6530f9263773c5f7858b6b33.world.world.sensor.env.temperature.hall_temperature.data"
+    source: LocalRedis
+    freq: 1.0
+    attributes:
+        - value: float -> sinus(22, 11, 0.01)
+end
+
+Entity AppVariables
+    type: sensor
+    uri: "appcreator.variables"
+    source: LocalRedis
+    freq: -1
+    attributes:
+        - name: str
+        - value: str
+        - type: str
+end
+
+// ------------- GOALS Section ---------------------------
+
+Goal<EntityStateChange> Temperature_Dining_Change
+    entity: TempSensorDining
+end
+
+Goal<EntityStateChange> Temperature_TvRoom_Change
+    entity: TempSensorTvRoom
+end
+
+Goal<EntityStateChange> Temperature_Hall_Change
+    entity: TempSensorHall
+end
+
+Goal<EntityPyCondition> Temperature_Average
+    condition:
+        "AppVariables.name == 'average' and AppVariables.value == (TempSensorDining.value + TempSensorTvRoom.value + TempSensorHall.value) / 3"
+        // "AppVariables.name == 'average' and round(AppVariables.value) == round((TempSensorDining.value + TempSensorTvRoom.value + TempSensorHall.value) / 3)"
+end
+
+Goal<Complex> TemperatureChange
+    goals:
+        - Temperature_Dining_Change
+        - Temperature_TvRoom_Change
+        - Temperature_Hall_Change
+    strategy: AT_LEAST_ONE_ACCOMPLISHED
+    // timeConstraints:
+    //     - FROM_GOAL_START(1)
+end
+
+Goal<Complex> Average_Correct
+    goals:
+        - TemperatureChange
+        - Temperature_Average
+    strategy: ALL_ACCOMPLISHED_ORDERED
+end
+
+Goal<Repeater> DoubleValue_x30
+    goal: Average_Correct
+    times: 30
+    timeConstraints:
+        - FROM_GOAL_START(1)
+end
+
+// ----------------------------------------------------
+
+Scenario Week_2_Task_2
+    goals:
+        - DoubleValue_x30
+    concurrent: False
+end

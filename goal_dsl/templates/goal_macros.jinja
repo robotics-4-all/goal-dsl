@@ -1,3 +1,6 @@
+{% set ccounter = 0 %}
+{% set ns = namespace(ccounter=0) %}
+
 {% macro entity_state_condition_goal(goal, entity_names) %}
 g = EntityStateCondition(
         name='{{ goal.name }}',
@@ -144,6 +147,7 @@ g = WaypointTrajectoryGoal(
 {% endmacro %}
 
 {% macro goal_repeater(goal, entity_names) %}
+{% set gvar = "g" %}
 {% if goal.goal.__class__.__name__ == 'EntityStateConditionGoal' %}
 {{ entity_state_condition_goal(goal.goal, entity_names) }}
 {% elif goal.goal.__class__.__name__ == 'EntityStateChangeGoal' %}
@@ -165,10 +169,11 @@ g = WaypointTrajectoryGoal(
 {% elif goal.goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
 {{ waipoint_trajectory_goal(goal.goal) }}
 {% elif goal.goal.__class__.__name__ == 'ComplexGoal' %}
+{% set gvar = "cg_" + (ns.ccounter + 1)|string %}
 {{ complex_goal(goal.goal, entity_names) }}
 {% endif %}
     gr = GoalRepeater(
-        goal=g,
+        goal={{ gvar }},
         times={{ goal.times }},
         name='{{ goal.name }}',
         max_duration={{ goal.max_duration }},
@@ -177,7 +182,8 @@ g = WaypointTrajectoryGoal(
 {% endmacro %}
 
 {% macro complex_goal(goal, entity_names) %}
-cg = ComplexGoal(
+{% set ns.ccounter = ns.ccounter + 1 %}
+cg_{{ ns.ccounter }} = ComplexGoal(
         name='{{ goal.name }}',
         algorithm=ComplexGoalAlgorithm.{{ goal.algorithm }},
         max_duration={{ goal.max_duration }},
@@ -186,40 +192,40 @@ cg = ComplexGoal(
     {% for goal in goal.goals %}
     {% if goal.__class__.__name__ == 'EntityStateConditionGoal' %}
     {{ entity_state_condition_goal(goal, entity_names) }}
-    cg.add_goal(g)
+    cg_{{ns.ccounter}}.add_goal(g)
     {% elif goal.__class__.__name__ == 'EntityStateChangeGoal' %}
     {{ entity_state_change_goal(goal) }}
-    cg.add_goal(g)
+    cg_{{ns.ccounter}}.add_goal(g)
     {% elif goal.__class__.__name__ == 'EntityPyConditionGoal' %}
     {{ entity_pycondition_goal(goal, entity_names) }}
-    cg.add_goal(g)
+    cg_{{ns.ccounter}}.add_goal(g)
     {% elif goal.__class__.__name__ == 'EntityAttrStreamGoal' %}
     {{ entity_attrstream_goal(goal, entity_names) }}
-    cg.add_goal(g)
+    cg_{{ns.ccounter}}.add_goal(g)
     {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
     {{ rectangle_area_goal(goal, entity_names) }}
-    cg.add_goal(g)
+    cg_{{ns.ccounter}}.add_goal(g)
     {% elif goal.__class__.__name__ == 'CircularAreaGoal' %}
     {{ circular_area_goal(goal, entity_names) }}
-    cg.add_goal(g)
+    cg_{{ns.ccounter}}.add_goal(g)
     {% elif goal.__class__.__name__ == 'MovingAreaGoal' %}
     {{ moving_area_goal(goal, entity_names) }}
-    cg.add_goal(g)
+    cg_{{ns.ccounter}}.add_goal(g)
     {% elif goal.__class__.__name__ == 'PositionGoal' %}
     {{ position_goal(goal) }}
-    cg.add_goal(g)
+    cg_{{ns.ccounter}}.add_goal(g)
     {% elif goal.__class__.__name__ == 'OrientationGoal' %}
     {{ orientation_goal(goal) }}
-    cg.add_goal(g)
+    cg_{{ns.ccounter}}.add_goal(g)
     {% elif goal.__class__.__name__ == 'WaypointTrajectoryGoal' %}
     {{ waipoint_trajectory_goal(goal) }}
-    cg.add_goal(g)
+    cg_{{ns.ccounter}}.add_goal(g)
     {% elif goal.__class__.__name__ == 'GoalRepeater' %}
     {{ goal_repeater(goal, entity_names) }}
-    cg.add_goal(gr)
+    cg_{{ns.ccounter}}.add_goal(gr)
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
     {{ complex_goal(goal, entity_names) }}
-    cg.add_goal(g)
+    cg_{{ns.ccounter - 1}}.add_goal(cg_{{ns.ccounter}})
     {% endif %}
     {% endfor %}
 {% endmacro %}
