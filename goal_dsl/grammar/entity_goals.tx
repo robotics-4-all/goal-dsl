@@ -79,3 +79,14 @@ EntityAttrStreamStrategy:
 	'ALL_ORDERED'       |
     'EXACTLY_X_ORDERED'
 ;
+
+
+EntityStateTransitionGoal:
+    'Goal<EntityStateTransition>' name=ID
+    (
+        ('previous:' previous=STRING)
+        ('next:' next=STRING)
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+    )#
+    'end'
+;
