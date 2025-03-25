@@ -146,6 +146,7 @@ if __name__ == '__main__':
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
     {{ goal_macros.complex_goal(goal, entity_names) }}
     antigoals_l.append(cg)
+    antigoals_l.append(cg_{{goal_macros.ns.ccounter}})
     {% endif %}
     {% endfor %}
 
@@ -183,7 +184,7 @@ if __name__ == '__main__':
     fatals_l.append(gr)
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
     {{ goal_macros.complex_goal(goal, entity_names) }}
-    fatals_l.append(cg)
+    fatals_l.append(cg_{{goal_macros.ns.ccounter}})
     {% endif %}
     {% endfor %}
 
