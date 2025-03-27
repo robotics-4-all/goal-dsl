@@ -1,0 +1,359 @@
+Metadata
+    name: ReGES
+    version: "0.1.0"
+    author: "AUTHOR_NAME_HERE"
+    email: "CONTACT_EMAIL_HERE"
+    description: "BRIEF_DESCRIPTION"
+end
+
+Broker<MQTT> LocsysMQTT
+    host: 'locsys.issel.ee.auth.gr'
+    port: 8883
+    ssl: true
+    auth:
+        username: '*****'
+        password: '*****'
+end
+
+Broker<MQTT> LocalMQTT
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Broker<Redis> LocalRedis
+    host: 'localhost'
+    port: 6379
+    auth:
+        username: ''
+        password: ''
+end
+
+RTMonitor
+    broker: LocalRedis
+    eventTopic: "goaldsl.{U_ID}.event"
+    logsTopic: "goaldsl.{U_ID}.log"
+end
+
+Entity traffic_from_right_state
+    type: sensor
+    uri: "streamsim.{UID}.world.world.actuator.visual.leds.traffic_from_right.state"
+    source: LocalRedis
+    freq: -1
+    attributes:
+        - luminosity: str
+        - r: float
+        - g: float
+        - b: float
+end
+
+Entity traffic_from_bottom_state
+    type: sensor
+    uri: "streamsim.{UID}.world.world.actuator.visual.leds.traffic_from_bottom.state"
+    source: LocalRedis
+    freq: -1
+    attributes:
+        - luminosity: str
+        - r: float
+        - g: float
+        - b: float
+end
+
+Entity traffic_from_above_state
+    type: sensor
+    uri: "streamsim.{UID}.world.world.actuator.visual.leds.traffic_from_above.state"
+    source: LocalRedis
+    freq: -1
+    attributes:
+        - luminosity: str
+        - r: float
+        - g: float
+        - b: float
+end
+
+Entity traffic_from_left_state
+    type: sensor
+    uri: "streamsim.{UID}.world.world.actuator.visual.leds.traffic_from_left.state"
+    source: LocalRedis
+    freq: -1
+    attributes:
+        - luminosity: str
+        - r: float
+        - g: float
+        - b: float
+end
+
+Entity traffic_from_right_set
+    type: actuator
+    uri: "streamsim.{UID}.world.world.actuator.visual.leds.traffic_from_right.set"
+    source: LocalRedis
+    attributes:
+        - luminosity: str
+        - r: float
+        - g: float
+        - b: float
+end
+
+Entity traffic_from_bottom_set
+    type: actuator
+    uri: "streamsim.{UID}.world.world.actuator.visual.leds.traffic_from_bottom.set"
+    source: LocalRedis
+    attributes:
+        - luminosity: str
+        - r: float
+        - g: float
+        - b: float
+end
+
+Entity traffic_from_above_set
+    type: actuator
+    uri: "streamsim.{UID}.world.world.actuator.visual.leds.traffic_from_above.set"
+    source: LocalRedis
+    attributes:
+        - luminosity: str
+        - r: float
+        - g: float
+        - b: float
+end
+
+Entity traffic_from_left_set
+    type: actuator
+    uri: "streamsim.{UID}.world.world.actuator.visual.leds.traffic_from_left.set"
+    source: LocalRedis
+    attributes:
+        - luminosity: str
+        - r: float
+        - g: float
+        - b: float
+end
+
+
+// --------------------- ENTITIES ---------------------------------
+// ----------------------------------------------------------------
+
+Entity AppVariables
+    type: sensor
+    uri: "appcreator.variables"
+    source: LocalRedis
+    freq: -1
+    attributes:
+        - name: str
+        - value: str
+        - type: str
+end
+
+// ------------------- GOALS --------------------------------------
+// ----------------------------------------------------------------
+
+Goal<EntityPyCondition> RightTraffic_Green
+    condition:
+        "traffic_from_right_set.r == 0 and traffic_from_right_set.g == 255 and traffic_from_right_set.b == 0"
+    timeConstraints:
+        - FOR_TIME(1.5)
+end
+
+Goal<EntityPyCondition> RightTraffic_Orange
+    condition:
+        "traffic_from_right_set.r == 255 and traffic_from_right_set.g == 165 and traffic_from_right_set.b == 0"
+    timeConstraints:
+        - FOR_TIME(0.5)
+end
+
+Goal<EntityPyCondition> RightTraffic_Red
+    condition:
+        "traffic_from_right_set.r == 255 and traffic_from_right_set.g == 0 and traffic_from_right_set.b == 0"
+    timeConstraints:
+        - FOR_TIME(2.5)
+end
+
+Goal<EntityPyCondition> LeftTraffic_Green
+    condition:
+        "traffic_from_left_set.r == 0 and traffic_from_left_set.g == 255 and traffic_from_left_set.b == 0"
+    timeConstraints:
+        - FOR_TIME(1.5)
+end
+
+Goal<EntityPyCondition> LeftTraffic_Orange
+    condition:
+        "traffic_from_left_set.r == 255 and traffic_from_left_set.g == 165 and traffic_from_left_set.b == 0"
+    timeConstraints:
+        - FOR_TIME(0.5)
+end
+
+Goal<EntityPyCondition> LeftTraffic_Red
+    condition:
+        "traffic_from_left_set.r == 255 and traffic_from_left_set.g == 0 and traffic_from_left_set.b == 0"
+    timeConstraints:
+        - FOR_TIME(2.5)
+end
+
+Goal<EntityPyCondition> AboveTraffic_Green
+    condition:
+        "traffic_from_above_set.r == 0 and traffic_from_above_set.g == 255 and traffic_from_above_set.b == 0"
+    timeConstraints:
+        - FOR_TIME(1.5)
+end
+
+Goal<EntityPyCondition> AboveTraffic_Orange
+    condition:
+        "traffic_from_above_set.r == 255 and traffic_from_above_set.g == 165 and traffic_from_above_set.b == 0"
+    timeConstraints:
+        - FOR_TIME(0.5)
+end
+
+Goal<EntityPyCondition> AboveTraffic_Red
+    condition:
+        "traffic_from_above_set.r == 255 and traffic_from_above_set.g == 0 and traffic_from_above_set.b == 0"
+    timeConstraints:
+        - FOR_TIME(2.5)
+end
+
+Goal<EntityPyCondition> BottomTraffic_Green
+    condition:
+        "traffic_from_bottom_set.r == 0 and traffic_from_bottom_set.g == 255 and traffic_from_bottom_set.b == 0"
+    timeConstraints:
+        - FOR_TIME(1.5)
+end
+
+Goal<EntityPyCondition> BottomTraffic_Orange
+    condition:
+        "traffic_from_bottom_set.r == 255 and traffic_from_bottom_set.g == 165 and traffic_from_bottom_set.b == 0"
+    timeConstraints:
+        - FOR_TIME(0.5)
+end
+
+Goal<EntityPyCondition> BottomTraffic_Red
+    condition:
+        "traffic_from_bottom_set.r == 255 and traffic_from_bottom_set.g == 0 and traffic_from_bottom_set.b == 0"
+    timeConstraints:
+        - FOR_TIME(2.5)
+end
+
+Goal<EntityPyCondition> Fake_Delay  // NICE HACK WITH GOALDSL
+    condition:
+        "1==1"
+    timeConstraints:
+        - FOR_TIME(120)
+end
+
+Goal<Complex> Horizontal_Green
+    goals:
+        - RightTraffic_Green
+        - LeftTraffic_Green
+    strategy: ALL_ACCOMPLISHED
+    timeConstraints:
+        - FOR_TIME(1.5)
+end
+
+Goal<Complex> Horizontal_Orange
+    goals:
+        - RightTraffic_Orange
+        - LeftTraffic_Orange
+    strategy: ALL_ACCOMPLISHED
+    timeConstraints:
+        - FOR_TIME(0.5)
+end
+
+Goal<Complex> Horizontal_Red
+    goals:
+        - RightTraffic_Red
+        - LeftTraffic_Red
+    strategy: ALL_ACCOMPLISHED
+    timeConstraints:
+        - FOR_TIME(0.5)
+end
+
+Goal<Complex> Horizontal_Check
+    goals:
+        - Horizontal_Green
+        - Horizontal_Orange
+        - Horizontal_Red
+    strategy: ALL_ACCOMPLISHED_ORDERED
+end
+
+Goal<Repeater> Horizontal_Repeater
+    goal: Horizontal_Check
+    times: 5
+end
+
+Goal<Complex> Vertical_Green
+    goals:
+        - AboveTraffic_Green
+        - BottomTraffic_Green
+    strategy: ALL_ACCOMPLISHED
+    timeConstraints:
+        - FOR_TIME(1.5)
+end
+
+Goal<Complex> Vertical_Orange
+    goals:
+        - AboveTraffic_Orange
+        - BottomTraffic_Orange
+    strategy: ALL_ACCOMPLISHED
+    timeConstraints:
+        - FOR_TIME(1.5)
+end
+
+Goal<Complex> Vertical_Red
+    goals:
+        - AboveTraffic_Red
+        - BottomTraffic_Red
+    strategy: ALL_ACCOMPLISHED
+    timeConstraints:
+        - FOR_TIME(1.5)
+end
+
+Goal<Complex> Vertical_Check
+    goals:
+        - Vertical_Green
+        - Vertical_Orange
+        - Vertical_Red
+    strategy: ALL_ACCOMPLISHED_ORDERED
+end
+
+Goal<Repeater> Vertical_Repeater
+    goal: Vertical_Check
+    times: 5
+end
+
+Goal<EntityPyCondition> Crash_Danger_1
+    condition:
+        "traffic_from_bottom_set.r == 255 and (traffic_from_left_set.g == 255 or traffic_from_right_set.g == 255)"
+    timeConstraints:
+        - FOR_TIME(2)
+end
+
+Goal<EntityPyCondition> Crash_Danger_2
+    condition:
+        "traffic_from_above_set.r == 255 and (traffic_from_left_set.g == 255 or traffic_from_right_set.g == 255)"
+    timeConstraints:
+        - FOR_TIME(2)
+end
+
+Goal<Complex> Crash_Danger
+    goals:
+        - Crash_Danger_1
+        - Crash_Danger_2
+    strategy: AT_LEAST_ONE_ACCOMPLISHED
+end
+
+Goal<EntityPyCondition> Avoid_Crash
+    condition:
+        "not ((traffic_from_bottom_set.r == 255 or traffic_from_above_set.r == 255) and (traffic_from_left_set.g == 255 or traffic_from_right_set.g == 255)) or ((traffic_from_bottom_set.g == 255 or traffic_from_above_set.g == 255) and (traffic_from_left_set.r == 255 or traffic_from_right_set.r == 255))"
+    timeConstraints:
+        - FOR_TIME(2)
+end
+
+// ----------------------------------------------------------------
+
+Scenario Week_2_Task_8
+    goals:
+        - Horizontal_Repeater
+        - Vertical_Repeater
+        // - Avoid_Crash
+    fatals:
+        - Crash_Danger
+    concurrent: True
+end
