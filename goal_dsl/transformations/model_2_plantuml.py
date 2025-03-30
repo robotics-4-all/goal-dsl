@@ -1,40 +1,28 @@
 from textx import metamodel_from_file
-from jinja2 import Template
+import jinja2
+from goal_dsl.definitions import TEMPLATES_PATH
 from goal_dsl.language import build_model
+
+
+jinja_env = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(TEMPLATES_PATH),
+    trim_blocks=True,
+    lstrip_blocks=True
+)
+
+template = jinja_env.get_template('model_2_plantuml.jinja')
+
 
 def generate_diagram(model_path):
     """Fixed generator that handles all goal types"""
     model = build_model(model_path)
 
-    template = Template("""@startebnf
-(* {{ scenario.name }} *)
-Goals =
-    {% for weighted_goal in scenario.goals -%}
-    {{ "( " }}
-        "{{ weighted_goal.goal.name }}:"{% if weighted_goal.goal.__class__.__name__ == "GoalRepeater" %},
-            {{ weighted_goal.goal.times }} *
-            [ "{{ weighted_goal.goal.goal.name }}:"{% for subgoal in weighted_goal.goal.goal.goals %},
-                "{{ subgoal.goal.name }}{% if subgoal.goal.timeConstraints %} ({{ subgoal.goal.timeConstraints[0].time }}s){% endif %}"
-            {% endfor %} ]
-        {% elif weighted_goal.goal.__class__.__name__ == "ComplexGoal" %},
-            "strategy: {{ weighted_goal.goal.algorithm }}",
-            [ "subgoals:"{% for sub_goal in weighted_goal.goal.goals %},
-                "{{ sub_goal.goal.name }}{% if sub_goal.weight %} (weight={{ sub_goal.weight }}){% endif %}"
-            {% endfor %} ]
-        {% endif %}
-    {{ " )" }}{% if not loop.last %} |{% endif %}
-    {% endfor %};
-Fatals =
-    {% for fatal in scenario.fatals -%}
-    {{ "( " }}
-        "{{ fatal.name }}"
-    {{ " )" }}{% if not loop.last %} |{% endif %}
-    {% endfor %};
-@endebnf""")
-
     for scenario in model.scenarios:
+        diagram_puml = template.render(
+            scenario=scenario
+        )
         with open(f"{scenario.name}.puml", "w") as f:
-            f.write(template.render(scenario=scenario))
+            f.write(diagram_puml)
         print(f"Generated: {scenario.name}.puml")
 
 if __name__ == "__main__":
