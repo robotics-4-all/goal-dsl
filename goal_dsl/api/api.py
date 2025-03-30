@@ -9,7 +9,7 @@ import subprocess
 import tarfile
 
 from goal_dsl.language import build_model
-from goal_dsl.codegen import generate as generate_model
+from goal_dsl.generator import generate as generate_model
 
 from fastapi import FastAPI, File, UploadFile, status, HTTPException, Security, Body
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse

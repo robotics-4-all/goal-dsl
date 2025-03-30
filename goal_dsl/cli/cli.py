@@ -2,7 +2,7 @@ import click
 import os
 from rich import print, pretty
 
-from goal_dsl.codegen import generate
+from goal_dsl.generator import generate
 from goal_dsl.language import build_model
 
 pretty.install()
