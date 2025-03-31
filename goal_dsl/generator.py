@@ -2,7 +2,7 @@ from os import path, mkdir, getcwd, chmod
 from textx import generator
 import jinja2
 
-from goal_dsl.transformations.model_2_plantuml import generate_diagram
+from goal_dsl.transformations.model_2_plantuml import generate_diagram as model_2_plantuml
 from goal_dsl.transformations.m2t_python import (
     generate as m2t_python,
     generate_str as m2t_python_str
