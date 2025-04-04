@@ -137,6 +137,14 @@ def build_entity_attr_map(entities):
     return entity_attr_map
 
 
+def scenario_processor(scenario):
+    logger.info("Running scenario processor...")
+    if not scenario.goalTickFreqHz:
+        scenario.goalTickFreqHz = 10
+    if not scenario.concurrent:
+        scenario.concurrent = False
+
+
 def model_proc(model, metamodel):
     logger.info("Running model processor...")
     process_time_class(model)
@@ -265,6 +273,7 @@ def pycondition_processor(goal):
 obj_processors = {
     'Goal': goal_obj_processor,
     'NID': nid_processor,
+    'Scenario': scenario_processor,
 }
 
 

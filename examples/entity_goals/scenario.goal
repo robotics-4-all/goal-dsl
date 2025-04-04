@@ -89,4 +89,5 @@ Scenario MyScenario
     fatals:
         - Goal_3
     concurrent: True
+    tickFreq: 10
 end
