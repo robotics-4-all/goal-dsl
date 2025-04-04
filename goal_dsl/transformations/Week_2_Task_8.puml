@@ -1,0 +1,36 @@
+@startebnf
+(* Week_2_Task_8 *)
+Goals =
+( 
+        "Horizontal_Repeater:"
+,
+            5 *
+            [ "Horizontal_Check:",
+                "Horizontal_Green (1.5s)"
+,
+                "Horizontal_Orange (0.5s)"
+,
+                "Horizontal_Red (2.5s)"
+ ]
+     ) |( 
+        "Vertical_Repeater:"
+,
+            5 *
+            [ "Vertical_Check:",
+                "Vertical_Green (1.5s)"
+,
+                "Vertical_Orange (0.5s)"
+,
+                "Vertical_Red (2.5s)"
+ ]
+     ) |( 
+        "Avoid_Crash:"
+     );
+Fatals =
+( 
+        "Crash_Danger:"
+,
+( 
+"Crash_Danger_Α" | "Crash_Danger_Β"             )
+     );
+@endebnf

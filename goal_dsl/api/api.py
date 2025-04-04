@@ -9,7 +9,7 @@ import subprocess
 import tarfile
 
 from goal_dsl.language import build_model
-from goal_dsl.codegen import generate as generate_model
+from goal_dsl.generator import m2t_python
 
 from fastapi import FastAPI, File, UploadFile, status, HTTPException, Security, Body
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
@@ -159,7 +159,7 @@ async def gen_from_model(
         f'gen-{u_id}'
     )
     try:
-        out_dir = generate_model(model_path, gen_path)
+        out_dir = m2t_python(model_path, gen_path)
         make_tarball(tarball_path, out_dir)
         return FileResponse(tarball_path,
                             filename=os.path.basename(tarball_path),
@@ -196,7 +196,7 @@ async def gen_from_file(model_file: UploadFile = File(...),
     with open(model_path, 'w') as f:
         f.write(fd.read().decode('utf8'))
     try:
-        out_dir = generate_model(model_path, gen_path)
+        out_dir = m2t_python(model_path, gen_path)
         make_tarball(tarball_path, out_dir)
         print(f'Sending tarball {tarball_path}')
         return FileResponse(tarball_path,
@@ -233,7 +233,7 @@ if HAS_DOCKER_EXEC:
         with open(model_path, 'w') as f:
             f.write(fd.read().decode('utf8'))
         try:
-            out_dir = generate_model(model_path, gen_path)
+            out_dir = m2t_python(model_path, gen_path)
             if container == 'docker':
                 img = build_docker_image(out_dir)
                 print('Executing within Container...')

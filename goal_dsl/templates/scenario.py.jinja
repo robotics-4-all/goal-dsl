@@ -107,7 +107,7 @@ if __name__ == '__main__':
     goals_l.append(gr)
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
     {{ goal_macros.complex_goal(goal, entity_names) }}
-    goals_l.append(cg)
+    goals_l.append(cg_{{goal_macros.ns.ccounter}})
     {% endif %}
     {% endfor %}
 
@@ -146,6 +146,7 @@ if __name__ == '__main__':
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
     {{ goal_macros.complex_goal(goal, entity_names) }}
     antigoals_l.append(cg)
+    antigoals_l.append(cg_{{goal_macros.ns.ccounter}})
     {% endif %}
     {% endfor %}
 
@@ -182,15 +183,15 @@ if __name__ == '__main__':
     {{ goal_macros.goal_repeater(goal, entity_names) }}
     fatals_l.append(gr)
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
-    cg = {{ goal_macros.complex_goal(goal, entity_names) }}
-    fatals_l.append(cg)
+    {{ goal_macros.complex_goal(goal, entity_names) }}
+    fatals_l.append(cg_{{goal_macros.ns.ccounter}})
     {% endif %}
     {% endfor %}
 
     scenario = Scenario(
         name='{{ scenario.name }}',
         broker=broker,
-        score_weights={{ scenario.goalWeights }},
+        goal_weights={{ scenario.goalWeights }},
         goals=goals_l,
         anti_goals=antigoals_l,
         fatal_goals=fatals_l,

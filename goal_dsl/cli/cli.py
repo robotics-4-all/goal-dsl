@@ -2,7 +2,7 @@ import click
 import os
 from rich import print, pretty
 
-from goal_dsl.codegen import generate
+from goal_dsl.generator import m2t_python
 from goal_dsl.language import build_model
 
 pretty.install()
@@ -37,7 +37,7 @@ def validate(ctx, model_path):
 @click.pass_context
 @click.argument('model_path')
 def gen_scenarios(ctx, model_path: str):
-    _ = generate(model_path)
+    _ = m2t_python(model_path)
     # return
     # for vn in vnodes:
     #     filepath = f'{vn[0].name}.py'

@@ -1,0 +1,51 @@
+@startebnf
+(* {{ scenario.name }} *)
+Goals =
+    {% for weighted_goal in scenario.goals -%}
+    {{ "( " }}
+        "{{ weighted_goal.goal.name }}:"
+        {% if weighted_goal.goal.__class__.__name__ == "GoalRepeater" %},
+            {{ weighted_goal.goal.times }} *
+            [ "{{ weighted_goal.goal.goal.name }}:"{% for subgoal in weighted_goal.goal.goal.goals %},
+                "{{ subgoal.goal.name }}{% if subgoal.goal.timeConstraints %} ({{ subgoal.goal.timeConstraints[0].time }}s){% endif %}"
+            {% endfor %} ]
+        {% elif weighted_goal.goal.__class__.__name__ == "ComplexGoal" %},
+            {% if "ORDERED" in weighted_goal.goal.strategy -%}
+            [{% for sub_goal in weighted_goal.goal.goals -%}
+                "{{ sub_goal.goal.name }}"{% if not loop.last %}, {% endif %}
+            {% endfor %} ]
+            {% else -%}
+            {{ "( " }}
+            {% for sub_goal in weighted_goal.goal.goals -%}
+                "{{ sub_goal.goal.name }}"{% if not loop.last %} | {% endif %}
+            {% endfor %}
+            {{ " )" }}
+            {% endif -%}
+        {% endif %}
+    {{ " )" }}{% if not loop.last %} |{% endif %}
+    {% endfor %};
+Fatals =
+    {% for goal in scenario.fatals -%}
+    {{ "( " }}
+        "{{ goal.name }}:"
+        {% if goal.__class__.__name__ == "GoalRepeater" -%},
+            {{ goal.times }} *
+            [ "{{ goal.goal.name }}:"{% for subgoal in goal.goal.goals -%},
+                "{{ subgoal.goal.name }}{% if subgoal.goal.timeConstraints %} ({{ subgoal.goal.timeConstraints[0].time }}s){% endif %}"
+            {% endfor %} ]
+        {% elif goal.__class__.__name__ == "ComplexGoal" -%},
+            {% if "ORDERED" in goal.strategy -%}
+            [{% for sub_goal in goal.goals -%}
+                "{{ sub_goal.goal.name }}"{% if not loop.last %}, {% endif %}
+            {% endfor %} ]
+            {% else -%}
+            {{ "( " }}
+            {% for sub_goal in goal.goals -%}
+                "{{ sub_goal.goal.name }}"{% if not loop.last %} | {% endif %}
+            {% endfor %}
+            {{ " )" }}
+            {% endif -%}
+        {% endif %}
+    {{ " )" }}{% if not loop.last %} |{% endif %}
+    {% endfor %};
+@endebnf
