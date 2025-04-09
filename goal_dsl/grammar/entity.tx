@@ -23,6 +23,7 @@ SEntity:
     'Entity' name=ID
     (
         ('type:' etype=EntityType)
+        ('mode': mode=EntityState)?
         ('attributes:' '-' attributes*=Attribute['-'])
         ('source:' source=EntitySource)
         ('uri:' uri=STRING)?
@@ -36,6 +37,7 @@ CEntity:
     'CEntity' name=ID
     (
         ('type:' etype=EntityType)
+        ('mode': mode=EntityState)?
         ('attributes:' '-' attributes*=Attribute['-'])? // attributes are optional
         ('source:' source=EntitySource)
         ('uri:' uri=STRING)?
@@ -55,6 +57,16 @@ EntityType:
     'robot'     |
     'other'
 ;
+
+EntityMode:
+    'virtual'       |
+    'simulation'    |
+    'physical'      |
+    'digitwin'      |
+    'other'
+;
+
+Attribute:
 
 Attribute:
     NumericAttribute    |

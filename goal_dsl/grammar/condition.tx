@@ -39,14 +39,19 @@ MathFactor:
 ;
 
 MathOperand:
+(
     op=NUMBER               |
     op=AugmentedNumericAttr |
     op=AttributeRef
+)
 ;
 
 AttributeRef:
     attribute=[Attribute:FQN|+pm:entities.attributes]
 ;
+
+PlusOrMinus: '+' | '-';
+MulOrDiv: '*' | '/' ;
 
 NumericCondition:
     (operand1=MathExpression
@@ -54,8 +59,35 @@ NumericCondition:
      operand2=MathExpression)
 ;
 
-PlusOrMinus: '+' | '-';
-MulOrDiv: '*' | '/' ;
+StringCondition:
+    (operand1=AugmentedStringAttr
+     operator=StringOperator
+     (operand2=STRING | operand2=AugmentedStringAttr))
+;
+
+BoolCondition:
+    (operand1=AugmentedBoolAttr
+     operator=BooleanOperator
+     (operand2=BOOL | operand2=AugmentedBoolAttr))
+;
+
+ListCondition:
+    (operand1=AugmentedListAttr
+     operator=ListOperator
+     (operand2=List | operand2=AugmentedListAttr))
+;
+
+DictCondition:
+    (operand1=AugmentedDictAttr
+     operator=DictOperator
+     (operand2=Dict | operand2=AugmentedDictAttr))
+;
+
+TimeCondition:
+    (operand1=SimpleTimeAttr
+     operator=TimeOperator
+     operand2=Time)
+;
 
 StdAttr:
     'std' '(' attribute=AugmentedNumericAttr ',' size=INT ')'
@@ -88,37 +120,6 @@ AugmentedAttr:
     AugmentedBoolAttr    |
     AugmentedListAttr    |
     AugmentedDictAttr
-;
-
-
-StringCondition:
-    (operand1=AugmentedStringAttr
-     operator=StringOperator
-     (operand2=STRING | operand2=AugmentedStringAttr))
-;
-
-BoolCondition:
-    (operand1=AugmentedBoolAttr
-     operator=BooleanOperator
-     (operand2=BOOL | operand2=AugmentedBoolAttr))
-;
-
-ListCondition:
-    (operand1=AugmentedListAttr
-     operator=ListOperator
-     (operand2=List | operand2=AugmentedListAttr))
-;
-
-DictCondition:
-    (operand1=AugmentedDictAttr
-     operator=DictOperator
-     (operand2=Dict | operand2=AugmentedDictAttr))
-;
-
-TimeCondition:
-    (operand1=SimpleTimeAttr
-     operator=TimeOperator
-     operand2=Time)
 ;
 
 
