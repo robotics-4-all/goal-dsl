@@ -30,28 +30,8 @@ DictType:
     NUMBER | STRING | BOOL | Dict | List | OBJECT
 ;
 
-NID: /(.*?)\n/;
-
 Description: /\#(.*?)$/;
 
-Point: Point2D | Point3D;
-Orientation: Orientation2D | Orientation3D;
-
-Point2D:
-    'Point2D' '(' x=NUMBER ',' y=NUMBER ')'
-;
-
-Point3D:
-    'Point3D' '(' x=NUMBER ',' y=NUMBER ',' z=NUMBER ')'
-;
-
-Orientation2D:
-    'Orientation2D' '(' z=NUMBER ')'
-;
-
-Orientation3D:
-    'Orientation3D' '(' x=NUMBER ',' y=NUMBER ',' z=NUMBER ')'
-;
 
 DataType: PrimitiveDataType | CustomDataType | Enumeration;
 
@@ -72,10 +52,43 @@ Enumeration:
 EnumerationElement: name=STRING;
 
 // Primitive data types
-PrimitiveDataType: 'type' name=ID;
+PrimitiveDataType:
+    'type' name=ID
+;
 
-Property: ListProperty | SimpleProperty;
+Property:
+    ListProperty    |
+    SimpleProperty
+;
 
-SimpleProperty: name=ID ':' type=[DataType:FQN|+m:types] ('=' default=STRING)?;
+SimpleProperty:
+    name=ID ':' type=[DataType:FQN|+m:types] ('=' default=STRING)?
+;
 
-ListProperty: name=ID ':' type=[DataType:FQN|+m:types]'[]' ('=' default=STRING)?;
+ListProperty:
+    name=ID ':' type=[DataType:FQN|+m:types]'[' ( multiplicity=MultiplicityBound )? ']'
+;
+
+MultiplicityBound:
+    INT | '*'
+;
+
+// Special types
+Point: Point2D | Point3D;
+Orientation: Orientation2D | Orientation3D;
+
+Point2D:
+    'Point2D' '(' x=NUMBER ',' y=NUMBER ')'
+;
+
+Point3D:
+    'Point3D' '(' x=NUMBER ',' y=NUMBER ',' z=NUMBER ')'
+;
+
+Orientation2D:
+    'Orientation2D' '(' z=NUMBER ')'
+;
+
+Orientation3D:
+    'Orientation3D' '(' x=NUMBER ',' y=NUMBER ',' z=NUMBER ')'
+;

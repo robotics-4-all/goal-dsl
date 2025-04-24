@@ -6,7 +6,7 @@ FQN[noskipws]:
 
 FQID[noskipws]:
     /\s*/-
-    ERID+['.']
+    LID+['.']
 ;
 
 // Language ID
@@ -17,6 +17,9 @@ LID:
 
 Import: 'import' importURI=FQN ('as' name=ID)?;
 
+Keyword:
+    'import'
+;
 
 // Special rule for comments. Comments start with //
 Comment: CommentLine | CommentBlock ;

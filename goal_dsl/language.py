@@ -35,7 +35,9 @@ BUILTIN_TYPES = {
     'float': PrimitiveDataType(None, 'float'),
     'float32': PrimitiveDataType(None, 'float32'),
     'float64': PrimitiveDataType(None, 'float64'),
-    'str': PrimitiveDataType(None, 'str')
+    'str': PrimitiveDataType(None, 'str'),
+    'dict': PrimitiveDataType(None, 'dict'),
+    'list': PrimitiveDataType(None, 'list'),
 }
 
 

@@ -84,8 +84,9 @@ EntityAttrStreamStrategy:
 EntityStateTransitionGoal:
     'Goal<EntityStateTransition>' name=ID
     (
-        ('previous:' previous=STRING)
-        ('next:' next=STRING)
+        ('entity:' entity=[Entity:FQN|+m:entities*])
+        ('previous:' previous=Condition)
+        ('next:' next=Condition)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
     'end'
