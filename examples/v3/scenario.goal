@@ -144,7 +144,7 @@ end
 
 Goal<EntityStateCondition> TestNumericFunctions
     condition:
-        mean(std(TempSensor1.temp, 5), 10) > 10
+        mean(TempSensor1.temp, 5) > 10
 end
 
 RTMonitor
