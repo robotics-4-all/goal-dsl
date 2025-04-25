@@ -156,8 +156,10 @@ end
 
 Scenario MyScenario
     goals:
-        - Goal_1 -> 0.5
-        - Goal_2 -> 0.25
-        - Goal_3 -> 0.25
+        - Goal_1
+        - Goal_2
+        - Goal_3
+        - TestDictKeyAccessMultilevel
+        - TestNumericFunctions
     concurrent: True
 end

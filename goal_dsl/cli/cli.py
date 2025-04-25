@@ -2,7 +2,7 @@ import click
 import os
 from rich import print, pretty
 
-from goal_dsl.generator import m2t_python
+from goal_dsl.transformations import m2t_python
 from goal_dsl.language import build_model
 
 pretty.install()

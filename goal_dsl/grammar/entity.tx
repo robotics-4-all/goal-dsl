@@ -8,6 +8,30 @@ EntitySource:
     (ref=[RESTEndpoint])
 ;
 
+/*
+EntitySource:
+    BrokerSource |
+    RestSource
+;
+
+BrokerSource:
+    brokerRef=[MessageBroker] '@' uri=STRING
+;
+
+RestSource:
+    endpointRef=[RESTEndpoint]
+;
+*/
+
+/*
+DBSQLSource:
+    dbRef=[DBSQL] '@' query=STRING
+;
+
+DBNoSQLource:
+    dbRef=[DBNoSQL] '@' collection=STRING ',' filter=STRING
+;
+*/
 
 Entity:
     'Entity' name=ID

@@ -460,12 +460,6 @@ def get_cond_definition(cond, model_str: str = None):
 
 ## ----------------------------------------------------------
 
-@language('goal_dsl', '*.goal')
-def goaldsl_language():
-    "Goal-driven Behavior Verification DSL for CPSs"
-    return get_metamodel()
-
-
 def get_model_grammar(model_path):
     mm = get_metamodel()
     grammar_model = mm.grammar_model_from_file(model_path)
