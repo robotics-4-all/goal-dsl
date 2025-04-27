@@ -4,6 +4,7 @@ import pose_goals
 import trajectory_goals
 import time_constraint
 import utils
+import condition
 
 
 Goal:
@@ -14,7 +15,8 @@ Goal:
     OrientationGoal      |
     TrajectoryGoal       |
     ComplexGoal          |
-    GoalRepeater
+    GoalRepeater         |
+    GTermGoal
 ;
 
 
@@ -29,16 +31,6 @@ ComplexGoal:
     'end'
 ;
 
-GoalRepeater:
-    'Goal<Repeater>' name=ID
-    (
-        ('goal:' goal=[Goal:FQN|+m:goals*])
-        ('times:' times=INT)
-        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
-    )#
-    'end'
-;
-
 ComplexGoalAlgorithmType:
     'ALL_ACCOMPLISHED'               |
     'NONE_ACCOMPLISHED'              |
@@ -47,6 +39,41 @@ ComplexGoalAlgorithmType:
     'EXACTLY_X_ACCOMPLISHED'         |
 	'ALL_ACCOMPLISHED_ORDERED'       |
     'EXACTLY_X_ACCOMPLISHED_ORDERED'
+;
+
+// ======================================================================
+GTermGoal:
+    'Goal<GTerm>' name=ID
+    (
+        ('terms:' '-' terms*=GoalTermDef['-'])
+        ('operator:' operator=LogicalOperator)?
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+    )#
+    'end'
+;
+
+GoalTermDef:
+    r1=GoalTermGroup (operator=LogicalOperator r2=GoalTermGroup)*
+;
+
+GoalReference:
+    r=[Goal:FQN|+m:goals*]
+;
+
+GoalTermGroup:
+    '(' r=GoalTermDef ')' |
+    r=GoalReference
+;
+// ======================================================================
+
+GoalRepeater:
+    'Goal<Repeater>' name=ID
+    (
+        ('goal:' goal=[Goal:FQN|+m:goals*])
+        ('times:' times=INT)
+        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+    )#
+    'end'
 ;
 
 WeightedGoal:

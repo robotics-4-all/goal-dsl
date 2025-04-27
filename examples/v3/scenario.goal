@@ -147,6 +147,11 @@ Goal<EntityStateCondition> TestNumericFunctions
         mean(TempSensor1.temp, 5) > 10
 end
 
+Goal<GTerm> GTermTest
+    terms:
+        - (Goal_1 and Goal_2) or Goal_3
+end
+
 RTMonitor
     broker: HomeMQTT
     eventTopic: "goaldsl.{U_ID}.event"

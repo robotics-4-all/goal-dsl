@@ -4,6 +4,14 @@ import utils
 
 // === Conditions ===
 
+TermPool:
+    'TermPool' name=ID
+    (
+        conditions*=Condition
+    )#
+    'end'
+;
+
 Condition:
     r1=ConditionGroup (operator=LogicalOperator r2=ConditionGroup)*
 ;
@@ -53,7 +61,7 @@ AttributeRef:
 ;
 
 SimpleAttributeRef:
-    attribute=[Attribute:FQN|+pm:entities.attributes]
+    attribute=[Attribute:FQN|+m:entities.attributes]
 ;
 
 DictAttributeRef:
@@ -61,7 +69,7 @@ DictAttributeRef:
 ;
 
 ListAttributeRef:
-    attribute=[Attribute:FQN|+pm:entities.attributes] ('[' key=INT ']')?
+    attribute=[Attribute:FQN|+pm:entities.attributes] (('[' index=INT ']')*)?
 ;
 
 PlusOrMinus: '+' | '-';
@@ -74,33 +82,33 @@ NumericCondition:
 ;
 
 StringCondition:
-    (operand1=Attribute
+    (operand1=AttributeRef
      operator=StringOperator
-     (operand2=STRING | operand2=Attribute))
+     (operand2=STRING | operand2=AttributeRef))
 ;
 
 BoolCondition:
-    (operand1=Attribute
+    (operand1=AttributeRef
      operator=BooleanOperator
-     (operand2=BOOL | operand2=Attribute))
+     (operand2=BOOL | operand2=AttributeRef))
 ;
 
 ListCondition:
-    (operand1=Attribute
+    (operand1=AttributeRef
      operator=ListOperator
-     (operand2=List | operand2=Attribute))
+     (operand2=List | operand2=AttributeRef))
 ;
 
 DictCondition:
-    (operand1=Attribute
+    (operand1=AttributeRef
      operator=DictOperator
-     (operand2=Dict | operand2=Attribute))
+     (operand2=Dict | operand2=AttributeRef))
 ;
 
 TimeCondition:
-    (operand1=Attribute
+    (operand1=AttributeRef
      operator=TimeOperator
-     operand2=Time)
+     operand2=AttributeRef)
 ;
 
 StdAttr:
