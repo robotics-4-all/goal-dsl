@@ -56,6 +56,9 @@ Scenario:
         ('fatals:' '-' fatals*=[Goal:FQN|+m:goals*]['-'])?
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
         ('concurrent:' concurrent=BOOL)?
+        ('tickFreq:' goalTickFreqHz=NUMBER)?
+        ('description:' description=STRING)?
+        ('namespace:' ns=STRING)?
     )#
     'end'
 ;

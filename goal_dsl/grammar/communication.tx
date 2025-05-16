@@ -6,13 +6,6 @@ MessageBroker:
 ;
 
 
-// DEPRECATED - DO NOT USE!!
-BrokerConnection:
-    'ref' ':' ref=[MessageBroker:FQN]
-    'auth' ':' auth=Authentication
-;
-
-
 Authentication: AuthPlain | AuthApiKey | AuthCert;
 
 AuthPlain:

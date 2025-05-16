@@ -3,45 +3,46 @@ import types
 import utils
 
 
-EntitySource: (ref=[MessageBroker]) | (ref=[RESTEndpoint]);
-// EntitySource: BrokerSource | RESTSource;
-// EntityStateSource: BrokerSource | RESTSource | DBSource;
+EntitySource:
+    (ref=[MessageBroker])       |
+    (ref=[RESTEndpoint])
+;
 
-// BrokerSource: ref=[MessageBroker];
+/*
+EntitySource:
+    BrokerSource |
+    RestSource
+;
 
-// RESTSource: ref=[RESTEndpoint];
+BrokerSource:
+    brokerRef=[MessageBroker] '@' uri=STRING
+;
 
-// DBSource: DBSQLSource | DBNoSQLSource;
+RestSource:
+    endpointRef=[RESTEndpoint]
+;
+*/
 
-// DBSQLSource: ref=[DBSQLEntry];
+/*
+DBSQLSource:
+    dbRef=[DBSQL] '@' query=STRING
+;
 
-// DBSQLSource: ref=[DBSQLEntry];
+DBNoSQLource:
+    dbRef=[DBNoSQL] '@' collection=STRING ',' filter=STRING
+;
+*/
 
-Entity: SEntity | CEntity;
-
-SEntity:
+Entity:
     'Entity' name=ID
     (
         ('type:' etype=EntityType)
-        ('attributes:' '-' attributes*=Attribute['-'])
         ('source:' source=EntitySource)
+        ('mode:' mode=EntityMode)?
+        ('attributes:' '-' attributes*=Attribute['-'])?
         ('uri:' uri=STRING)?
         ('description:' description=STRING)?
-        ('freq:' freq=NUMBER)?
-    )#
-    'end'
-;
-
-CEntity:
-    'CEntity' name=ID
-    (
-        ('type:' etype=EntityType)
-        ('attributes:' '-' attributes*=Attribute['-'])? // attributes are optional
-        ('source:' source=EntitySource)
-        ('uri:' uri=STRING)?
-        ('description:' description=STRING)?
-        ('freq:' freq=NUMBER)?
-        ('subentities'
+        ('compartments'
             entities*=Entity
         'end')?
     )#
@@ -56,111 +57,16 @@ EntityType:
     'other'
 ;
 
+EntityMode:
+    'virtual'       |
+    'simulation'    |
+    'real'          |
+    'digitwin'      |
+    'other'
+;
+
 Attribute:
-    NumericAttribute    |
-    BoolAttribute       |
-    StringAttribute     |
-    TimeAttribute       |
-    ListAttribute       |
-    DictAttribute       |
-    ObjectAttribute
-;
-
-ObjectAttribute:
-    name=ID ':' dtype=[CustomDataType:FQN|+m:types]
-;
-
-NumericAttribute:
-    IntAttribute | FloatAttribute
-;
-
-IntAttribute:
-    name=ID ':' 'int' ('=' default=INT)?
-        ('->' generator=NumericValueGen ('with noise' noise=Noise)?)?
-;
-
-FloatAttribute:
-    name=ID ':' 'float' ('=' default=FLOAT)?
-        ('->' generator=NumericValueGen ('with noise' noise=Noise)?)?
-;
-
-StringAttribute:
-    name=ID ':' 'str' ('=' default=STRING)?
-;
-
-BoolAttribute:
-    name=ID ':' 'bool' ('=' default=BOOL)?
-        ('->' generator=BooleanValueGen)?
-;
-
-ListAttribute:
-    name=ID ':' 'list' ('=' '[' default*=OBJECT[','] ']')?
-        ('->' generator=ListValueGen)?
-;
-
-DictAttribute:
-    name=ID ':' 'dict' ('=' '{' items*=Attribute[','] '}')?
-        ('->' generator=DictValueGen)?
-;
-
-TimeAttribute:
-    name=ID ':' 'time' ('=' default=Time)?
-;
-
-
-NumericValueGen:
-    ConstantFun     |
-    LinearFun       |
-    SawFun			|
-    GaussianFun     |
-    SinusFun		|
-    ReplayFun       |
-    ReplayFileFun
-;
-
-BooleanValueGen: ReplayFun | ReplayFileFun;
-
-ListValueGen: ReplayFun | ReplayFileFun;
-
-DictValueGen: ReplayFun | ReplayFileFun;
-
-GaussianFun:
-    'gaussian' '(' value=NUMBER ',' maxValue=NUMBER ',' sigma=NUMBER ')'
-;
-
-SinusFun:
-    'sinus' '(' dc=NUMBER ',' amplitude=NUMBER ',' step=NUMBER ')'
-;
-
-ConstantFun:
-    'constant' '(' value=NUMBER ')'
-;
-
-LinearFun:
-    'linear' '(' start=NUMBER ',' step=NUMBER ')'
-;
-
-SawFun:
-    'saw' '(' min=NUMBER ',' max=NUMBER ',' step=NUMBER ')'
-;
-
-// το concept είναι ότι θες να δίνεις συγκεκριμένα patterns ή έχεις κρατήσει
-// τιμές από πραγματικούς αισθητήρες και θες να τις αναπαράγεις
-ReplayFun:
-    'replay' '(' '[' values*=BASETYPE[','] ']' ',' times=INT ')'
-;
-
-ReplayFileFun:
-    'replay' '(' filepath=STRING ')'
-;
-
-
-Noise: UniformNoise | GaussianNoise;
-
-UniformNoise:
-    'uniform' '(' min=NUMBER ',' max=NUMBER ')'
-;
-
-GaussianNoise:
-    'gaussian' '(' mu=NUMBER ',' sigma=NUMBER ')'
+    name=ID ':' dtype=[DataType:FQN|+m:types*]
+        ( '('precision_x=INT (',' precision_y=INT)? ')' )?
+        ( '[' lower=MultiplicityBound (',' upper=MultiplicityBound )? ']' )?
 ;

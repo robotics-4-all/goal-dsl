@@ -24,6 +24,54 @@ Broker<Redis> LocalRedis
         password: ''
 end
 
+DataType ColorRgb
+    r: int
+    g: int
+    b: int
+end
+
+DataType Position
+    x: float
+    y: float
+    z: float
+end
+
+DataType Orientation
+    roll: float
+    pitch: float
+    yaw: float
+end
+
+DataType Pose
+    position: Position
+    orientation: Orientation
+end
+
+Entity LightsA
+    type: actuator
+    uri: 'bedroom.actuator.lights'
+    source: LocalRedis
+    attributes:
+        - color: ColorRgb
+end
+
+Entity MyRobot
+    type: robot
+    source: LocalRedis
+    attributes: -
+    compartments
+        Entity Position
+            type: sensor
+            uri: 'myRobot.sensor.position'
+            source: LocalRedis
+            attributes:
+                - x: float
+                - y: float
+                - z: float
+        end
+    end
+end
+
 Entity TempSensor1
     type: sensor
     uri: 'bedroom.sensor.temperature'
@@ -57,6 +105,22 @@ Entity AirQualitySensor1
         - humidity: float
 end
 
+Entity DictPose
+    type: sensor
+    uri: 'fakepose'
+    source: LocalRedis
+    attributes:
+        - pose: dict
+end
+
+Entity ListAttributeEntity
+    type: sensor
+    uri: 'listattributeentity'
+    source: LocalRedis
+    attributes:
+        - states: list[10]
+end
+
 Goal<EntityStateChange> Goal_1
     entity: TempSensor1
 end
@@ -66,7 +130,6 @@ Goal<EntityStateCondition> Goal_2
         AirQualitySensor1.gas <= 25
 end
 
-
 Goal<EntityStateCondition> Goal_3
     condition:
         (TempSensor1.temp > 10) and
@@ -74,6 +137,20 @@ Goal<EntityStateCondition> Goal_3
         (TempSensor3.temp - TempSensor2.temp < 10)
 end
 
+Goal<EntityStateCondition> TestDictKeyAccessMultilevel
+    condition:
+        DictPose.pose["x"]["y"] <= 25
+end
+
+Goal<EntityStateCondition> TestNumericFunctions
+    condition:
+        mean(TempSensor1.temp, 5) > 10
+end
+
+Goal<GTerm> GTermTest
+    terms:
+        - (Goal_1 and Goal_2) or Goal_3
+end
 
 RTMonitor
     broker: HomeMQTT
@@ -84,10 +161,10 @@ end
 
 Scenario MyScenario
     goals:
-        - Goal_1 -> 0.5
-        - Goal_2 -> 0.5
-    fatals:
+        - Goal_1
+        - Goal_2
         - Goal_3
+        - TestDictKeyAccessMultilevel
+        - TestNumericFunctions
     concurrent: True
-    tickFreq: 10
 end

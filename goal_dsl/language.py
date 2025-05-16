@@ -35,7 +35,9 @@ BUILTIN_TYPES = {
     'float': PrimitiveDataType(None, 'float'),
     'float32': PrimitiveDataType(None, 'float32'),
     'float64': PrimitiveDataType(None, 'float64'),
-    'str': PrimitiveDataType(None, 'str')
+    'str': PrimitiveDataType(None, 'str'),
+    'dict': PrimitiveDataType(None, 'dict'),
+    'list': PrimitiveDataType(None, 'list'),
 }
 
 
@@ -135,6 +137,14 @@ def build_entity_attr_map(entities):
         for attr in entity.attributes:
             entity_attr_map[entity.name][attr.name] = None
     return entity_attr_map
+
+
+def scenario_processor(scenario):
+    logger.info("Running scenario processor...")
+    if not scenario.goalTickFreqHz:
+        scenario.goalTickFreqHz = 10
+    if not scenario.concurrent:
+        scenario.concurrent = False
 
 
 def model_proc(model, metamodel):
@@ -265,6 +275,7 @@ def pycondition_processor(goal):
 obj_processors = {
     'Goal': goal_obj_processor,
     'NID': nid_processor,
+    'Scenario': scenario_processor,
 }
 
 
@@ -448,12 +459,6 @@ def get_cond_definition(cond, model_str: str = None):
     return cond_def
 
 ## ----------------------------------------------------------
-
-@language('goal_dsl', '*.goal')
-def goaldsl_language():
-    "Goal-driven Behavior Verification DSL for CPSs"
-    return get_metamodel()
-
 
 def get_model_grammar(model_path):
     mm = get_metamodel()

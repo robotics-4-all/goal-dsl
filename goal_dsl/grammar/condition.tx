@@ -4,6 +4,14 @@ import utils
 
 // === Conditions ===
 
+TermPool:
+    'TermPool' name=ID
+    (
+        conditions*=Condition
+    )#
+    'end'
+;
+
 Condition:
     r1=ConditionGroup (operator=LogicalOperator r2=ConditionGroup)*
 ;
@@ -39,14 +47,33 @@ MathFactor:
 ;
 
 MathOperand:
-    op=NUMBER               |
-    op=AugmentedNumericAttr |
+    (
+    op=NUMBER                   |
+    op=BuiltinNumericFunctions  |
     op=AttributeRef
+    )
 ;
 
 AttributeRef:
-    attribute=[Attribute:FQN|+pm:entities.attributes]
+    DictAttributeRef    |
+    ListAttributeRef    |
+    SimpleAttributeRef
 ;
+
+SimpleAttributeRef:
+    attribute=[Attribute:FQN|+m:entities.attributes]
+;
+
+DictAttributeRef:
+    attribute=[Attribute:FQN|+pm:entities.attributes] (('[' key=STRING ']')*)?
+;
+
+ListAttributeRef:
+    attribute=[Attribute:FQN|+pm:entities.attributes] (('[' index=INT ']')*)?
+;
+
+PlusOrMinus: '+' | '-';
+MulOrDiv: '*' | '/' ;
 
 NumericCondition:
     (operand1=MathExpression
@@ -54,114 +81,68 @@ NumericCondition:
      operand2=MathExpression)
 ;
 
-PlusOrMinus: '+' | '-';
-MulOrDiv: '*' | '/' ;
-
-StdAttr:
-    'std' '(' attribute=AugmentedNumericAttr ',' size=INT ')'
-;
-
-VarAttr:
-    'var' '(' attribute=AugmentedNumericAttr ',' size=INT ')'
-;
-
-MeanAttr:
-    'mean' '(' attribute=AugmentedNumericAttr  ',' size=INT ')'
-;
-
-MinAttr:
-    'min' '(' attribute=AugmentedNumericAttr  ',' size=INT ')'
-;
-
-MaxAttr:
-    'max' '(' attribute=AugmentedNumericAttr  ',' size=INT ')'
-;
-
-InRangeAttr:
-    'in_range' '(' attribute=AugmentedNumericAttr  ',' min=NUMBER ',' max=NUMBER ')'
-;
-
-
-AugmentedAttr:
-    AugmentedNumericAttr |
-    AugmentedStringAttr  |
-    AugmentedBoolAttr    |
-    AugmentedListAttr    |
-    AugmentedDictAttr
-;
-
-
 StringCondition:
-    (operand1=AugmentedStringAttr
+    (operand1=AttributeRef
      operator=StringOperator
-     (operand2=STRING | operand2=AugmentedStringAttr))
+     (operand2=STRING | operand2=AttributeRef))
 ;
 
 BoolCondition:
-    (operand1=AugmentedBoolAttr
+    (operand1=AttributeRef
      operator=BooleanOperator
-     (operand2=BOOL | operand2=AugmentedBoolAttr))
+     (operand2=BOOL | operand2=AttributeRef))
 ;
 
 ListCondition:
-    (operand1=AugmentedListAttr
+    (operand1=AttributeRef
      operator=ListOperator
-     (operand2=List | operand2=AugmentedListAttr))
+     (operand2=List | operand2=AttributeRef))
 ;
 
 DictCondition:
-    (operand1=AugmentedDictAttr
+    (operand1=AttributeRef
      operator=DictOperator
-     (operand2=Dict | operand2=AugmentedDictAttr))
+     (operand2=Dict | operand2=AttributeRef))
 ;
 
 TimeCondition:
-    (operand1=SimpleTimeAttr
+    (operand1=AttributeRef
      operator=TimeOperator
-     operand2=Time)
+     operand2=AttributeRef)
+;
+
+StdAttr:
+    'std' '(' attribute=MathOperand ',' size=INT ')'
+;
+
+VarAttr:
+    'var' '(' attribute=MathOperand ',' size=INT ')'
+;
+
+MeanAttr:
+    'mean' '(' attribute=MathOperand  ',' size=INT ')'
+;
+
+MinAttr:
+    'min' '(' attribute=MathOperand  ',' size=INT ')'
+;
+
+MaxAttr:
+    'max' '(' attribute=MathOperand  ',' size=INT ')'
+;
+
+InRangeAttr:
+    'inrange' '(' attribute=MathOperand  ',' min=NUMBER ',' max=NUMBER ')'
 ;
 
 
-AugmentedNumericAttr:
+BuiltinNumericFunctions:
     StdAttr         |
     VarAttr         |
     MeanAttr        |
     MinAttr         |
     MaxAttr         |
-    InRangeAttr     |
-    SimpleNumericAttr
-;
-
-AugmentedStringAttr: SimpleStringAttr;
-
-AugmentedBoolAttr: SimpleBoolAttr;
-
-AugmentedListAttr: SimpleListAttr;
-
-AugmentedDictAttr: SimpleDictAttr;
-
-SimpleNumericAttr:
-    attribute=[NumericAttribute:FQN|+pm:entities.attributes]
-;
-
-SimpleStringAttr:
-    attribute=[StringAttribute:FQN|+pm:entities.attributes]
-;
-
-SimpleBoolAttr:
-    attribute=[BoolAttribute:FQN|+pm:entities.attributes]
-;
-
-SimpleListAttr:
-    attribute=[ListAttribute:FQN|+pm:entities.attributes]
-;
-
-SimpleDictAttr:
-    attribute=[DictAttribute:FQN|+pm:entities.attributes]
-;
-
-SimpleTimeAttr:
-    attribute=[TimeAttribute:FQN|+pm:entities.attributes]
+    InRangeAttr
 ;
 
 // Operators

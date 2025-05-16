@@ -4,4 +4,10 @@ TimeConstraint:
 
 ArithmeticComparator: '>' | '<' | '==' | '>=' | '<=';
 
-TimeConstraintType: 'FROM_APP_START' | 'FROM_GOAL_START' | 'FOR_TIME';
+TimeConstraintType:
+    'FROM_SCENARIO_START'   |
+    'FROM_GOAL_START'       |
+    'FOR_TIME'              |
+    'BETWEEN_GOALS_MIN'     |
+    'BETWEEN_GOALS_MAX'
+;
