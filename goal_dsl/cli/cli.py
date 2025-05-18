@@ -29,9 +29,10 @@ def validate(ctx, model_path):
         model = build_model(model_path)
         print('[*] Model validation success!!')
     except Exception as e:
-        print('[*] Validation failed with error(s):')
-        print(str(e))
-        sys.exit(1)
+        print('[*] Validation failed with error(s): {e}')
+        ctx.exit(1)
+    else:
+        ctx.exit(0)
 
 
 @cli.command('gen', help='Code Generator')
