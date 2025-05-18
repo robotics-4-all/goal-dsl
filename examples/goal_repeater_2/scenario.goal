@@ -43,7 +43,7 @@ Entity TempSensorDining
     source: LocalRedis
     freq: 1.0
     attributes:
-        - value: float -> sinus(20, 5, 0.02)
+        - value: float
 end
 
 Entity TempSensorTvRoom
@@ -52,7 +52,7 @@ Entity TempSensorTvRoom
     source: LocalRedis
     freq: 1.0
     attributes:
-        - value: float -> sinus(24, 2, 0.01)
+        - value: float
 end
 
 Entity TempSensorHall
@@ -61,7 +61,7 @@ Entity TempSensorHall
     source: LocalRedis
     freq: 1.0
     attributes:
-        - value: float -> sinus(22, 11, 0.01)
+        - value: float
 end
 
 Entity AppVariables
