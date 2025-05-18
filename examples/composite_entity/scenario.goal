@@ -55,11 +55,11 @@ Entity LightsA
         - color: ColorRgb
 end
 
-CEntity MyRobot
+Entity MyRobot
     type: robot
     source: LocalRedis
     attributes: -
-    subentities
+    compartments
         Entity Position
             type: sensor
             uri: 'myRobot.sensor.position'

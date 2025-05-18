@@ -38,6 +38,7 @@ BUILTIN_TYPES = {
     'str': PrimitiveDataType(None, 'str'),
     'dict': PrimitiveDataType(None, 'dict'),
     'list': PrimitiveDataType(None, 'list'),
+    'bool': PrimitiveDataType(None, 'bool'),
 }
 
 
@@ -140,7 +141,6 @@ def build_entity_attr_map(entities):
 
 
 def scenario_processor(scenario):
-    logger.info("Running scenario processor...")
     if not scenario.goalTickFreqHz:
         scenario.goalTickFreqHz = 10
     if not scenario.concurrent:
@@ -148,7 +148,6 @@ def scenario_processor(scenario):
 
 
 def model_proc(model, metamodel):
-    logger.info("Running model processor...")
     process_time_class(model)
     process_goals(model)
     verify_entity_names(model)
@@ -163,8 +162,6 @@ def model_proc(model, metamodel):
     update_entity_attributes(entities, entity_attr_buffs)  # Update the entity attributes with buffer values
 
     entity_attr_map = build_entity_attr_map(entities)  # Build the entity attribute map
-    # print(entity_attr_map)
-    logger.info("Model processing completed")
 
 
 def build_condition_expressions(conds, model_str: str = None):
@@ -239,7 +236,6 @@ def attr_stream_processor(goal):
 
 
 def pycondition_processor(goal):
-    logger.info(f"Transforming Condition: {goal.condition}")
     cond_py = goal.condition
     cond_py = cond_py.lstrip().rstrip()  # Remove leading/trailing spaces
     cond_py = re.sub(' +', ' ', cond_py)  # Remove extra spaces
@@ -269,7 +265,6 @@ def pycondition_processor(goal):
 
     cond_py = re.sub(r'(\b\w+)\.((?!\d+\b)[\w.]+)', replace_attributes, cond_py)
     goal.cond_py = cond_py
-    logger.info(f"Transformed Condition: {cond_py}")
 
 
 obj_processors = {
@@ -424,7 +419,6 @@ def build_condition(cond, model_str: str = None):
 def transform_cond_py(cond):
     cond_def = cond.cond_def
     cond_def = cond_def.replace("condition:", "").lstrip().rstrip()
-    logger.info(f"Transforming Condition: {cond_def}")
     cond_py = cond_def
     cond_py = re.sub(r'mean\(([^,]+)\.([^,]+), (\d+)\)', r'mean(entities["\1"].get_buffer("\2", \3))', cond_py)
     cond_py = re.sub(r'std\(([^,]+)\.([^,]+), (\d+)\)', r'std(entities["\1"].get_buffer("\2"), \3)', cond_py)
@@ -432,7 +426,6 @@ def transform_cond_py(cond):
     cond_py = re.sub(r'max\(([^,]+)\.([^,]+), (\d+)\)', r'max(entities["\1"].get_buffer("\2", \3))', cond_py)
     cond_py = re.sub(r'min\(([^,]+)\.([^,]+), (\d+)\)', r'min(entities["\1"].get_buffer("\2", \3))', cond_py)
     cond_py = re.sub(r'(\b\w+)\.(?!\d)(\w+\b)', r'entities["\1"].attributes["\2"]', cond_py)
-    logger.info(f"Transformed Condition: {cond_py}")
     return cond_py
 
 

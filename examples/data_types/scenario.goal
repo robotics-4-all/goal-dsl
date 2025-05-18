@@ -64,7 +64,7 @@ end
 
 Goal<EntityStateCondition> Goal_1
     condition:
-        LightsA.color.roll <= 25
+        LightsA.color['roll'] <= 25
 end
 
 Scenario MyScenario

@@ -39,6 +39,7 @@ Entity:
         ('type:' etype=EntityType)
         ('source:' source=EntitySource)
         ('mode:' mode=EntityMode)?
+        ('freq:' mode=NUMBER)?
         ('attributes:' '-' attributes*=Attribute['-'])?
         ('uri:' uri=STRING)?
         ('description:' description=STRING)?
