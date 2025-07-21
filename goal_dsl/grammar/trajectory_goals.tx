@@ -37,6 +37,7 @@ CurveTrajectoryGoal:
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('startPoint:' startPoint=Point)
         ('finishPoint:' finishPoint=Point)
+        ('curvature:' curvature=NUMBER)
         ('maxDeviation:' maxDeviation=NUMBER)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
     )#
