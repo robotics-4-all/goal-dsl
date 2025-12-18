@@ -29,7 +29,7 @@ def validate(ctx, model_path):
         model = build_model(model_path)
         print('[*] Model validation success!!')
     except Exception as e:
-        print('[*] Validation failed with error(s): {e}')
+        print(f'[*] Validation failed with error(s): {e}')
         ctx.exit(1)
     else:
         ctx.exit(0)

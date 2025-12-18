@@ -198,7 +198,6 @@ async def gen_from_file(model_file: UploadFile = File(...),
     try:
         out_dir = m2t_python(model_path, gen_path)
         make_tarball(tarball_path, out_dir)
-        print(f'Sending tarball {tarball_path}')
         return FileResponse(tarball_path,
                             filename=os.path.basename(tarball_path),
                             media_type='application/x-tar')
@@ -206,74 +205,6 @@ async def gen_from_file(model_file: UploadFile = File(...),
         print(e)
         resp['status'] = 404
         return resp
-
-
-if HAS_DOCKER_EXEC:
-    @api.post("/execute")
-    async def execute(model_file: UploadFile = File(...),
-                      container: str = 'subprocess',
-                      wait: bool = False,
-                      api_key: str = Security(get_api_key)):
-        print(f'Run/Execute for request: file=<{model_file.filename}>,' + \
-              f' descriptor=<{model_file.file}>')
-        resp = {
-            'status': 200,
-            'message': ''
-        }
-        fd = model_file.file
-        u_id = uuid.uuid4().hex[0:8]
-        model_path = os.path.join(
-            TMP_DIR,
-            f'model-{u_id}.goal'
-        )
-        gen_path = os.path.join(
-            TMP_DIR,
-            f'gen-{u_id}'
-        )
-        with open(model_path, 'w') as f:
-            f.write(fd.read().decode('utf8'))
-        try:
-            out_dir = m2t_python(model_path, gen_path)
-            if container == 'docker':
-                img = build_docker_image(out_dir)
-                print('Executing within Container...')
-                container = run_container(img.id, u_id)
-                print('Goal-Checker Container created - [{}:{}]'.format(
-                    container.name, container.id))
-            elif container == 'subprocess':
-                exec_path = os.path.join(out_dir, 'goal_checker.py')
-                pid = run_subprocess(exec_path)
-                if wait:
-                    pid.wait()
-
-        except Exception as e:
-            print(e)
-            resp['status'] = 404
-        return resp
-
-
-def run_subprocess(exec_path):
-    pid = subprocess.Popen(['python3', exec_path], close_fds=True)
-    return pid
-
-
-if HAS_DOCKER_EXEC:
-    def run_container(img_id, u_id):
-        container = docker_client.containers.run(
-            img_id,
-            name=f'goalT-{u_id}',
-            detach=True,
-            network_mode='host',
-        )
-        return container
-
-
-if HAS_DOCKER_EXEC:
-    def build_docker_image(dpath: str):
-        img, logs = docker_client.images.build(path=dpath)
-        print(logs)
-        return img
-
 
 def make_tarball(fout, source_dir):
     with tarfile.open(fout, "w:gz") as tar:

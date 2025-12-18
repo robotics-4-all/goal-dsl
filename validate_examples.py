@@ -1,49 +1,103 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+"""
+Script to validate all Goal DSL model files in the examples directory.
+Runs 'goaldsl validate <goalDSL_model_file>' on each .goal file found.
+"""
 
 import os
 import subprocess
+import sys
+from pathlib import Path
 
-examples_dir = './examples/'
-total_successes = 0
-total_failures = 0
+def find_goal_files(examples_dir):
+    """Find all .goal files in the examples directory recursively."""
+    goal_files = []
+    for root, dirs, files in os.walk(examples_dir):
+        for file in files:
+            if file.endswith('.goal'):
+                goal_files.append(os.path.join(root, file))
+    return sorted(goal_files)
 
-for subdir in os.listdir(examples_dir):
-    subdir_path = os.path.join(examples_dir, subdir)
-    if os.path.isdir(subdir_path):
-        print(f"\n{'=' * 50}")
-        print(f"Processing: {subdir.upper()}")
-        print(f"{'=' * 50}")
-        goal_files = [f for f in os.listdir(subdir_path) if f.endswith('.goal')]
-        successes = 0
-        failures = 0
-        for goal_file in goal_files:
-            file_path = os.path.join(subdir_path, goal_file)
-            print(f"\n{'-' * 40}")
-            print(f"Validating: {goal_file}")
-            print(f"{'-' * 40}")
-            command = f"goaldsl validate {file_path}"
-            result = subprocess.run(command, shell=True, capture_output=True, text=True)
-            print(result.stdout.strip())
-            if result.returncode == 0:
-                successes += 1
-            else:
-                failures += 1
-                print(f"\n{'!' * 40}")
-                print(f"Error in {subdir}:")
-                print(f"{'!' * 40}")
-                print(result.stderr.strip())
+def validate_file(goal_file):
+    """Validate a single Goal DSL model file."""
+    try:
+        result = subprocess.run(
+            ['goaldsl', 'validate', goal_file],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        return result.returncode == 0, result.stdout, result.stderr
+    except subprocess.TimeoutExpired:
+        return False, "", f"Timeout validating {goal_file}"
+    except FileNotFoundError:
+        return False, "", "Error: 'goaldsl' command not found. Make sure it's installed and in PATH."
+    except Exception as e:
+        return False, "", str(e)
 
-        total_successes += successes
-        total_failures += failures
+def main():
+    # Get the examples directory
+    examples_dir = './examples/'
+    
+    if not os.path.exists(examples_dir):
+        print(f"Error: Examples directory not found at {examples_dir}")
+        sys.exit(1)
+    
+    # Find all Goal DSL files
+    goal_files = find_goal_files(examples_dir)
+    
+    if not goal_files:
+        print(f"No .goal files found in {examples_dir}")
+        sys.exit(1)
+    
+    print(f"Found {len(goal_files)} Goal DSL model files to validate.\n")
+    
+    # Validate each file
+    passed = 0
+    failed = 0
+    failures = []
+    
+    for goal_file in goal_files:
+        # Make path relative for better readability
+        rel_path = os.path.relpath(goal_file, examples_dir)
+        print(f"Validating: {rel_path}...", end=" ", flush=True)
+        
+        success, stdout, stderr = validate_file(goal_file)
+        
+        if success:
+            print("✓ PASSED")
+            passed += 1
+        else:
+            print("✗ FAILED")
+            failed += 1
+            failures.append({
+                'file': rel_path,
+                'stdout': stdout,
+                'stderr': stderr
+            })
+    
+    # Print summary
+    print(f"\n{'='*70}")
+    print("Validation Summary:")
+    print(f"  Total:  {len(goal_files)}")
+    print(f"  Passed: {passed}")
+    print(f"  Failed: {failed}")
+    print(f"{'='*70}")
+    
+    # Print failures if any
+    if failures:
+        print("\nFailure Details:\n")
+        for failure in failures:
+            print(f"File: {failure['file']}")
+            if failure['stderr']:
+                print(f"Error:\n{failure['stderr']}")
+            if failure['stdout']:
+                print(f"Output:\n{failure['stdout']}")
+            print("-" * 70)
+        sys.exit(1)
+    else:
+        print("\nAll validations passed! ✓")
+        sys.exit(0)
 
-        print(f"\n{'#' * 50}")
-        print(f"Results for {subdir.upper()}:")
-        print(f"Successes: {successes}")
-        print(f"Failures: {failures}")
-        print(f"{'#' * 50}")
-
-print("\nFinal Results:")
-print(f"{'*' * 50}")
-print(f"Total Successes: {total_successes}")
-print(f"Total Failures: {total_failures}")
-print(f"{'*' * 50}")
+if __name__ == '__main__':
+    main()
