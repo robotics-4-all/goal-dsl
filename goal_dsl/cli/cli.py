@@ -26,7 +26,7 @@ def cli(ctx):
 @click.argument('model_path')
 def validate(ctx, model_path):
     try:
-        model = build_model(model_path)
+        _ = build_model(model_path)
         print('[*] Model validation success!!')
     except Exception as e:
         print(f'[*] Validation failed with error(s): {e}')
@@ -40,13 +40,6 @@ def validate(ctx, model_path):
 @click.argument('model_path')
 def gen_scenarios(ctx, model_path: str):
     _ = m2t_python(model_path)
-    # return
-    # for vn in vnodes:
-    #     filepath = f'{vn[0].name}.py'
-    #     with open(filepath, 'w') as fp:
-    #         fp.write(vn[1])
-    #         make_executable(filepath)
-    #     print(f'[CLI] Compiled virtual Entity: [bold]{filepath}')
 
 def main():
     cli(prog_name='goaldsl')
