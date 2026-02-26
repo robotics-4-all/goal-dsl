@@ -32,7 +32,7 @@ Entity Robot1Pose
         - orientation: dict
 end
 
-Goal<CircularArea> Goal_1
+Goal<Circle> Goal_1
     center: Point3D(100, 5, 0)
     radius: 0.5
     tag: ENTER
@@ -40,7 +40,7 @@ Goal<CircularArea> Goal_1
         - FROM_GOAL_START(<60)
 end
 
-Goal<CircularArea> Goal_2
+Goal<Circle> Goal_2
     center: Point3D(100, 10, 0)
     radius: 0.5
     tag: ENTER
@@ -48,7 +48,7 @@ Goal<CircularArea> Goal_2
         - FROM_GOAL_START(<60)
 end
 
-Goal<CircularArea> Goal_3
+Goal<Circle> Goal_3
     center: Point3D(95, 10, 0)
     radius: 0.5
     tag: ENTER
@@ -56,7 +56,7 @@ Goal<CircularArea> Goal_3
         - FROM_GOAL_START(<60)
 end
 
-Goal<CircularArea> Goal_4
+Goal<Circle> Goal_4
     center: Point3D(95, 5, 0)
     radius: 0.5
     tag: ENTER

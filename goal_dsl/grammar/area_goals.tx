@@ -14,7 +14,7 @@ AreaGoal:
 
 
 RectangleAreaGoal:
-    'Goal<RectangleArea>' name=ID
+    'Goal<Rect>' name=ID
     (
         ('entities:' '-' entities+=[Entity:FQN|+pm:entities*]['-'])?
         ('bottomLeftEdge:' bottomLeftEdge=Point )
@@ -27,7 +27,7 @@ RectangleAreaGoal:
 ;
 
 PolylineAreaGoal:
-    'Goal<PolylineArea>' name=ID
+    'Goal<Poly>' name=ID
     (
         ('entities:' '-' entities+=[Entity:FQN|+pm:entities*]['-'])?
         ('points:' '[' points+=Point[','] ']' )
@@ -38,7 +38,7 @@ PolylineAreaGoal:
 ;
 
 MovingAreaGoal:
-    'Goal<MovingArea>' name=ID
+    'Goal<Shadow>' name=ID
     (
         ('movingEntity:' entity=[Entity:FQN|+pm:entities*])
         ('entities:' '-' entities+=[Entity:FQN|+pm:entities*]['-'])?
@@ -50,7 +50,7 @@ MovingAreaGoal:
 ;
 
 CircularAreaGoal:
-    'Goal<CircularArea>' name=ID
+    'Goal<Circle>' name=ID
     (
         ('entities:' '-' entities+=[Entity:FQN|+pm:entities*]['-'])?
         ('center:' center=Point)
@@ -62,7 +62,7 @@ CircularAreaGoal:
 ;
 
 StraightLine:
-    'Goal<StraightLine>' name=ID
+    'Goal<Line>' name=ID
     (
         ('entities:' '-' entities+=[Entity:FQN|+pm:entities*]['-'])?
         ('startPoint:' startPoint=Point)

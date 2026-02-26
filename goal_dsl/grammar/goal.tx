@@ -20,7 +20,7 @@ Goal:
 
 
 ComplexGoal:
-    'Goal<Complex>' name=ID
+    'Goal<Cluster>' name=ID
     (
         ('goals:' '-' goals*=WeightedGoal['-'])
         ('strategy:' algorithm=[ComplexGoalAlgorithmType])
@@ -46,7 +46,7 @@ ComplexGoalAlgorithmType:
 ;
 
 GoalRepeater:
-    'Goal<Repeater>' name=ID
+    'Goal<Loop>' name=ID
     (
         ('goal:' goal=[Goal:FQN|+m:goals*])
         ('times:' times=INT)

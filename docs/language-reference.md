@@ -25,20 +25,20 @@ Complete syntax reference for GoalDSL. For a quick introduction, see the [README
   - [Aggregation Functions](#aggregation-functions)
   - [Condition Groups](#condition-groups)
 - [Goals](#goals)
-  - [EntityStateChange](#entitystatechange)
-  - [EntityStateCondition](#entitystatecondition)
-  - [EntityPyCondition](#entitypycondition)
-  - [RectangleArea](#rectanglearea)
-  - [CircularArea](#circulararea)
-  - [PolylineArea](#polylinearea)
-  - [MovingArea](#movingarea)
-  - [Position](#position)
-  - [Orientation](#orientation)
+  - [Watch](#watch)
+  - [When](#when)
+  - [Eval](#eval)
+  - [Rect](#rect)
+  - [Circle](#circle)
+  - [Poly](#poly)
+  - [Shadow](#shadow)
+  - [Pos](#pos)
+  - [Heading](#heading)
   - [Pose](#pose)
-  - [StraightLineTrajectory](#straightlinetrajectory)
-  - [WaypointTrajectory](#waypointtrajectory)
-  - [Complex](#complex)
-  - [Repeater](#repeater)
+  - [Trace](#trace)
+  - [Route](#route)
+  - [Cluster](#cluster)
+  - [Loop](#loop)
 - [Scenarios](#scenarios)
 - [Time Constraints](#time-constraints)
 - [Geometry Types](#geometry-types)
@@ -414,12 +414,12 @@ Condition groups are binary: chain three-way conditions as `((A) AND (B)) AND (C
 
 All goals follow the pattern `Goal<Type> Name ... end`.
 
-### EntityStateChange
+### Watch
 
 Reached when any message arrives on the entity's topic, regardless of payload.
 
 ```
-Goal<EntityStateChange> MessageReceived
+Goal<Watch> MessageReceived
     entity: TempSensor
     then
         - NextGoal
@@ -428,12 +428,12 @@ Goal<EntityStateChange> MessageReceived
 end
 ```
 
-### EntityStateCondition
+### When
 
 Reached when a typed condition evaluates to true.
 
 ```
-Goal<EntityStateCondition> TempAlert
+Goal<When> TempAlert
     when
         (TempSensor.temp > 30) AND (HumiditySensor.humidity < 0.5)
     then
@@ -450,12 +450,12 @@ end
 - **then** (optional): List of goal names to trigger on completion
 - **config** (optional): Time constraints and description
 
-### EntityPyCondition
+### Eval
 
 Uses a Python expression string for conditions that cannot be expressed in the typed condition grammar (e.g., arithmetic on attributes).
 
 ```
-Goal<EntityPyCondition> ArithmeticCheck
+Goal<Eval> ArithmeticCheck
     when
         'TempSensor.temp * 2 > HumiditySensor.humidity + 10'
     config
@@ -465,10 +465,10 @@ end
 
 The condition string is a quoted Python expression.
 
-### RectangleArea
+### Rect
 
 ```
-Goal<RectangleArea> EnterZone
+Goal<Rect> EnterZone
     entities:
         - Robot1Pose
     bottomLeftEdge: Point3D(0, 0, 0)
@@ -481,10 +481,10 @@ Goal<RectangleArea> EnterZone
 end
 ```
 
-### CircularArea
+### Circle
 
 ```
-Goal<CircularArea> AvoidZone
+Goal<Circle> AvoidZone
     entities:
         - Robot1Pose
     center: Point3D(5, 5, 0)
@@ -493,10 +493,10 @@ Goal<CircularArea> AvoidZone
 end
 ```
 
-### PolylineArea
+### Poly
 
 ```
-Goal<PolylineArea> CustomZone
+Goal<Poly> CustomZone
     entities:
         - Robot1Pose
     points: [Point2D(0, 0), Point2D(2, 4), Point2D(4, 0)]
@@ -504,12 +504,12 @@ Goal<PolylineArea> CustomZone
 end
 ```
 
-### MovingArea
+### Shadow
 
 A dynamic area that follows a moving entity.
 
 ```
-Goal<MovingArea> KeepDistance
+Goal<Shadow> KeepDistance
     movingEntity: Robot1Pose
     entities:
         - Robot2Pose
@@ -520,10 +520,10 @@ end
 
 **Area goal tags:** `ENTER`, `EXIT`, `AVOID`, `STEP`.
 
-### Position
+### Pos
 
 ```
-Goal<Position> ReachTarget
+Goal<Pos> ReachTarget
     entity: Robot1Pose
     position: Point3D(1, 1, 0)
     maxDeviation: 0.1
@@ -532,10 +532,10 @@ Goal<Position> ReachTarget
 end
 ```
 
-### Orientation
+### Heading
 
 ```
-Goal<Orientation> FaceNorth
+Goal<Heading> FaceNorth
     entity: Robot1Pose
     orientation: Orientation2D(0)
     maxDeviation: 0.05
@@ -556,10 +556,10 @@ Goal<Pose> PrecisePose
 end
 ```
 
-### StraightLineTrajectory
+### Trace
 
 ```
-Goal<StraightLineTrajectory> DriveStraight
+Goal<Trace> DriveStraight
     entity: Robot1Pose
     startPoint: Point3D(0, 0, 0)
     finishPoint: Point3D(10, 0, 0)
@@ -567,22 +567,22 @@ Goal<StraightLineTrajectory> DriveStraight
 end
 ```
 
-### WaypointTrajectory
+### Route
 
 ```
-Goal<WaypointTrajectory> FollowPath
+Goal<Route> FollowPath
     entity: Robot1Pose
     points: [Point3D(0,0,0), Point3D(1,1,0), Point3D(2,0,0)]
     maxDeviation: 0.5
 end
 ```
 
-### Complex
+### Cluster
 
 Compose multiple goals with an execution strategy.
 
 ```
-Goal<Complex> AllChecks
+Goal<Cluster> AllChecks
     goals:
         - Goal_1
         - Goal_2
@@ -608,12 +608,12 @@ end
 
 `xAccomplished` is required for `EXACTLY_X_*` strategies.
 
-### Repeater
+### Loop
 
 Execute a goal multiple times.
 
 ```
-Goal<Repeater> RepeatCheck
+Goal<Loop> RepeatCheck
     goal: TargetGoal
     times: 10
     config

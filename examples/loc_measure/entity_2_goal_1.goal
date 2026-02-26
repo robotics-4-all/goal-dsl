@@ -23,7 +23,7 @@ Entity AirQualitySensor1
         - humidity: float
 end
 
-Goal<EntityStateCondition> Goal_1
+Goal<When> Goal_1
     when
         (AirQualitySensor1.gas < 10) AND (AirQualitySensor1.humidity < 30)
 end

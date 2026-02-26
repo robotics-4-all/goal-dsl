@@ -72,17 +72,17 @@ Entity WindowRegionD
 end
 
 // ------------------ GOAL Definitions -----------------
-Goal<EntityStateCondition> Goal_1
+Goal<When> Goal_1
     when
         (TemperatureSensorList.regionA > 30) OR (HumiditySensorList.regionA > 0.8)
 end
 
-Goal<EntityStateCondition> Goal_2
+Goal<When> Goal_2
     when
         WindowRegionA.state is true
 end
 
-Goal<EntityStateCondition> Goal_3
+Goal<When> Goal_3
     when
         (TemperatureSensorList.regionA < 20) AND (HumiditySensorList.regionA < 0.8)
     config
@@ -90,12 +90,12 @@ Goal<EntityStateCondition> Goal_3
             - FROM_GOAL_START(<1800)
 end
 
-Goal<EntityStateCondition> Goal_4
+Goal<When> Goal_4
     when
         WindowRegionA.state is false
 end
 
-Goal<Complex> CG1
+Goal<Cluster> CG1
     goals:
         - Goal_1
         - Goal_2
@@ -104,31 +104,31 @@ Goal<Complex> CG1
     strategy: ALL_ACCOMPLISHED_ORDERED
 end
 
-Goal<EntityStateCondition> Goal_5
+Goal<When> Goal_5
     when
         ((AirQualitySensorList.regionA < 0.5) OR (AirQualitySensorList.regionB < 0.5)) OR
         ((AirQualitySensorList.regionC < 0.5) OR (AirQualitySensorList.regionD < 0.5))
 end
 
-Goal<EntityStateCondition> Goal_6
+Goal<When> Goal_6
     when
         ((WindowRegionA.state is true) AND (WindowRegionB.state is true)) AND
         ((WindowRegionC.state is true) AND (WindowRegionD.state is true))
 end
 
-Goal<EntityStateCondition> Goal_7
+Goal<When> Goal_7
     when
         ((AirQualitySensorList.regionA > 0.8) AND (AirQualitySensorList.regionB > 0.8)) AND
         ((AirQualitySensorList.regionC > 0.8) AND (AirQualitySensorList.regionD > 0.8))
 end
 
-Goal<EntityStateCondition> Goal_8
+Goal<When> Goal_8
     when
         ((WindowRegionA.state is false) AND (WindowRegionB.state is false)) AND
         ((WindowRegionC.state is false) AND (WindowRegionD.state is false))
 end
 
-Goal<Complex> CG2
+Goal<Cluster> CG2
     goals:
         - Goal_5 -> 0.2
         - Goal_6 -> 0.2

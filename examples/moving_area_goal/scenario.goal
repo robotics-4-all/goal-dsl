@@ -24,7 +24,7 @@ Entity Robot2Pose
         - orientation: dict
 end
 
-Goal<MovingArea> Goal_1
+Goal<Shadow> Goal_1
     movingEntity: Robot1Pose
     entities:
         - Robot2Pose

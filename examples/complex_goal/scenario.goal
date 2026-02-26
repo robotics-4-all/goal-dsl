@@ -39,21 +39,21 @@ Entity AirQualitySensor1
         - humidity: float
 end
 
-Goal<EntityStateChange> Goal_1
+Goal<Watch> Goal_1
     entity: TempSensor1
 end
 
-Goal<EntityStateCondition> Goal_2
+Goal<When> Goal_2
     when
         (AirQualitySensor1.gas < 10) AND (AirQualitySensor1.humidity < 30)
 end
 
-Goal<EntityStateCondition> Goal_3
+Goal<When> Goal_3
     when
         ((TempSensor1.temp > 10) AND (TempSensor2.temp > 10)) AND (TempSensor3.temp > 10)
 end
 
-Goal<Complex> CG1
+Goal<Cluster> CG1
     goals:
         - Goal_1
         - Goal_2

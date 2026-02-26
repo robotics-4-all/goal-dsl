@@ -40,31 +40,31 @@ Entity AirQualitySensor1
 end
 
 
-Goal<EntityStateChange> Goal_1
+Goal<Watch> Goal_1
     entity: TempSensor1
 end
 
-Goal<EntityStateCondition> Goal_2
+Goal<When> Goal_2
     when
         mean(TempSensor1.temp, 5) > 10
 end
 
-Goal<EntityStateCondition> Goal_3
+Goal<When> Goal_3
     when
         mean(TempSensor1.temp, 10) > 10
 end
 
-Goal<EntityStateCondition> Goal_4
+Goal<When> Goal_4
     when
         (mean(TempSensor1.temp, 5) > 0.5) AND (std(TempSensor2.temp, 3) < 1)
 end
 
 // Uses math expressions in comparisons — expressed as EntityPyCondition
-Goal<EntityPyCondition> Goal_5
+Goal<Eval> Goal_5
     when 'TempSensor1.temp * 2 > 10'
 end
 
-Goal<EntityPyCondition> Goal_6
+Goal<Eval> Goal_6
     when 'TempSensor1.temp * 2 > TempSensor2.temp + 1'
 end
 

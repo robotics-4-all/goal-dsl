@@ -32,17 +32,17 @@ Entity TemperatureSensorA
         - temperature: float
 end
 
-Goal<EntityPyCondition> Goal_1
+Goal<Eval> Goal_1
     when
         "TemperatureSensorA.temperature <= 10"
 end
 
-Goal<EntityPyCondition> Goal_3
+Goal<Eval> Goal_3
     when
         "mean(TemperatureSensorA.temperature, 5) > 10"
 end
 
-Goal<EntityPyCondition> Goal_4
+Goal<Eval> Goal_4
     when
         "TemperatureSensorA.temperature > 10.123"
 end

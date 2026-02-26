@@ -33,12 +33,12 @@ Entity TempSensor1
 end
 
 
-Goal<EntityStateChange> Goal_1
+Goal<Watch> Goal_1
     entity: TempSensor1
 end
 
 
-Goal<Repeater> Goal_Repeater
+Goal<Loop> Goal_Repeater
     goal: Goal_1
     times: 10
 end

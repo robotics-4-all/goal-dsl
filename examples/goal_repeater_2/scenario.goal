@@ -77,25 +77,25 @@ end
 
 // ------------- GOALS Section ---------------------------
 
-Goal<EntityStateChange> Temperature_Dining_Change
+Goal<Watch> Temperature_Dining_Change
     entity: TempSensorDining
 end
 
-Goal<EntityStateChange> Temperature_TvRoom_Change
+Goal<Watch> Temperature_TvRoom_Change
     entity: TempSensorTvRoom
 end
 
-Goal<EntityStateChange> Temperature_Hall_Change
+Goal<Watch> Temperature_Hall_Change
     entity: TempSensorHall
 end
 
-Goal<EntityPyCondition> Temperature_Average
+Goal<Eval> Temperature_Average
     when
         "AppVariables.name == 'average' and AppVariables.value == (TempSensorDining.value + TempSensorTvRoom.value + TempSensorHall.value) / 3"
         // "AppVariables.name == 'average' and round(AppVariables.value) == round((TempSensorDining.value + TempSensorTvRoom.value + TempSensorHall.value) / 3)"
 end
 
-Goal<Complex> TemperatureChange
+Goal<Cluster> TemperatureChange
     goals:
         - Temperature_Dining_Change
         - Temperature_TvRoom_Change
@@ -105,14 +105,14 @@ Goal<Complex> TemperatureChange
     //     - FROM_GOAL_START(1)
 end
 
-Goal<Complex> Average_Correct
+Goal<Cluster> Average_Correct
     goals:
         - TemperatureChange
         - Temperature_Average
     strategy: ALL_ACCOMPLISHED_ORDERED
 end
 
-Goal<Repeater> DoubleValue_x30
+Goal<Loop> DoubleValue_x30
     goal: Average_Correct
     times: 30
     config

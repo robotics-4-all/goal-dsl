@@ -159,28 +159,28 @@ Entity gn_robot_118_motion_set
         - angular: float
 end
 
-Goal<EntityPyCondition> Checkpoint_1
+Goal<Eval> Checkpoint_1
     when
         "traffic_light_line_data.value > 0 and ef_light_120.state.g > 0"
 end
 
-Goal<EntityPyCondition> Checkpoint_1_Fail
+Goal<Eval> Checkpoint_1_Fail
     when
         "'gn_robot_118' in traffic_light_line_data.value and ef_light_120_state.state.r > 0"
 end
 
-Goal<EntityStateChange> RobotCrash
+Goal<Watch> RobotCrash
     entity: gn_robot_118_crash
 end
 
-Goal<Complex> CG_1
+Goal<Cluster> CG_1
     goals:
         - Checkpoint_1_Fail
         - RobotCrash
     strategy: AT_LEAST_ONE_ACCOMPLISHED
 end
 
-Goal<Position> RobotGoToPosition
+Goal<Pos> RobotGoToPosition
     entity: gn_robot_118_pose
     position: Point3D(22, 38, 0)
     maxDeviation: 2

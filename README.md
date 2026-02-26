@@ -25,11 +25,11 @@ Requires Python >= 3.11.
 
 | Category | Goals |
 |----------|-------|
-| Entity | EntityStateChange, EntityStateCondition, EntityPyCondition |
-| Area | RectangleArea, CircularArea, PolylineArea, MovingArea |
-| Pose | Position, Orientation, Pose |
-| Trajectory | StraightLineTrajectory, WaypointTrajectory |
-| Composition | Complex, Repeater |
+| Entity | Watch, When, Eval |
+| Area | Rect, Circle, Poly, Shadow, Line |
+| Pose | Pos, Heading, Pose |
+| Trajectory | Trace, Route, Arc |
+| Composition | Cluster, Loop |
 
 ## Quick Start
 
@@ -50,7 +50,7 @@ Entity TempSensor
         - temp: float
 end
 
-Goal<EntityStateCondition> TempHigh
+Goal<When> TempHigh
     when
         TempSensor.temp > 30
 end
@@ -173,18 +173,18 @@ Goal_1.status == REACHED
 
 Entity goals use `when`/`then`/`config` blocks.
 
-**EntityStateChange** — reached when any message arrives on the entity's topic:
+**Watch** — reached when any message arrives on the entity's topic:
 
 ```
-Goal<EntityStateChange> MessageReceived
+Goal<Watch> MessageReceived
     entity: TempSensor
 end
 ```
 
-**EntityStateCondition** — reached when a typed condition evaluates to true:
+**When** — reached when a typed condition evaluates to true:
 
 ```
-Goal<EntityStateCondition> TempAlert
+Goal<When> TempAlert
     when
         (TempSensor.temp > 30) AND (HumiditySensor.humidity < 0.5)
     then
@@ -196,19 +196,19 @@ Goal<EntityStateCondition> TempAlert
 end
 ```
 
-**EntityPyCondition** — uses a Python expression string for complex conditions:
+**Eval** — uses a Python expression string for complex conditions:
 
 ```
-Goal<EntityPyCondition> ComplexCheck
+Goal<Eval> ComplexCheck
     when
         'TempSensor.temp * 2 > HumiditySensor.humidity + 10'
 end
 ```
 
-### Complex Goals and Repeaters
+### Cluster Goals and Loops
 
 ```
-Goal<Complex> AllChecks
+Goal<Cluster> AllChecks
     goals:
         - Goal_1
         - Goal_2
@@ -216,7 +216,7 @@ Goal<Complex> AllChecks
     strategy: ALL_ACCOMPLISHED_ORDERED
 end
 
-Goal<Repeater> RepeatCheck
+Goal<Loop> RepeatCheck
     goal: Goal_1
     times: 5
 end

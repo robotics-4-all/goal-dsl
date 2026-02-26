@@ -24,7 +24,7 @@ Entity Robot2Pose
         - orientation: dict
 end
 
-Goal<RectangleArea> Goal_1
+Goal<Rect> Goal_1
     entities:
         - Robot1Pose
     bottomLeftEdge: Point3D(0, 0, 0)
@@ -36,7 +36,7 @@ Goal<RectangleArea> Goal_1
         - FROM_GOAL_START(<180)
 end
 
-Goal<CircularArea> Goal_2
+Goal<Circle> Goal_2
     center: Point3D(5, 5, 0)
     radius: 5
     tag: AVOID

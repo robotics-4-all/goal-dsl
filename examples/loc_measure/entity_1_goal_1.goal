@@ -15,7 +15,7 @@ Entity TempSensor1
 end
 
 
-Goal<EntityStateCondition> Goal_1
+Goal<When> Goal_1
     when
         (TempSensor1.temp < 10) OR (TempSensor1.temp > 30)
 end

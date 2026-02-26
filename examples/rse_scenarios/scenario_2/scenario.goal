@@ -31,19 +31,19 @@ Entity RobotArmPose
 end
 
 // ------------------ GOAL Definitions -----------------
-Goal<EntityStateCondition> Goal_1
+Goal<When> Goal_1
     when
         WaterValve.state is true
 end
 
-Goal<EntityStateChange> Goal_2
+Goal<Watch> Goal_2
     entity: OrganicsMixer
     config
         timeConstraints:
             - FROM_GOAL_START(<60)
 end
 
-Goal<WaypointTrajectory> Goal_3
+Goal<Route> Goal_3
     entity: RobotArmPose
     points: [
         Point3D(0, 0, 0), Point3D(0, 10, 0), Point3D(0, 20, 0),
@@ -55,7 +55,7 @@ Goal<WaypointTrajectory> Goal_3
         - FROM_GOAL_START(<1800)
 end
 
-Goal<EntityStateCondition> Goal_4
+Goal<When> Goal_4
     when
         WaterValve.state is true
     config
@@ -63,7 +63,7 @@ Goal<EntityStateCondition> Goal_4
             - FROM_GOAL_START(<60)
 end
 
-Goal<Position> Goal_5
+Goal<Pos> Goal_5
     entity: RobotArmPose
     position: Point3D(0, 0, 0)
     maxDeviation: 0.1

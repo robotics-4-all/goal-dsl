@@ -57,18 +57,18 @@ Entity AirQualitySensor1
         - humidity: float
 end
 
-Goal<EntityStateChange> Goal_1
+Goal<Watch> Goal_1
     entity: TempSensor1
 end
 
-Goal<EntityStateCondition> Goal_2
+Goal<When> Goal_2
     when
         AirQualitySensor1.gas <= 25
 end
 
 
 // Uses math expression in comparison — expressed as EntityPyCondition
-Goal<EntityPyCondition> Goal_3
+Goal<Eval> Goal_3
     when
         '(TempSensor1.temp > 10) and (TempSensor2.temp > 10) and (TempSensor3.temp - TempSensor2.temp < 10)'
 end

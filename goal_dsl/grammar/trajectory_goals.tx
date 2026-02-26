@@ -9,7 +9,7 @@ TrajectoryGoal:
 ;
 
 StraightLineTrajectoryGoal:
-    'Goal<StraightLineTrajectory>' name=ID
+    'Goal<Trace>' name=ID
     (
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('startPoint:' startPoint=Point)
@@ -21,7 +21,7 @@ StraightLineTrajectoryGoal:
 ;
 
 WaypointTrajectoryGoal:
-    'Goal<WaypointTrajectory>' name=ID
+    'Goal<Route>' name=ID
     (
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('points:' '[' points+=Point[','] ']')
@@ -32,7 +32,7 @@ WaypointTrajectoryGoal:
 ;
 
 CurveTrajectoryGoal:
-    'Goal<CurveTrajectoryGoal>' name=ID
+    'Goal<Arc>' name=ID
     (
         ('entity:' entity=[Entity:FQN|+pm:entities*])
         ('startPoint:' startPoint=Point)

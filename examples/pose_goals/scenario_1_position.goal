@@ -25,13 +25,13 @@ Entity Robot2Pose
 end
 
 
-Goal<Position> Goal_1
+Goal<Pos> Goal_1
     entity: Robot1Pose
     position: Point3D(1, 1, 0)
     maxDeviation: 0.1
 end
 
-Goal<Position> Goal_2
+Goal<Pos> Goal_2
     entity: Robot2Pose
     position: Point3D(1, 1, 0)
     maxDeviation: 0.1

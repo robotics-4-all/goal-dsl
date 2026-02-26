@@ -25,13 +25,13 @@ Entity Robot2Pose
 end
 
 
-Goal<Orientation> Goal_1
+Goal<Heading> Goal_1
     entity: Robot1Pose
     orientation: Orientation2D(1)
     maxDeviation: 0.1
 end
 
-Goal<Orientation> Goal_2
+Goal<Heading> Goal_2
     entity: Robot2Pose
     orientation: Orientation2D(1)
     maxDeviation: 0.1
