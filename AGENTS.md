@@ -1,6 +1,6 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-02-26
+**Generated:** 2026-02-27
 **Branch:** devel
 
 ## OVERVIEW
@@ -30,7 +30,7 @@ goal-dsl/
 │   ├── logging.py         # Rich-based logging config
 │   └── utils.py           # Timestamp utility
 ├── examples/              # 26 .telos example models across 18 scenario directories
-├── tests/                 # 179 tests, 93% coverage
+├── tests/                 # 210 tests, 93% coverage
 ├── build/                 # IGNORE — stale artifact
 ├── pyproject.toml         # Build config, deps, entry points, ruff
 ├── .pre-commit-config.yaml # ruff linting + formatting
@@ -62,10 +62,16 @@ goal-dsl/
 - **textX entry points** registered in `pyproject.toml`: `textx_languages` → `telos:telos_language`, `textx_generators` → `telos.transformations.m2t_python:codegen_python`
 - **Scoping**: `FQNImportURI` for cross-file imports, `FQNGlobalRepo` for builtin models
 - **Condition building**: `Condition.build()` does post-order traversal → sets `cond_lambda` (string expression)
+- **Condition precedence**: Expression grammar: OR (lowest) > AND > NOT (highest). N-ary: `A AND B AND C`. XOR/NOR/NAND/XNOR are binary with parens.
 - **Entity goals**: Use `when`/`then`/`config` blocks (SmAuto pattern)
 - **Spatial goals**: Keep flat syntax (no when/then/config)
+- **Goal terminators**: Both `end` and `;` accepted (semicolon for inline definitions)
+- **Source keywords**: `Source<MQTT>`, `Source<AMQP>`, `Source<Redis>` (Python classes still named `MQTTBroker` etc.)
 - **Logical operators**: UPPERCASE (`AND`, `OR`, `NOT`)
 - **Bool conditions**: `is` / `is not` operators
+- **Weight syntax**: `@ weight` (e.g., `@ 0.5`)
+- **Imports**: Both quoted (`import "file.telos"`) and bare (`import datasources`) supported
+- **Constants**: `const NAME = VALUE` at model level (int, float, string, bool)
 - **Linter**: ruff, line-length=99
 
 ## ANTI-PATTERNS (THIS PROJECT)

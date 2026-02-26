@@ -37,11 +37,13 @@ Complete syntax reference for Telos. For a quick introduction, see the [README](
   - [Pose](#pose)
   - [Trace](#trace)
   - [Route](#route)
+  - [Arc](#arc)
   - [Cluster](#cluster)
   - [Loop](#loop)
 - [Scenarios](#scenarios)
 - [Time Constraints](#time-constraints)
 - [Geometry Types](#geometry-types)
+- [Constants](#constants)
 - [Imports](#imports)
 - [Comments](#comments)
 - [RTMonitor](#rtmonitor)
@@ -56,6 +58,8 @@ A Telos model file (`.telos`) has the following top-level structure. All section
 import <file>.telos
 
 Metadata ... end
+
+const NAME = value
 
 Source<...> ... end
 RESTEndpoint ... end
@@ -243,7 +247,7 @@ end
 |----------|----------|-------------|
 | `type` | yes | `sensor`, `actuator`, `hybrid`, or `robot` |
 | `topic` | yes | Message topic (use `.` as separator) |
-| `source` | yes | Reference to a Broker or RESTEndpoint |
+| `source` | yes | Reference to a Source or RESTEndpoint |
 | `freq` | no | Publishing frequency in Hz (sensors) |
 | `description` | no | Human-readable description |
 | `attributes` | yes | List of typed attributes |
@@ -398,21 +402,38 @@ std(TempSensor.temp, 5) < 2.0
 
 ### Condition Groups
 
-Combine conditions with logical operators. Parentheses are required.
+Combine conditions with logical operators.
 
 ```
-(TempSensor.temp > 30) AND (HumiditySensor.humidity < 0.5)
+// N-ary AND/OR (no parentheses needed)
+TempSensor.temp > 30 AND HumiditySensor.humidity < 0.5 AND DoorSensor.locked is true
 
-((CondA) AND (CondB)) OR (CondC)
+// AND binds tighter than OR
+TempSensor.temp > 30 AND HumiditySensor.humidity < 0.5 OR PressSensor.pressure > 1.0
+
+// Parentheses for explicit grouping
+(TempSensor.temp > 30 OR PressSensor.pressure > 1.0) AND HumiditySensor.humidity < 0.5
+
+// NOT (unary prefix)
+NOT DoorSensor.locked is true
+
+// XOR/NOR/NAND/XNOR require parenthesized binary form
+(TempSensor.temp > 30) XOR (HumiditySensor.humidity < 0.5)
 ```
 
 **Logical operators** (UPPERCASE): `AND`, `OR`, `NOT`, `XOR`, `NOR`, `XNOR`, `NAND`.
 
-Condition groups are binary: chain three-way conditions as `((A) AND (B)) AND (C)`.
+`AND` binds tighter than `OR`. Use parentheses to override precedence. `XOR`, `NOR`, `NAND`, `XNOR` require parenthesized binary form: `(A) XOR (B)`.
 
 ## Goals
 
-All goals follow the pattern `Goal<Type> Name ... end`.
+All goals follow the pattern `Goal<Type> Name ... end`. Goals can also use `;` instead of `end` for compact one-line definitions:
+
+```
+Goal<When> TempHigh when TempSensor.temp > 30 ;
+```
+
+All goal types support optional `timeout:` (seconds, float) and `tags:` (list of identifiers) fields.
 
 ### Watch
 
@@ -435,7 +456,7 @@ Reached when a typed condition evaluates to true.
 ```
 Goal<When> TempAlert
     when
-        (TempSensor.temp > 30) AND (HumiditySensor.humidity < 0.5)
+        TempSensor.temp > 30 AND HumiditySensor.humidity < 0.5
     then
         - NextGoal_A
         - NextGoal_B
@@ -443,6 +464,8 @@ Goal<When> TempAlert
         timeConstraints:
             - FROM_GOAL_START(<60)
         description: 'Temperature and humidity alert'
+    timeout: 60.0
+    tags: [critical, temperature]
 end
 ```
 
@@ -518,7 +541,7 @@ Goal<Shadow> KeepDistance
 end
 ```
 
-**Area goal tags:** `ENTER`, `EXIT`, `AVOID`, `STEP`.
+**Area goal tags:** `ENTER`, `EXIT`, `AVOID`, `STEP`, `STAY`, `CROSS`.
 
 ### Pos
 
@@ -577,6 +600,28 @@ Goal<Route> FollowPath
 end
 ```
 
+### Arc
+
+Curved trajectory between two points with a specified curvature.
+
+```
+Goal<Arc> CurvedPath
+    entity: Robot1Pose
+    startPoint: Point3D(0, 0, 0)
+    finishPoint: Point3D(10, 5, 0)
+    curvature: 0.2
+    maxDeviation: 0.5
+end
+```
+
+| Property | Required | Description |
+|----------|----------|-------------|
+| `entity` | yes | Entity reference |
+| `startPoint` | yes | Start point |
+| `finishPoint` | yes | End point |
+| `curvature` | yes | Curve factor |
+| `maxDeviation` | yes | Maximum allowed deviation |
+
 ### Cluster
 
 Compose multiple goals with an execution strategy.
@@ -628,9 +673,9 @@ A scenario defines which goals to execute and how.
 ```
 Scenario Verification
     goals:
-        - Goal_1 -> 0.5
-        - Goal_2 -> 0.3
-        - Goal_3 -> 0.2
+        - Goal_1 @ 0.5
+        - Goal_2 @ 0.3
+        - Goal_3 @ 0.2
     antigoals:
         - UnwantedCondition
     fatals:
@@ -646,7 +691,7 @@ end
 
 | Property | Required | Description |
 |----------|----------|-------------|
-| `goals` | yes | Weighted goal list (`goal -> weight`, weight optional) |
+| `goals` | yes | Weighted goal list (`goal @ weight`, weight optional) |
 | `antigoals` | no | Goals that should NOT be reached |
 | `fatals` | no | Goals that abort the scenario if reached |
 | `concurrent` | no | `true` for parallel, `false` for sequential (default) |
@@ -695,16 +740,29 @@ Orientation2D(z)        // Yaw only
 Orientation3D(x, y, z)  // Roll, pitch, yaw
 ```
 
+## Constants
+
+Top-level named constants for reuse across the model.
+
+```
+const TEMP_THRESHOLD = 30
+const RATE = 0.5
+const LABEL = 'high'
+const ACTIVE = true
+```
+
+Supported value types: `int`, `float`, `string`, `bool`.
+
 ## Imports
 
 Split models across files using imports.
 
 ```
-import datasources.telos
-import entities.telos
+import "datasources.telos"
+import datasources          // bare form, auto-appends .telos
 ```
 
-The import path is relative to the importing file. File extension is included.
+Both quoted (`import "file.telos"`) and bare (`import file`) forms are supported. Bare imports automatically append `.telos`. The import path is relative to the importing file.
 
 ## Comments
 

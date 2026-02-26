@@ -117,7 +117,7 @@ end
 
 - **type**: `sensor`, `actuator`, `hybrid`, or `robot`
 - **topic**: Message topic for the entity
-- **source**: Reference to a Broker or RESTEndpoint
+- **source**: Reference to a Source or RESTEndpoint
 - **freq** (optional): Publishing frequency (sensors)
 - **attributes**: Typed fields — `int`, `float`, `str`, `bool`, `list`, `dict`, `time`
 
@@ -144,11 +144,23 @@ Conditions reference entity attributes using dot notation (`EntityName.attribute
 // Simple numeric
 TempSensor.temp > 30
 
-// Compound
-(TempSensor.temp > 30) AND (HumiditySensor.humidity < 0.5)
+// N-ary AND/OR (no parentheses needed)
+TempSensor.temp > 30 AND HumiditySensor.humidity < 0.5 AND DoorSensor.locked is true
+
+// AND binds tighter than OR
+TempSensor.temp > 30 AND HumiditySensor.humidity < 0.5 OR PressSensor.pressure > 1.0
+
+// Parentheses for explicit grouping
+(TempSensor.temp > 30 OR PressSensor.pressure > 1.0) AND HumiditySensor.humidity < 0.5
+
+// NOT (unary)
+NOT DoorSensor.locked is true
+
+// XOR/NOR/NAND/XNOR require parenthesized binary form
+(TempSensor.temp > 30) XOR (HumiditySensor.humidity < 0.5)
 
 // Aggregation functions
-(mean(TempSensor.temp, 10) > 25) AND (std(TempSensor.temp, 10) < 2)
+mean(TempSensor.temp, 10) > 25 AND std(TempSensor.temp, 10) < 2
 
 // Boolean
 DoorSensor.locked is true
@@ -167,11 +179,13 @@ Goal_1.status == REACHED
 | Logical | `AND`, `OR`, `NOT`, `XOR`, `NOR`, `XNOR`, `NAND` |
 | List/Dict | `==`, `!=`, `is`, `is not` |
 
-**Aggregation functions:** `mean`, `std`, `var`, `min`, `max` — each takes `(attribute, buffer_size)`.
+`AND` binds tighter than `OR`. Use parentheses to override precedence. `XOR`, `NOR`, `NAND`, `XNOR` require parenthesized binary form: `(A) XOR (B)`.
+
+**Aggregation functions:** `mean`, `std`, `var`, `min`, `max`, each taking `(attribute, buffer_size)`.
 
 ### Entity Goals
 
-Entity goals use `when`/`then`/`config` blocks.
+Entity goals use `when`/`then`/`config` blocks. All goal types support optional `timeout:` (seconds) and `tags:` fields.
 
 **Watch** — reached when any message arrives on the entity's topic:
 
@@ -186,13 +200,15 @@ end
 ```
 Goal<When> TempAlert
     when
-        (TempSensor.temp > 30) AND (HumiditySensor.humidity < 0.5)
+        TempSensor.temp > 30 AND HumiditySensor.humidity < 0.5
     then
         - NextGoal
     config
         timeConstraints:
             - FROM_GOAL_START(<60)
         description: 'Temperature alert'
+    timeout: 60.0
+    tags: [critical, temperature]
 end
 ```
 
@@ -203,6 +219,12 @@ Goal<Eval> ComplexCheck
     when
         'TempSensor.temp * 2 > HumiditySensor.humidity + 10'
 end
+```
+
+Goals can use `;` instead of `end` for compact one-line definitions:
+
+```
+Goal<When> TempHigh when TempSensor.temp > 30 ;
 ```
 
 ### Cluster Goals and Loops
@@ -231,9 +253,9 @@ A scenario groups goals for execution.
 ```
 Scenario Verification
     goals:
-        - Goal_1 -> 0.5
-        - Goal_2 -> 0.3
-        - Goal_3 -> 0.2
+        - Goal_1 @ 0.5
+        - Goal_2 @ 0.3
+        - Goal_3 @ 0.2
     antigoals:
         - FatalCondition
     concurrent: true
@@ -241,7 +263,7 @@ Scenario Verification
 end
 ```
 
-- **goals**: Weighted goal list (weights optional, default: equal)
+- **goals**: Weighted goal list (`goal @ weight`, weight optional, default: equal)
 - **antigoals** (optional): Goals that should NOT be reached
 - **fatals** (optional): Goals that abort the scenario if reached
 - **concurrent**: `true` for parallel, `false` for sequential execution
@@ -268,7 +290,8 @@ Source<MQTT> HomeMQTT
 end
 
 // scenario.telos
-import datasources.telos
+import "datasources.telos"
+import datasources          // bare form, auto-appends .telos
 
 Entity TempSensor
     type: sensor
@@ -278,6 +301,21 @@ Entity TempSensor
         - temp: float
 end
 ```
+
+Both quoted (`import "file.telos"`) and bare (`import file`) forms are supported. Bare imports automatically append `.telos`.
+
+### Constants
+
+Top-level named constants for reuse across the model.
+
+```
+const TEMP_THRESHOLD = 30
+const RATE = 0.5
+const LABEL = 'high'
+const ACTIVE = true
+```
+
+Supported value types: `int`, `float`, `string`, `bool`.
 
 ## CLI
 
