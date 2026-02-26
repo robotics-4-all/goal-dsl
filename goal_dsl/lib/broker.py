@@ -1,14 +1,14 @@
 class BrokerAuthPlain:
-    def __init__(self, parent=None, username=None, password=None,
-                 **kwargs):
+    def __init__(self, parent=None, username=None, password=None, **kwargs):
         self.parent = parent
         self.username = username
         self.password = password
 
 
 class Broker:
-    def __init__(self, parent=None, name=None, host=None, port=None,
-                 auth=None, ssl=None, **kwargs):
+    def __init__(
+        self, parent=None, name=None, host=None, port=None, auth=None, ssl=None, **kwargs
+    ):
         self.parent = parent
         self.name = name
         self.host = host
@@ -29,7 +29,7 @@ class MQTTBroker(Broker):
         basePath="",
         webPath="/mqtt",
         webPort=8883,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(parent, name, host, port, auth, ssl)
         self.basePath = basePath
@@ -49,7 +49,7 @@ class AMQPBroker(Broker):
         topicE="amq.topic",
         rpcE="DEFAULT",
         ssl=False,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(parent, name, host, port, auth, ssl)
         self.vhost = vhost
@@ -58,7 +58,8 @@ class AMQPBroker(Broker):
 
 
 class RedisBroker(Broker):
-    def __init__(self, parent=None, name=None, host=None, port=None,
-                 auth=None, db=0, ssl=False, **kwargs):
+    def __init__(
+        self, parent=None, name=None, host=None, port=None, auth=None, db=0, ssl=False, **kwargs
+    ):
         super().__init__(parent, name, host, port, auth, ssl)
         self.db = db

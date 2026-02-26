@@ -1,7 +1,8 @@
-from textx import textx_isinstance, get_metamodel
 import statistics
-from goal_dsl.lib.types import List, Dict, Time
 
+from textx import get_metamodel, textx_isinstance
+
+from goal_dsl.lib.types import Dict, List, Time
 
 # List of primitive types that can be directly printed
 PRIMITIVES = (int, float, str, bool)
@@ -31,8 +32,7 @@ OPERATORS = {
     "NOT": lambda left, right: f"({left} is not {right})",
     "XOR": lambda left, right: f"({left} ^ {right})",
     "NOR": lambda left, right: f"(not ({left} or {right}))",
-    "XNOR": lambda left,
-    right: f"(({left} or {right}) and (not {left} or not {right}))",
+    "XNOR": lambda left, right: f"(({left} or {right}) and (not {left} or not {right}))",
     "NAND": lambda left, right: f"(not ({left} and {right}))",
     # Advanced
     "InRange": lambda attr, min, max: f"({attr} > {min} and {attr} < {max})",
@@ -58,23 +58,16 @@ class Condition:
             return node
         elif type(node) is Time:
             return node.to_int()
-        elif textx_isinstance(
-            node, get_metamodel(node).namespaces["condition"]["AugmentedAttr"]
-        ):
+        elif textx_isinstance(node, get_metamodel(node).namespaces["condition"]["AugmentedAttr"]):
             return Condition.transform_augmented_attr(node)
-        elif textx_isinstance(
-            node, get_metamodel(node).namespaces["condition"]["SimpleTimeAttr"]
-        ):
+        elif textx_isinstance(node, get_metamodel(node).namespaces["condition"]["SimpleTimeAttr"]):
             val = (
                 f"entities['{node.attribute.parent.name}']."
                 + f"attributes_dict['{node.attribute.name}'].value.to_int()"
             )
             return val
         else:
-            val = (
-                f"entities['{node.parent.name}']."
-                + f"attributes_dict['{node.name}'].value"
-            )
+            val = f"entities['{node.parent.name}']." + f"attributes_dict['{node.name}'].value"
             return val
 
     @staticmethod
@@ -93,42 +86,27 @@ class Condition:
             ):
                 entity_ref.init_attr_buffer(attr_ref.name, parent.size)
                 entity_ref.attr_buffs.append((attr_ref.name, parent.size))
-                val = (
-                    f"entities['{entity_ref.name}']." + f"get_buffer('{attr_ref.name}')"
-                )
+                val = f"entities['{entity_ref.name}']." + f"get_buffer('{attr_ref.name}')"
             else:
                 val = (
-                    f"entities['{entity_ref.name}']."
-                    + f"attributes_dict['{attr_ref.name}'].value"
+                    f"entities['{entity_ref.name}']." + f"attributes_dict['{attr_ref.name}'].value"
                 )
         elif aattr.__class__.__name__ == "SimpleBoolAttr":
             attr_ref = aattr.attribute
             entity_ref = aattr.attribute.parent
-            val = (
-                f"entities['{entity_ref.name}']."
-                + f"attributes_dict['{attr_ref.name}'].value"
-            )
+            val = f"entities['{entity_ref.name}']." + f"attributes_dict['{attr_ref.name}'].value"
         elif aattr.__class__.__name__ == "SimpleStringAttr":
             attr_ref = aattr.attribute
             entity_ref = aattr.attribute.parent
-            val = (
-                f"entities['{entity_ref.name}']."
-                + f"attributes_dict['{attr_ref.name}'].value"
-            )
+            val = f"entities['{entity_ref.name}']." + f"attributes_dict['{attr_ref.name}'].value"
         elif aattr.__class__.__name__ == "SimpleDictAttr":
             attr_ref = aattr.attribute
             entity_ref = aattr.attribute.parent
-            val = (
-                f"entities['{entity_ref.name}']."
-                + f"attributes_dict['{attr_ref.name}'].value"
-            )
+            val = f"entities['{entity_ref.name}']." + f"attributes_dict['{attr_ref.name}'].value"
         elif aattr.__class__.__name__ == "SimpleListAttr":
             attr_ref = aattr.attribute
             entity_ref = aattr.attribute.parent
-            val = (
-                f"entities['{entity_ref.name}']."
-                + f"attributes_dict['{attr_ref.name}'].value"
-            )
+            val = f"entities['{entity_ref.name}']." + f"attributes_dict['{attr_ref.name}'].value"
         elif aattr.__class__.__name__ in "StdAttr":
             val = f"std({Condition.transform_augmented_attr(aattr.attribute)})"
         elif aattr.__class__.__name__ == "MeanAttr":
@@ -150,27 +128,19 @@ class Condition:
     def process_node_condition(cond_node):
         metamodel = get_metamodel(cond_node.parent)
 
-        if textx_isinstance(
-            cond_node, metamodel.namespaces["condition"]["ConditionGroup"]
-        ):
+        if textx_isinstance(cond_node, metamodel.namespaces["condition"]["ConditionGroup"]):
             Condition.process_node_condition(cond_node.r1)
             Condition.process_node_condition(cond_node.r2)
             cond_node.cond_lambda = (OPERATORS[cond_node.operator])(
                 cond_node.r1.cond_lambda, cond_node.r2.cond_lambda
             )
-        elif textx_isinstance(
-            cond_node, metamodel.namespaces["condition"]["InRangeCondition"]
-        ):
+        elif textx_isinstance(cond_node, metamodel.namespaces["condition"]["InRangeCondition"]):
             cond_node.process_node_condition()
-        elif textx_isinstance(
-            cond_node, metamodel.namespaces["condition"]["GoalStatusCondition"]
-        ):
+        elif textx_isinstance(cond_node, metamodel.namespaces["condition"]["GoalStatusCondition"]):
             goal_name = cond_node.operand1.goal
             status_val = cond_node.operand2
             op = OPERATORS[cond_node.operator]
-            cond_node.cond_lambda = op(
-                f"goals['{goal_name}'].status", f"'{status_val}'"
-            )
+            cond_node.cond_lambda = op(f"goals['{goal_name}'].status", f"'{status_val}'")
         else:
             operand1 = Condition.transform_operand(cond_node.operand1)
             operand2 = Condition.transform_operand(cond_node.operand2)
@@ -235,9 +205,7 @@ class InRangeCondition(AdvancedCondition):
 
 
 class NumericCondition(PrimitiveCondition):
-    def __init__(
-        self, parent=None, operand1=None, operator=None, operand2=None, **kwargs
-    ):
+    def __init__(self, parent=None, operand1=None, operator=None, operand2=None, **kwargs):
         self.operand1 = operand1
         self.operand2 = operand2
         self.operator = operator
@@ -245,9 +213,7 @@ class NumericCondition(PrimitiveCondition):
 
 
 class BoolCondition(PrimitiveCondition):
-    def __init__(
-        self, parent=None, operand1=None, operator=None, operand2=None, **kwargs
-    ):
+    def __init__(self, parent=None, operand1=None, operator=None, operand2=None, **kwargs):
         self.operand1 = operand1
         self.operand2 = operand2
         self.operator = operator
@@ -255,9 +221,7 @@ class BoolCondition(PrimitiveCondition):
 
 
 class StringCondition(PrimitiveCondition):
-    def __init__(
-        self, parent=None, operand1=None, operator=None, operand2=None, **kwargs
-    ):
+    def __init__(self, parent=None, operand1=None, operator=None, operand2=None, **kwargs):
         self.operand1 = operand1
         self.operand2 = operand2
         self.operator = operator
@@ -265,9 +229,7 @@ class StringCondition(PrimitiveCondition):
 
 
 class ListCondition(PrimitiveCondition):
-    def __init__(
-        self, parent=None, operand1=None, operator=None, operand2=None, **kwargs
-    ):
+    def __init__(self, parent=None, operand1=None, operator=None, operand2=None, **kwargs):
         self.operand1 = operand1
         self.operand2 = operand2
         self.operator = operator
@@ -275,9 +237,7 @@ class ListCondition(PrimitiveCondition):
 
 
 class DictCondition(PrimitiveCondition):
-    def __init__(
-        self, parent=None, operand1=None, operator=None, operand2=None, **kwargs
-    ):
+    def __init__(self, parent=None, operand1=None, operator=None, operand2=None, **kwargs):
         self.operand1 = operand1
         self.operand2 = operand2
         self.operator = operator
@@ -285,9 +245,7 @@ class DictCondition(PrimitiveCondition):
 
 
 class TimeCondition(PrimitiveCondition):
-    def __init__(
-        self, parent=None, operand1=None, operator=None, operand2=None, **kwargs
-    ):
+    def __init__(self, parent=None, operand1=None, operator=None, operand2=None, **kwargs):
         self.operand1 = operand1
         self.operand2 = operand2
         self.operator = operator
@@ -301,9 +259,7 @@ class GoalStatusRef:
 
 
 class GoalStatusCondition(PrimitiveCondition):
-    def __init__(
-        self, parent=None, operand1=None, operator=None, operand2=None, **kwargs
-    ):
+    def __init__(self, parent=None, operand1=None, operator=None, operand2=None, **kwargs):
         self.operand1 = operand1
         self.operator = operator
         self.operand2 = operand2

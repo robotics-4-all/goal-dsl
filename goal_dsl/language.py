@@ -1,23 +1,37 @@
 import pathlib
 from os.path import join
+
+import textx.scoping.providers as scoping_providers
 from textx import (
+    TextXSemanticError,
+    get_children_of_type,
+    get_location,
     language,
     metamodel_from_file,
-    get_children_of_type,
-    TextXSemanticError,
-    get_location,
 )
-import textx.scoping.providers as scoping_providers
 
-from goal_dsl.definitions import MODEL_REPO_PATH, BUILTIN_MODELS
-
-from goal_dsl.lib.types import Dict, List, Time, Date
+from goal_dsl.definitions import BUILTIN_MODELS, MODEL_REPO_PATH
 from goal_dsl.lib.broker import (
     AMQPBroker,
     Broker,
     BrokerAuthPlain,
     MQTTBroker,
     RedisBroker,
+)
+from goal_dsl.lib.condition import (
+    AdvancedCondition,
+    BoolCondition,
+    Condition,
+    ConditionGroup,
+    DictCondition,
+    GoalStatusCondition,
+    GoalStatusRef,
+    InRangeCondition,
+    ListCondition,
+    NumericCondition,
+    PrimitiveCondition,
+    StringCondition,
+    TimeCondition,
 )
 from goal_dsl.lib.entity import (
     Attribute,
@@ -30,22 +44,7 @@ from goal_dsl.lib.entity import (
     StringAttribute,
     TimeAttribute,
 )
-from goal_dsl.lib.condition import (
-    Condition,
-    ConditionGroup,
-    PrimitiveCondition,
-    AdvancedCondition,
-    NumericCondition,
-    BoolCondition,
-    TimeCondition,
-    StringCondition,
-    DictCondition,
-    InRangeCondition,
-    ListCondition,
-    GoalStatusCondition,
-    GoalStatusRef,
-)
-
+from goal_dsl.lib.types import Date, Dict, List, Time
 
 CURRENT_FPATH = pathlib.Path(__file__).parent.resolve()
 

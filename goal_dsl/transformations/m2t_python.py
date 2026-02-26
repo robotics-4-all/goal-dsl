@@ -1,14 +1,15 @@
-from os import path, mkdir, getcwd, chmod
-from textx import generator
-import jinja2
+from os import chmod, getcwd, mkdir, path
 
+import jinja2
+from textx import generator
+
+from goal_dsl.definitions import TEMPLATES_PATH
 from goal_dsl.language import (
     build_model,
     build_model_str,
     get_model_entities,
     get_model_scenarios,
 )
-from goal_dsl.definitions import TEMPLATES_PATH
 from goal_dsl.logging import default_logger as logger
 
 THIS_DIR = path.abspath(path.dirname(__file__))

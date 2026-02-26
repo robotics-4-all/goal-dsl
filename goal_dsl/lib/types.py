@@ -22,12 +22,7 @@ class Dict:
     def __repr__(self):
         final_str = "{"
         for index, item in enumerate(self.items):
-            final_str = (
-                final_str
-                + f"'{item.name}'"
-                + ":"
-                + str(self.print_item(item.value))
-            )
+            final_str = final_str + f"'{item.name}'" + ":" + str(self.print_item(item.value))
             if index != (len(self.items) - 1):
                 final_str = final_str + ","
         final_str = final_str + "}"
@@ -45,8 +40,7 @@ class Dict:
 
 
 class Time:
-    def __init__(self, parent=None, hour=None, minute=None,
-                 second=None, **kwargs):
+    def __init__(self, parent=None, hour=None, minute=None, second=None, **kwargs):
         self.parent = parent
         hour = 0 if hour is None else hour
         minute = 0 if minute is None else minute
@@ -56,15 +50,12 @@ class Time:
         self.second = second
 
     def to_int(self):
-        val = (
-            self.second + int(self.minute << 8) + int(self.hour << 16)
-        )
+        val = self.second + int(self.minute << 8) + int(self.hour << 16)
         return val
 
 
 class Date:
-    def __init__(self, parent=None, month=None, day=None, year=None,
-                 **kwargs):
+    def __init__(self, parent=None, month=None, day=None, year=None, **kwargs):
         self.parent = parent
         self.month = month
         self.day = day
