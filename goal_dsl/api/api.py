@@ -94,7 +94,7 @@ async def validate_file(file: UploadFile = File(...), api_key: str = Security(ge
         build_model(fpath)
     except Exception as e:
         resp["status"] = 404
-        resp["message"] = e
+        resp["message"] = str(e)
     return resp
 
 
@@ -112,7 +112,7 @@ async def validate_b64(fenc: str = "", api_key: str = Security(get_api_key)):
         build_model(fpath)
     except Exception as e:
         resp["status"] = 404
-        resp["message"] = e
+        resp["message"] = str(e)
     return resp
 
 

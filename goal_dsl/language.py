@@ -146,7 +146,7 @@ def verify_entity_attrs(entity):
 
 def verify_goal_names(model):
     _ids = []
-    goals = get_children_of_type("Goal", model)
+    goals = getattr(model, "goals", []) or []
     for goal in goals:
         if goal.name in _ids:
             raise TextXSemanticError(

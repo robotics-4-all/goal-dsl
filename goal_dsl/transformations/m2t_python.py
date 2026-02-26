@@ -40,6 +40,8 @@ def generate(model_fpath: str, out_dir: str = ""):
             f.write(code)
             chmod(out_file, 509)
 
+    return out_dir
+
 
 def generate_str(model_str: str):
     """Generate Python code from a GoalDSL model string."""

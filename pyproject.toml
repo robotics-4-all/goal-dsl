@@ -41,7 +41,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["wheel", "twine", "ruff", "pre-commit"]
-test = ["pytest", "coverage"]
+test = ["pytest", "pytest-cov", "httpx"]
 
 [project.urls]
 Repository = "https://github.com/robotics-4-all/goal-dsl"
@@ -61,6 +61,9 @@ include = ["goal_dsl*"]
 [tool.setuptools.package-data]
 "goal_dsl.grammar" = ["*.tx"]
 "goal_dsl.templates" = ["*.jinja"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 99

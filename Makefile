@@ -27,8 +27,8 @@ check: ## Lint + format check (no writes)
 
 # ── Testing ────────────────────────────────────────────
 
-test: ## Run pytest
-	python -m pytest tests/ -v
+test: ## Run pytest with coverage
+	@if [ -d tests ]; then python -m pytest tests/ -v --cov=goal_dsl --cov-report=term-missing; else echo "No tests/ directory — skipping"; fi
 
 validate: ## Validate all example .goal files
 	@python -c "$$VALIDATE_SCRIPT"
