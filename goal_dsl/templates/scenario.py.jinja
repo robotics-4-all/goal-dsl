@@ -21,8 +21,6 @@ from goalee.complex_goal import (
 from goalee.entity_goals import (
     EntityStateChange,
     EntityStateCondition,
-    EntityAttrStream,
-    AttrStreamStrategy
 )
 from goalee.pose_goals import (
     PoseGoal,
@@ -40,7 +38,7 @@ entities_list = []
 {{ entity.name }} = Entity(
     name='{{ entity.name }}',
     etype='{{ entity.etype }}',
-    topic='{{ entity.uri }}'.format(**{k: os.environ.get(k, "") for k in os.environ}).replace('..', '.'),
+    topic='{{ entity.topic }}'.format(**{k: os.environ.get(k, "") for k in os.environ}).replace('..', '.'),
     attributes={{ entity.attr_list }},
     {% if entity.source.ref.__class__.__name__ == 'AMQPBroker' %}
     source={{ broker_macros.amqp_broker(entity.source.ref) }},
@@ -50,22 +48,17 @@ entities_list = []
     source={{ broker_macros.mqtt_broker(entity.source.ref) }},
     {% endif %}
 )
-{% for attr in entity.attributes %}
-{% if attr.buffer not in (None, 0) %}
-{{ entity.name }}.init_attr_buffer("{{ attr.name }}", {{ attr.buffer }})
-{% endif %}
-{% endfor %}
 entities_list.append({{ entity.name }})
 {% endfor %}
 
 
 if __name__ == '__main__':
-    {% if rtmonitor and rtmonitor.broker.__class__.__name__ == 'AMQPBroker' %}
-    broker = {{ broker_macros.amqp_broker(rtmonitor.broker) }}
-    {% elif rtmonitor and rtmonitor.broker.__class__.__name__ == 'RedisBroker' %}
-    broker = {{ broker_macros.redis_broker(rtmonitor.broker) }}
-    {% elif rtmonitor and rtmonitor.broker.__class__.__name__ == 'MQTTBroker' %}
-    broker = {{ broker_macros.mqtt_broker(rtmonitor.broker) }}
+    {% if rtmonitor and rtmonitor.source.ref.__class__.__name__ == 'AMQPBroker' %}
+    broker = {{ broker_macros.amqp_broker(rtmonitor.source.ref) }}
+    {% elif rtmonitor and rtmonitor.source.ref.__class__.__name__ == 'RedisBroker' %}
+    broker = {{ broker_macros.redis_broker(rtmonitor.source.ref) }}
+    {% elif rtmonitor and rtmonitor.source.ref.__class__.__name__ == 'MQTTBroker' %}
+    broker = {{ broker_macros.mqtt_broker(rtmonitor.source.ref) }}
     {% else %}
     broker = None
     {% endif %}
@@ -80,9 +73,6 @@ if __name__ == '__main__':
     goals_l.append(g)
     {% elif goal.__class__.__name__ == 'EntityStateChangeGoal' %}
     {{ goal_macros.entity_state_change_goal(goal) }}
-    goals_l.append(g)
-    {% elif goal.__class__.__name__ == 'EntityAttrStreamGoal' %}
-    {{ goal_macros.entity_attrstream_goal(goal) }}
     goals_l.append(g)
     {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
     {{ goal_macros.rectangle_area_goal(goal, entity_names) }}
@@ -145,7 +135,6 @@ if __name__ == '__main__':
     antigoals_l.append(gr)
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
     {{ goal_macros.complex_goal(goal, entity_names) }}
-    antigoals_l.append(cg)
     antigoals_l.append(cg_{{goal_macros.ns.ccounter}})
     {% endif %}
     {% endfor %}

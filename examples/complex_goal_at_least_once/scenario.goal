@@ -32,14 +32,14 @@ Broker<Redis> LocalRedis
 end
 
 RTMonitor
-    broker: LocalRedis
+    source: LocalRedis
     eventTopic: "goaldsl.{U_ID}.event"
     logsTopic: "goaldsl.{U_ID}.log"
 end
 
 Entity traffic_light_line_data
     type: sensor
-    uri: "streamsim.{U_ID}.world.world.sensor.alarm.linear_alarm.traffic_light_line.data"
+    topic: "streamsim.{U_ID}.world.world.sensor.alarm.linear_alarm.traffic_light_line.data"
     source: LocalRedis
     freq: 1.0
     attributes:
@@ -48,7 +48,7 @@ end
 
 Entity ef_light_120_state
     type: sensor
-    uri: "streamsim.{U_ID}.world.world.actuator.visual.leds.ef_light_120.state"
+    topic: "streamsim.{U_ID}.world.world.actuator.visual.leds.ef_light_120.state"
     source: LocalRedis
     freq: -1
     attributes:
@@ -57,7 +57,7 @@ end
 
 Entity gn_human_121_pose
     type: sensor
-    uri: "streamsim.{U_ID}.actor.human.gn_human_121.pose"
+    topic: "streamsim.{U_ID}.actor.human.gn_human_121.pose"
     source: LocalRedis
     freq: -1
     attributes:
@@ -67,7 +67,7 @@ end
 
 Entity gn_human_121_properties
     type: sensor
-    uri: "streamsim.{U_ID}.actor.human.gn_human_121.properties"
+    topic: "streamsim.{U_ID}.actor.human.gn_human_121.properties"
     source: LocalRedis
     freq: -1
     attributes:
@@ -83,7 +83,7 @@ end
 
 Entity auto_robot_pose
     type: sensor
-    uri: "streamsim.{U_ID}.auto_robot.pose"
+    topic: "streamsim.{U_ID}.auto_robot.pose"
     source: LocalRedis
     freq: -1.0
     attributes:
@@ -93,7 +93,7 @@ end
 
 Entity auto_robot_crash
     type: sensor
-    uri: "streamsim.{U_ID}.auto_robot.crash"
+    topic: "streamsim.{U_ID}.auto_robot.crash"
     source: LocalRedis
     freq: -1.0
     attributes:
@@ -103,7 +103,7 @@ end
 
 Entity gn_robot_118_pose
     type: sensor
-    uri: "streamsim.{U_ID}.gn_robot_118.pose"
+    topic: "streamsim.{U_ID}.gn_robot_118.pose"
     source: LocalRedis
     freq: -1.0
     attributes:
@@ -113,7 +113,7 @@ end
 
 Entity gn_robot_118_crash
     type: sensor
-    uri: "streamsim.{U_ID}.gn_robot_118.crash"
+    topic: "streamsim.{U_ID}.gn_robot_118.crash"
     source: LocalRedis
     freq: -1.0
     attributes:
@@ -123,7 +123,7 @@ end
 
 Entity gn_robot_118_camera_detect
     type: sensor
-    uri: "streamsim.{U_ID}.gn_robot_118.sensor.visual.camera.gn_robot_118_camera.detection"
+    topic: "streamsim.{U_ID}.gn_robot_118.sensor.visual.camera.gn_robot_118_camera.detection"
     source: LocalRedis
     freq: -1.0
     attributes:
@@ -132,7 +132,7 @@ end
 
 Entity ef_light_120_set
     type: actuator
-    uri: "streamsim.{U_ID}.world.world.actuator.visual.leds.ef_light_120.set"
+    topic: "streamsim.{U_ID}.world.world.actuator.visual.leds.ef_light_120.set"
     source: LocalRedis
     attributes:
         - luminosity: str
@@ -143,7 +143,7 @@ end
 
 Entity auto_robot_motion_set
     type: actuator
-    uri: "streamsim.{U_ID}.auto_robot.actuator.motion.twist.auto_robot_skid_steer.set"
+    topic: "streamsim.{U_ID}.auto_robot.actuator.motion.twist.auto_robot_skid_steer.set"
     source: LocalRedis
     attributes:
         - linear: float
@@ -152,7 +152,7 @@ end
 
 Entity gn_robot_118_motion_set
     type: actuator
-    uri: "streamsim.{U_ID}.gn_robot_118.actuator.motion.twist.gn_robot_118_skid_steer.set"
+    topic: "streamsim.{U_ID}.gn_robot_118.actuator.motion.twist.gn_robot_118_skid_steer.set"
     source: LocalRedis
     attributes:
         - linear: float
@@ -160,12 +160,12 @@ Entity gn_robot_118_motion_set
 end
 
 Goal<EntityPyCondition> Checkpoint_1
-    condition:
+    when
         "traffic_light_line_data.value > 0 and ef_light_120.state.g > 0"
 end
 
 Goal<EntityPyCondition> Checkpoint_1_Fail
-    condition:
+    when
         "'gn_robot_118' in traffic_light_line_data.value and ef_light_120_state.state.r > 0"
 end
 

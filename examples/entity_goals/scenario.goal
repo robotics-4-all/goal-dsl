@@ -26,7 +26,7 @@ end
 
 Entity TempSensor1
     type: sensor
-    uri: 'bedroom.sensor.temperature'
+    topic: 'bedroom.sensor.temperature'
     source: LocalRedis
     attributes:
         - temp: float
@@ -34,7 +34,7 @@ end
 
 Entity TempSensor2
     type: sensor
-    uri: 'bathroom.sensor.temperature'
+    topic: 'bathroom.sensor.temperature'
     source: LocalRedis
     attributes:
         - temp: float
@@ -42,7 +42,7 @@ end
 
 Entity TempSensor3
     type: sensor
-    uri: 'livingroom.sensor.temperature'
+    topic: 'livingroom.sensor.temperature'
     source: LocalRedis
     attributes:
         - temp: float
@@ -50,7 +50,7 @@ end
 
 Entity AirQualitySensor1
     type: sensor
-    uri: 'kitchen.sensor.airq'
+    topic: 'kitchen.sensor.airq'
     source: LocalRedis
     attributes:
         - gas: float
@@ -62,21 +62,20 @@ Goal<EntityStateChange> Goal_1
 end
 
 Goal<EntityStateCondition> Goal_2
-    condition:
+    when
         AirQualitySensor1.gas <= 25
 end
 
 
-Goal<EntityStateCondition> Goal_3
-    condition:
-        (TempSensor1.temp > 10) and
-        (TempSensor2.temp > 10) and
-        (TempSensor3.temp - TempSensor2.temp < 10)
+// Uses math expression in comparison — expressed as EntityPyCondition
+Goal<EntityPyCondition> Goal_3
+    when
+        '(TempSensor1.temp > 10) and (TempSensor2.temp > 10) and (TempSensor3.temp - TempSensor2.temp < 10)'
 end
 
 
 RTMonitor
-    broker: HomeMQTT
+    source: HomeMQTT
     eventTopic: "goaldsl.{U_ID}.event"
     logsTopic: "goaldsl.{U_ID}.log"
 end

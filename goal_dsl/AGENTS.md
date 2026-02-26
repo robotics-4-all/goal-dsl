@@ -3,50 +3,55 @@
 ## OVERVIEW
 
 Main Python package implementing the GoalDSL language: grammar loading, metamodel, validation, code generation, CLI, and API.
+Uses SmAuto architecture: `auto_init_attributes=False`, custom classes in `lib/`, `class_provider()`.
 
 ## STRUCTURE
 
 ```
 goal_dsl/
-├── __init__.py          # Package entry: version, textX @language + @generator decorators
-├── language.py          # Central file: metamodel, scoping, obj_processors, model validation
-├── definitions.py       # TEMPLATES_PATH, GRAMMAR_PATH, env vars (GOALDSL_ZERO_LOGS, LOG_LEVEL)
+├── __init__.py          # Package entry: version, textX @language decorator
+├── language.py          # Central: class_provider, CUSTOM_CLASSES, model_proc validation, get_metamodel()
+├── definitions.py       # TEMPLATES_PATH, GRAMMAR_PATH, env vars (ZERO_LOGS, LOG_LEVEL, MODEL_REPO)
 ├── logging.py           # Rich logging setup, controlled by definitions.py
 ├── utils.py             # gen_timestamp() only
 ├── grammar/             # textX grammar .tx files (see grammar/AGENTS.md)
 ├── templates/           # Jinja2 .jinja files for M2T generation
 ├── transformations/     # Code generators
-│   ├── m2t_python.py    # Python codegen: parse model → Jinja render → write .py per scenario
+│   ├── m2t_python.py    # Python codegen: parse → condition.build() → Jinja render → .py per scenario
 │   └── model_2_plantuml.py  # PlantUML diagram generator
 ├── cli/cli.py           # Click CLI: `goaldsl validate|gen`
 ├── api/api.py           # FastAPI REST: /validate, /generate (with file/b64/JSON variants)
-└── lib/condition.py     # Condition tree → Python expression transformer
+└── lib/                 # Custom classes (SmAuto pattern)
+    ├── condition.py     # Condition tree classes + cond_lambda builder (post-order traversal)
+    ├── entity.py        # Entity + typed attributes (Int/Float/Bool/String/List/Dict/Time)
+    ├── broker.py        # Broker classes (MQTT/AMQP/Redis + BrokerAuthPlain)
+    └── types.py         # Shared types: List, Dict, Time, Date
 ```
 
 ## WHERE TO LOOK
 
 | Task | File | Key function/class |
 |------|------|--------------------|
-| Metamodel creation | `language.py` | `get_metamodel()` (line 303) |
-| Model validation | `language.py` | `model_proc()` — calls verify_*, process_goals, build_conditions |
-| Object processors | `language.py` | `obj_processors` dict (line 270): Goal, NID, Scenario |
+| Metamodel creation | `language.py` | `get_metamodel()` — auto_init_attributes=False, class_provider |
+| Model validation | `language.py` | `model_proc()` — verify names, time validation |
+| Custom classes | `lib/*.py` + `language.py` | CUSTOM_CLASSES list + class_provider() |
 | Scoping providers | `language.py` | `get_scope_providers()` — FQNImportURI + FQNGlobalRepo |
-| Condition → Python | `language.py` | `transform_cond_py()` — regex-based Entity.attr → `entities["X"].attributes["Y"]` |
-| Condition tree eval | `lib/condition.py` | `Condition.process_node_condition()` — recursive post-order traversal |
-| Python codegen | `transformations/m2t_python.py` | `generate()` → `_generate_internal()` → template.render() |
+| Condition building | `lib/condition.py` | `Condition.build()` → `process_node_condition()` post-order |
+| Python codegen | `transformations/m2t_python.py` | `generate()` → condition.build() → template.render() |
 | PlantUML codegen | `transformations/model_2_plantuml.py` | `generate_diagram()` |
 
 ## CONVENTIONS
 
-- `build_model(path)` / `build_model_str(str)` — two parse entry points
+- `build_model(path)` / `build_model_str(str)` — two parse entry points, return single model
 - Codegen output: one `.py` file per Scenario, named `{scenario.name}.py`
 - Template context: `rtmonitor`, `scenario`, `entities`, `entity_names`, `goals`
-- `__init__.py` re-exports `get_metamodel` and `m2t_python` as public API
+- `__init__.py` re-exports `get_metamodel` and `goaldsl_language` as public API
 - `transformations/__init__.py` aliases: `m2t_python = generate`, `m2t_python_str = generate_str`
+- Condition building happens in codegen (not in model_proc)
 
 ## ANTI-PATTERNS
 
-- Two `@generator('goal_dsl', 'python')` decorators exist: `__init__.py:15` AND `m2t_python.py:202` — only setup.cfg entry point matters
-- `m2t_python.py` re-defines `THIS_DIR` (line 10) shadowing the import from definitions
-- Condition processing has two parallel systems: old regex-based (`language.py:398-453`) and new tree-based (`lib/condition.py`) — both are active
-- `pycondition_processor` in `language.py` builds `cond_py` via regex but result is used differently than `lib/condition.py` tree approach
+- `build/` dir is a stale artifact — do NOT modify
+- `model_2_plantuml.py` has unused `metamodel_from_file` import
+- No `tests/` directory — no automated test suite
+- textX `auto_init_attributes=False` + multi-file imports bug — workaround: inline entities

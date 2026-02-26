@@ -9,26 +9,26 @@ end
 Entity TempSensor1
     type: sensor
     source: HomeMQTT
-    uri: 'bedroom.sensor.temperature'
+    topic: 'bedroom.sensor.temperature'
     attributes:
         - temp: float
 end
 
 
 Goal<EntityStateCondition> Goal_1
-    condition:
-        (TempSensor1.temp < 10) or (TempSensor1.temp > 30)
+    when
+        (TempSensor1.temp < 10) OR (TempSensor1.temp > 30)
 end
 
 
 Goal<EntityStateCondition> Goal_2
-    condition:
-        (TempSensor1.temp < 10) or (TempSensor1.temp > 30)
+    when
+        (TempSensor1.temp < 10) OR (TempSensor1.temp > 30)
 end
 
 Goal<EntityStateCondition> Goal_3
-    condition:
-        (TempSensor1.temp < 10) or (TempSensor1.temp > 30)
+    when
+        (TempSensor1.temp < 10) OR (TempSensor1.temp > 30)
 end
 
 Scenario E_1_G_3

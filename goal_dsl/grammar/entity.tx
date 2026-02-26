@@ -2,51 +2,16 @@ import communication
 import types
 import utils
 
-
-EntitySource:
-    (ref=[MessageBroker])       |
-    (ref=[RESTEndpoint])
-;
-
-/*
-EntitySource:
-    BrokerSource |
-    RestSource
-;
-
-BrokerSource:
-    brokerRef=[MessageBroker] '@' uri=STRING
-;
-
-RestSource:
-    endpointRef=[RESTEndpoint]
-;
-*/
-
-/*
-DBSQLSource:
-    dbRef=[DBSQL] '@' query=STRING
-;
-
-DBNoSQLource:
-    dbRef=[DBNoSQL] '@' collection=STRING ',' filter=STRING
-;
-*/
-
 Entity:
     'Entity' name=ID
-    (
-        ('type:' etype=EntityType)
-        ('source:' source=EntitySource)
-        ('mode:' mode=EntityMode)?
-        ('freq:' mode=NUMBER)?
-        ('attributes:' '-' attributes*=Attribute['-'])?
-        ('uri:' uri=STRING)?
-        ('description:' description=STRING)?
-        ('compartments'
-            entities*=Entity
-        'end')?
-    )#
+        (
+			('type:' etype=EntityType)
+			('topic:' topic=STRING)
+            ('description:' description=STRING)?
+			('freq:' freq=NUMBER)?
+			('source:' source=EntitySource)
+			('attributes:' '-' attributes*=Attribute['-'])
+		)#
     'end'
 ;
 
@@ -54,20 +19,107 @@ EntityType:
     'sensor'    |
     'actuator'  |
     'hybrid'    |
-    'robot'     |
-    'other'
-;
-
-EntityMode:
-    'virtual'       |
-    'simulation'    |
-    'real'          |
-    'digitwin'      |
-    'other'
+    'robot'
 ;
 
 Attribute:
-    name=ID ':' dtype=[DataType:FQN|+m:types*]
-        ( '('precision_x=INT (',' precision_y=INT)? ')' )?
-        ( '[' lower=MultiplicityBound (',' upper=MultiplicityBound )? ']' )?
+    NumericAttribute    |
+    BoolAttribute       |
+    StringAttribute     |
+    TimeAttribute       |
+    ListAttribute       |
+    DictAttribute
+;
+
+NumericAttribute:
+    IntAttribute | FloatAttribute
+;
+
+IntAttribute:
+    name=ID ':' 'int' ('=' default=INT)?
+        ('->' generator=NumericValueGen ('with noise' noise=Noise)?)?
+;
+
+FloatAttribute:
+    name=ID ':' 'float' ('=' default=FLOAT)?
+        ('->' generator=NumericValueGen ('with noise' noise=Noise)?)?
+;
+
+StringAttribute:
+    name=ID ':' 'str' ('=' default=STRING)?
+;
+
+BoolAttribute:
+    name=ID ':' 'bool' ('=' default=BOOL)?
+        ('->' generator=BooleanValueGen)?
+;
+
+ListAttribute:
+    name=ID ':' 'list' ('=' '[' default*=OBJECT[','] ']')?
+        ('->' generator=ListValueGen)?
+;
+
+DictAttribute:
+    name=ID ':' 'dict' ('=' '{' items*=Attribute[','] '}')?
+        ('->' generator=DictValueGen)?
+;
+
+TimeAttribute:
+    name=ID ':' 'time' ('=' default=Time)?
+;
+
+
+NumericValueGen:
+    ConstantFun     |
+    LinearFun       |
+    SawFun			|
+    GaussianFun     |
+    SinusFun		|
+    ReplayFun       |
+    ReplayFileFun
+;
+
+BooleanValueGen: ReplayFun | ReplayFileFun;
+
+ListValueGen: ReplayFun | ReplayFileFun;
+
+DictValueGen: ReplayFun | ReplayFileFun;
+
+GaussianFun:
+    'gaussian' '(' value=NUMBER ',' maxValue=NUMBER ',' sigma=NUMBER ')'
+;
+
+SinusFun:
+    'sinus' '(' dc=NUMBER ',' amplitude=NUMBER ',' step=NUMBER ')'
+;
+
+ConstantFun:
+    'constant' '(' value=NUMBER ')'
+;
+
+LinearFun:
+    'linear' '(' start=NUMBER ',' step=NUMBER ')'
+;
+
+SawFun:
+    'saw' '(' min=NUMBER ',' max=NUMBER ',' step=NUMBER ')'
+;
+
+ReplayFun:
+    'replay' '(' '[' values*=BASETYPE[','] ']' ',' times=INT ')'
+;
+
+ReplayFileFun:
+    'replay' '(' filepath=STRING ')'
+;
+
+
+Noise: UniformNoise | GaussianNoise;
+
+UniformNoise:
+    'uniform' '(' min=NUMBER ',' max=NUMBER ')'
+;
+
+GaussianNoise:
+    'gaussian' '(' mu=NUMBER ',' sigma=NUMBER ')'
 ;

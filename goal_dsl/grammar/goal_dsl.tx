@@ -15,10 +15,9 @@ GoalDSLModel:
     (
         (rtmonitor=RTMonitor)?
         (brokers*=MessageBroker)
-        (types*=CustomDataType)
+        (restEndpoints*=RESTEndpoint)
         (entities*=Entity)
         (goals*=Goal)
-        (restEndpoints*=RESTEndpoint)
         (scenarios*=Scenario)
     )#
 ;
@@ -39,7 +38,7 @@ Metadata:
 RTMonitor:
     'RTMonitor'
     (
-        ('broker:' broker=[MessageBroker])
+        ('source:' source=EntitySource)
 		('namespace:' ns=STRING)?
 		('eventTopic:' eTopic=STRING)?
 		('logsTopic:' lTopic=STRING)?

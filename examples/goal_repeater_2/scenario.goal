@@ -32,14 +32,14 @@ Broker<Redis> LocalRedis
 end
 
 RTMonitor
-    broker: LocalRedis
+    source: LocalRedis
     eventTopic: "goaldsl.{U_ID}.event"
     logsTopic: "goaldsl.{U_ID}.log"
 end
 
 Entity TempSensorDining
     type: sensor
-    uri: "streamsim.6530f9263773c5f7858b6b3.world.world.sensor.env.temperature.dining_temperature.data"
+    topic: "streamsim.6530f9263773c5f7858b6b3.world.world.sensor.env.temperature.dining_temperature.data"
     source: LocalRedis
     freq: 1.0
     attributes:
@@ -48,7 +48,7 @@ end
 
 Entity TempSensorTvRoom
     type: sensor
-    uri: "streamsim.6530f9263773c5f7858b6b3.world.world.sensor.env.temperature.tv_room_temperature.data"
+    topic: "streamsim.6530f9263773c5f7858b6b3.world.world.sensor.env.temperature.tv_room_temperature.data"
     source: LocalRedis
     freq: 1.0
     attributes:
@@ -57,7 +57,7 @@ end
 
 Entity TempSensorHall
     type: sensor
-    uri: "streamsim.6530f9263773c5f7858b6b33.world.world.sensor.env.temperature.hall_temperature.data"
+    topic: "streamsim.6530f9263773c5f7858b6b33.world.world.sensor.env.temperature.hall_temperature.data"
     source: LocalRedis
     freq: 1.0
     attributes:
@@ -66,7 +66,7 @@ end
 
 Entity AppVariables
     type: sensor
-    uri: "appcreator.variables"
+    topic: "appcreator.variables"
     source: LocalRedis
     freq: -1
     attributes:
@@ -90,7 +90,7 @@ Goal<EntityStateChange> Temperature_Hall_Change
 end
 
 Goal<EntityPyCondition> Temperature_Average
-    condition:
+    when
         "AppVariables.name == 'average' and AppVariables.value == (TempSensorDining.value + TempSensorTvRoom.value + TempSensorHall.value) / 3"
         // "AppVariables.name == 'average' and round(AppVariables.value) == round((TempSensorDining.value + TempSensorTvRoom.value + TempSensorHall.value) / 3)"
 end
@@ -115,8 +115,9 @@ end
 Goal<Repeater> DoubleValue_x30
     goal: Average_Correct
     times: 30
-    timeConstraints:
-        - FROM_GOAL_START(1)
+    config
+        timeConstraints:
+            - FROM_GOAL_START(1)
 end
 
 // ----------------------------------------------------

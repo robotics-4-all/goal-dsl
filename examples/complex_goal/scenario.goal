@@ -8,7 +8,7 @@ end
 
 Entity TempSensor1
     type: sensor
-    uri: 'bedroom.sensor.temperature'
+    topic: 'bedroom.sensor.temperature'
     source: HomeMQTT
     attributes:
         - temp: float
@@ -16,7 +16,7 @@ end
 
 Entity TempSensor2
     type: sensor
-    uri: 'bathroom.sensor.temperature'
+    topic: 'bathroom.sensor.temperature'
     source: HomeMQTT
     attributes:
         - temp: float
@@ -24,7 +24,7 @@ end
 
 Entity TempSensor3
     type: sensor
-    uri: 'livingroom.sensor.temperature'
+    topic: 'livingroom.sensor.temperature'
     source: HomeMQTT
     attributes:
         - temp: float
@@ -32,7 +32,7 @@ end
 
 Entity AirQualitySensor1
     type: sensor
-    uri: 'kitchen.sensor.airq'
+    topic: 'kitchen.sensor.airq'
     source: HomeMQTT
     attributes:
         - gas: float
@@ -44,15 +44,13 @@ Goal<EntityStateChange> Goal_1
 end
 
 Goal<EntityStateCondition> Goal_2
-    condition:
-        (AirQualitySensor1.gas < 10) and
-        (AirQualitySensor1.humidity < 30)
+    when
+        (AirQualitySensor1.gas < 10) AND (AirQualitySensor1.humidity < 30)
 end
 
 Goal<EntityStateCondition> Goal_3
-    condition: (TempSensor1.temp > 10) and
-    (TempSensor2.temp > 10) and
-    (TempSensor3.temp > 10)
+    when
+        ((TempSensor1.temp > 10) AND (TempSensor2.temp > 10)) AND (TempSensor3.temp > 10)
 end
 
 Goal<Complex> CG1

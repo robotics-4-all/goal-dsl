@@ -15,8 +15,7 @@ Goal:
     OrientationGoal      |
     TrajectoryGoal       |
     ComplexGoal          |
-    GoalRepeater         |
-    GTermGoal
+    GoalRepeater
 ;
 
 
@@ -25,8 +24,13 @@ ComplexGoal:
     (
         ('goals:' '-' goals*=WeightedGoal['-'])
         ('strategy:' algorithm=[ComplexGoalAlgorithmType])
-        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
-        ('xAccomplished:' xAccomplished=INT)?
+        ('config'
+            (
+                ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+                ('xAccomplished:' xAccomplished=INT)?
+                ('description:' description=STRING)?
+            )#
+        )?
     )#
     'end'
 ;
@@ -41,37 +45,17 @@ ComplexGoalAlgorithmType:
     'EXACTLY_X_ACCOMPLISHED_ORDERED'
 ;
 
-// ======================================================================
-GTermGoal:
-    'Goal<GTerm>' name=ID
-    (
-        ('terms:' '-' terms*=GoalTermDef['-'])
-        ('operator:' operator=LogicalOperator)?
-        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
-    )#
-    'end'
-;
-
-GoalTermDef:
-    r1=GoalTermGroup (operator=LogicalOperator r2=GoalTermGroup)*
-;
-
-GoalReference:
-    r=[Goal:FQN|+m:goals*]
-;
-
-GoalTermGroup:
-    '(' r=GoalTermDef ')' |
-    r=GoalReference
-;
-// ======================================================================
-
 GoalRepeater:
     'Goal<Repeater>' name=ID
     (
         ('goal:' goal=[Goal:FQN|+m:goals*])
         ('times:' times=INT)
-        ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+        ('config'
+            (
+                ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+                ('description:' description=STRING)?
+            )#
+        )?
     )#
     'end'
 ;

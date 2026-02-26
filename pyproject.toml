@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "goal-dsl"
+version = "0.4.0"
+description = "Domain-Specific Language for goal-driven behaviour verification of IoT-enabled CPS."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [
+    { name = "Konstantinos Panayiotou", email = "klpanagi@gmail.com" },
+]
+keywords = ["goaldsl", "dsl", "iot", "cps", "textx", "goal-driven", "verification"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "Topic :: Software Development :: Interpreters",
+    "Topic :: Software Development :: Compilers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "click",
+    "textX>=4.0.0",
+    "rich",
+    "jinja2",
+    "pydantic>=2.0.0",
+    "fastapi>=0.100.0",
+    "python-multipart",
+    "aiofiles",
+]
+
+[project.optional-dependencies]
+dev = ["wheel", "twine", "ruff", "pre-commit"]
+test = ["pytest", "coverage"]
+
+[project.urls]
+Repository = "https://github.com/robotics-4-all/goal-dsl"
+
+[project.scripts]
+goaldsl = "goal_dsl.cli.cli:main"
+
+[project.entry-points."textx_languages"]
+goal_dsl = "goal_dsl:goaldsl_language"
+
+[project.entry-points."textx_generators"]
+pygen = "goal_dsl.transformations.m2t_python:codegen_python"
+
+[tool.setuptools.packages.find]
+include = ["goal_dsl*"]
+
+[tool.setuptools.package-data]
+"goal_dsl.grammar" = ["*.tx"]
+"goal_dsl.templates" = ["*.jinja"]
+
+[tool.ruff]
+line-length = 99
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]

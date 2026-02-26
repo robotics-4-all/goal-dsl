@@ -8,7 +8,7 @@ end
 
 Entity Robot1Pose
     type: sensor
-    uri: 'robot_1.pose'
+    topic: 'robot_1.pose'
     source: HomeMQTT
     attributes:
         - position: dict
@@ -17,7 +17,7 @@ end
 
 Entity Robot2Pose
     type: sensor
-    uri: 'robot_2.pose'
+    topic: 'robot_2.pose'
     source: HomeMQTT
     attributes:
         - position: dict

@@ -8,7 +8,7 @@ end
 
 Entity WaterValve
     type: actuator
-    uri: 'garden.water_valve'
+    topic: 'garden.water_valve'
     source: MyMQTTBroker
     attributes:
         - state: bool
@@ -16,7 +16,7 @@ end
 
 Entity OrganicsMixer
     type: actuator
-    uri: 'garden.organic_mixer'
+    topic: 'garden.organic_mixer'
     source: MyMQTTBroker
     attributes:
         - state: bool
@@ -24,7 +24,7 @@ end
 
 Entity RobotArmPose
     type: sensor
-    uri: 'robot.arm.pose'
+    topic: 'robot.arm.pose'
     source: MyMQTTBroker
     attributes:
         - pose: dict
@@ -32,13 +32,15 @@ end
 
 // ------------------ GOAL Definitions -----------------
 Goal<EntityStateCondition> Goal_1
-    condition: WaterValve.state == 1
+    when
+        WaterValve.state is true
 end
 
 Goal<EntityStateChange> Goal_2
     entity: OrganicsMixer
-    timeConstraints:
-        - FROM_GOAL_START(<60)
+    config
+        timeConstraints:
+            - FROM_GOAL_START(<60)
 end
 
 Goal<WaypointTrajectory> Goal_3
@@ -54,9 +56,11 @@ Goal<WaypointTrajectory> Goal_3
 end
 
 Goal<EntityStateCondition> Goal_4
-    condition: WaterValve.state == 1
-    timeConstraints:
-        - FROM_GOAL_START(<60)
+    when
+        WaterValve.state is true
+    config
+        timeConstraints:
+            - FROM_GOAL_START(<60)
 end
 
 Goal<Position> Goal_5

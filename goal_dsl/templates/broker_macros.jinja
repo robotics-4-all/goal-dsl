@@ -2,8 +2,10 @@
 AMQPBroker(
         host='{{ broker.host }}',
         port={{ broker.port }},
-        username='{{ broker.username }}',
-        password='{{ broker.password }}',
+        {% if broker.auth %}
+        username='{{ broker.auth.username }}',
+        password='{{ broker.auth.password }}',
+        {% endif %}
         vhost='{{ broker.vhost }}',
     )
 {% endmacro %}
@@ -12,9 +14,11 @@ AMQPBroker(
 RedisBroker(
         host='{{ broker.host }}',
         port={{ broker.port }},
-        db={{ broker.db }},  # default DB number is 0
-        username='{{ broker.username }}',
-        password='{{ broker.password }}',
+        db={{ broker.db or 0 }},
+        {% if broker.auth %}
+        username='{{ broker.auth.username }}',
+        password='{{ broker.auth.password }}',
+        {% endif %}
     )
 {% endmacro %}
 
@@ -22,7 +26,9 @@ RedisBroker(
 MQTTBroker(
         host='{{ broker.host }}',
         port={{ broker.port }},
-        username='{{ broker.username }}',
-        password='{{ broker.password }}',
+        {% if broker.auth %}
+        username='{{ broker.auth.username }}',
+        password='{{ broker.auth.password }}',
+        {% endif %}
     )
 {% endmacro %}

@@ -16,7 +16,7 @@ g = EntityStateCondition(
 g = EntityStateCondition(
         name='{{ goal.name }}',
         entities=[{{ ", ".join(entity_names) }}],
-        condition='{{ goal.cond_py.replace('\'', '\"') }}',
+        condition='{{ goal.cond_py | replace("'", '"') }}',
         for_duration={{ goal.for_duration }},
         max_duration={{ goal.max_duration }},
         min_duration={{ goal.min_duration }},
@@ -28,18 +28,6 @@ g = EntityStateChange(
         name='{{ goal.name }}',
         entity={{ goal.entity.name }},
         for_duration={{ goal.for_duration }},
-        max_duration={{ goal.max_duration }},
-        min_duration={{ goal.min_duration }},
-    )
-{% endmacro %}
-
-{% macro entity_attrstream_goal(goal, entity_names) %}
-g = EntityAttrStream(
-        name='{{ goal.name }}',
-        entity={{ goal.entity.name }},
-        attr='{{ goal.attr.name }}',
-        value={{ goal.stream.values }},
-        strategy=AttrStreamStrategy.{{ goal.strategy }},
         max_duration={{ goal.max_duration }},
         min_duration={{ goal.min_duration }},
     )
@@ -154,8 +142,6 @@ g = WaypointTrajectoryGoal(
 {{ entity_state_change_goal(goal.goal) }}
 {% elif goal.goal.__class__.__name__ == 'EntityPyConditionGoal' %}
 {{ entity_pycondition_goal(goal.goal, entity_names) }}
-{% elif goal.goal.__class__.__name__ == 'EntityAttrStreamGoal' %}
-{{ entity_attrstream_goal(goal.goal, entity_names) }}
 {% elif goal.goal.__class__.__name__ == 'RectangleAreaGoal' %}
 {{ rectangle_area_goal(goal.goal, entity_names) }}
 {% elif goal.goal.__class__.__name__ == 'CircularAreaGoal' %}
@@ -198,9 +184,6 @@ cg_{{ ns.ccounter }} = ComplexGoal(
     cg_{{ns.ccounter}}.add_goal(g)
     {% elif goal.__class__.__name__ == 'EntityPyConditionGoal' %}
     {{ entity_pycondition_goal(goal, entity_names) }}
-    cg_{{ns.ccounter}}.add_goal(g)
-    {% elif goal.__class__.__name__ == 'EntityAttrStreamGoal' %}
-    {{ entity_attrstream_goal(goal, entity_names) }}
     cg_{{ns.ccounter}}.add_goal(g)
     {% elif goal.__class__.__name__ == 'RectangleAreaGoal' %}
     {{ rectangle_area_goal(goal, entity_names) }}

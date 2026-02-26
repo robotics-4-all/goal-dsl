@@ -26,7 +26,7 @@ end
 
 Entity TempSensor1
     type: sensor
-    uri: 'bedroom.sensor.temperature'
+    topic: 'bedroom.sensor.temperature'
     source: LocalRedis
     attributes:
         - temp: float
@@ -45,7 +45,7 @@ end
 
 
 RTMonitor
-    broker: HomeMQTT
+    source: HomeMQTT
     eventTopic: "goaldsl.{U_ID}.event"
     logsTopic: "goaldsl.{U_ID}.log"
 end

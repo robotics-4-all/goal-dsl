@@ -3,159 +3,181 @@ import types
 import utils
 
 // === Conditions ===
-
-TermPool:
-    'TermPool' name=ID
-    (
-        conditions*=Condition
-    )#
-    'end'
-;
-
-Condition:
-    r1=ConditionGroup (operator=LogicalOperator r2=ConditionGroup)*
-;
+Condition: AdvancedCondition | PrimitiveCondition | ConditionGroup ;
 
 ConditionGroup:
-    '(' r=Condition ')'
-    | PrimitiveCondition
-    | MathExpression
+    '(' r1=Condition ')' operator=LogicalOperator '(' r2=Condition ')'
 ;
 
 PrimitiveCondition:
-    BoolCondition       |
+    GoalStatusCondition |
     TimeCondition       |
     NumericCondition    |
+    BoolCondition       |
     StringCondition     |
     ListCondition       |
     DictCondition
 ;
 
+GoalStatusCondition:
+    operand1=GoalStatusRef
+    operator=StatusOperator
+    operand2=GoalStatus
+;
+
+GoalStatusRef:
+    goal=ID '.status'
+;
+
+GoalStatus:
+    'PENDING' | 'RUNNING' | 'REACHED' | 'FAILED' | 'TIMEOUT'
+;
+
+StatusOperator: '==' | '!=' ;
+
+AdvancedCondition: InRangeCondition | MathExpression;
+
+InRangeCondition:
+    attribute=AugmentedNumericAttr  'in range'
+        '[' min=NUMBER ',' max=NUMBER ']'
+;
+
 MathExpression:
-    left=MathTerm (operator=PlusOrMinus right=MathTerm)*
-;
-
-MathTerm:
-    left=MathFactor (operator=MulOrDiv right=MathFactor)*
-;
-
-MathFactor:
-    (sign=PlusOrMinus)?
-    (
-        op=MathOperand | '(' op=MathExpression ')'
-    )
-;
-
-MathOperand:
-    (
-    op=NUMBER                   |
-    op=BuiltinNumericFunctions  |
-    op=AttributeRef
-    )
-;
-
-AttributeRef:
-    DictAttributeRef    |
-    ListAttributeRef    |
-    SimpleAttributeRef
-;
-
-SimpleAttributeRef:
-    attribute=[Attribute:FQN|+m:entities.attributes]
-;
-
-DictAttributeRef:
-    attribute=[Attribute:FQN|+pm:entities.attributes] (('[' key=STRING ']')*)?
-;
-
-ListAttributeRef:
-    attribute=[Attribute:FQN|+pm:entities.attributes] (('[' index=INT ']')*)?
+	'math' '(' op=MathTerm (op=PlusOrMinus op=MathTerm)* ')'
 ;
 
 PlusOrMinus: '+' | '-';
 MulOrDiv: '*' | '/' ;
 
-NumericCondition:
-    (operand1=MathExpression
-     operator=NumericOperator
-     operand2=MathExpression)
-;
+MathTerm: op=MathFactor (op=MulOrDiv op=MathFactor)*;
 
-StringCondition:
-    (operand1=AttributeRef
-     operator=StringOperator
-     (operand2=STRING | operand2=AttributeRef))
-;
+MathFactor: (sign=PlusOrMinus)?  op=MathOperand;
 
-BoolCondition:
-    (operand1=AttributeRef
-     operator=BooleanOperator
-     (operand2=BOOL | operand2=AttributeRef))
-;
-
-ListCondition:
-    (operand1=AttributeRef
-     operator=ListOperator
-     (operand2=List | operand2=AttributeRef))
-;
-
-DictCondition:
-    (operand1=AttributeRef
-     operator=DictOperator
-     (operand2=Dict | operand2=AttributeRef))
-;
-
-TimeCondition:
-    (operand1=AttributeRef
-     operator=TimeOperator
-     operand2=AttributeRef)
-;
+MathOperand: op=NUMBER | op=[NumericAttribute:FQN|+m:entities.attributes] |
+	('(' op=MathExpression ')');
 
 StdAttr:
-    'std' '(' attribute=MathOperand ',' size=INT ')'
+    'std' '(' attribute=AugmentedNumericAttr ',' size=INT ')'
 ;
 
 VarAttr:
-    'var' '(' attribute=MathOperand ',' size=INT ')'
+    'var' '(' attribute=AugmentedNumericAttr ',' size=INT ')'
 ;
 
 MeanAttr:
-    'mean' '(' attribute=MathOperand  ',' size=INT ')'
+    'mean' '(' attribute=AugmentedNumericAttr  ',' size=INT ')'
 ;
 
 MinAttr:
-    'min' '(' attribute=MathOperand  ',' size=INT ')'
+    'min' '(' attribute=AugmentedNumericAttr  ',' size=INT ')'
 ;
 
 MaxAttr:
-    'max' '(' attribute=MathOperand  ',' size=INT ')'
+    'max' '(' attribute=AugmentedNumericAttr  ',' size=INT ')'
 ;
 
-InRangeAttr:
-    'inrange' '(' attribute=MathOperand  ',' min=NUMBER ',' max=NUMBER ')'
+MultiplyAttr:
+    'mul' '(' attribute*=AugmentedNumericAttr[','] ')'
 ;
 
 
-BuiltinNumericFunctions:
+AugmentedAttr:
+    AugmentedNumericAttr |
+    AugmentedStringAttr  |
+    AugmentedBoolAttr    |
+    AugmentedListAttr    |
+    AugmentedDictAttr
+;
+
+
+NumericCondition:
+    (operand1=AugmentedNumericAttr
+     operator=NumericOperator
+     (operand2=NUMBER | operand2=AugmentedNumericAttr))
+;
+
+StringCondition:
+    (operand1=AugmentedStringAttr
+     operator=StringOperator
+     (operand2=STRING | operand2=AugmentedStringAttr))
+;
+
+BoolCondition:
+    (operand1=AugmentedBoolAttr
+     operator=BooleanOperator
+     (operand2=BOOL | operand2=AugmentedBoolAttr))
+;
+
+ListCondition:
+    (operand1=AugmentedListAttr
+     operator=ListOperator
+     (operand2=List | operand2=AugmentedListAttr))
+;
+
+DictCondition:
+    (operand1=AugmentedDictAttr
+     operator=DictOperator
+     (operand2=Dict | operand2=AugmentedDictAttr))
+;
+
+TimeCondition:
+    (operand1=SimpleTimeAttr
+     operator=TimeOperator
+     operand2=Time)
+;
+
+
+AugmentedNumericAttr:
     StdAttr         |
     VarAttr         |
     MeanAttr        |
     MinAttr         |
     MaxAttr         |
-    InRangeAttr
+    MultiplyAttr    |
+    SimpleNumericAttr
+;
+
+AugmentedStringAttr: SimpleStringAttr;
+
+AugmentedBoolAttr: SimpleBoolAttr;
+
+AugmentedListAttr: SimpleListAttr;
+
+AugmentedDictAttr: SimpleDictAttr;
+
+SimpleNumericAttr:
+    attribute=[NumericAttribute:FQN|+m:entities.attributes]
+;
+
+SimpleStringAttr:
+    attribute=[StringAttribute:FQN|+m:entities.attributes]
+;
+
+SimpleBoolAttr:
+    attribute=[BoolAttribute:FQN|+m:entities.attributes]
+;
+
+SimpleListAttr:
+    attribute=[ListAttribute:FQN|+m:entities.attributes]
+;
+
+SimpleDictAttr:
+    attribute=[DictAttribute:FQN|+m:entities.attributes]
+;
+
+SimpleTimeAttr:
+    attribute=[TimeAttribute:FQN|+m:entities.attributes]
 ;
 
 // Operators
 
-// SharedOperator: '==' | '!=' | 'is' | 'is not';
+StringOperator: '~' | '!~' | '==' | '!=' | 'has' | 'in' | 'not in';
 
-StringOperator: '~' | '!~' | '==' | '!=' | 'is not' | 'is' | 'has' | 'in' | 'not in';
+NumericOperator: '>=' | '>' | '<=' | '<' | '==' | '!=';
 
-NumericOperator: '>=' | '>' | '<=' | '<' | '==' | '!=' | 'is not' | 'is';
+LogicalOperator: 'AND' | 'OR' | 'NOT' | 'XOR' | 'NOR' | 'XNOR' | 'NAND';
 
-LogicalOperator: 'and' | 'or' | 'not' | 'xor' | 'nor' | 'xnor' | 'nand';
-
-BooleanOperator: '==' | '!=' | 'is not' | 'is';
+BooleanOperator: 'is not' | 'is';
 
 ListOperator: '==' | '!=' | 'is' | 'is not' | 'in' | 'not in';
 

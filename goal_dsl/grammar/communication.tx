@@ -1,5 +1,7 @@
-import utils
-import types
+EntitySource:
+    (ref=[MessageBroker])       |
+    (ref=[RESTEndpoint])
+;
 
 MessageBroker:
     AMQPBroker | MQTTBroker | RedisBroker
@@ -86,4 +88,12 @@ RESTVerb:
     'POST'      |
     'PUT'       |
     'DELETE'
+;
+
+Property:
+    name=ID ':' type=DataType
+;
+
+DataType:
+    'int' | 'float' | 'str' | 'bool' | 'list' | 'dict' | 'time'
 ;

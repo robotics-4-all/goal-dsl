@@ -1,34 +1,12 @@
-// Utilities ------------------------------------->
+// FQN: ID('.'ID)*;
+FQN: ID+['.'];
+FQNI: ID+['.']('.*')?;
+NID: /(.*?)\n/;
+NIDREF: NID+['.']('.*')?;
+Import: 'import' importURI=STRING;
 
-FQN[noskipws]:
-    /\s*/- ID ('.' ID)*
-;
-
-FQID[noskipws]:
-    /\s*/-
-    LID+['.']
-;
-
-// Language ID
-LID:
-    // Forbid keywords as IDs for better error reporting.
-    !Keyword ID
-;
-
-Import: 'import' importURI=FQN ('as' name=ID)?;
-
-Keyword:
-    'import'
-;
-
-// Special rule for comments. Comments start with //
+// Comments
 Comment: CommentLine | CommentBlock ;
-
 CommentLine: /\/\/.*?$/;
-
 CommentBlock: /\/\*(.|\n)*?\*\//;
-
-MULTILINE_STRING: /\"\"\"(.|\n)*?\"\"\"/;
-
-// <-----------------------------------------------
 

@@ -1,14 +1,10 @@
-import utils
-
+// Types
 
 Time:
     hour=INT ':' minute=INT (':' second=INT)?
 ;
 
 Date: month=INT ':' day=INT ':' year=INT;
-
-// Hours: /[0-2]?[0-9]?/;
-// Minutes: /[0-5][0-9]/;
 
 List:
     '[' items*=ListItem[','] ']'
@@ -30,50 +26,8 @@ DictType:
     NUMBER | STRING | BOOL | Dict | List | OBJECT
 ;
 
-Description: /\#(.*?)$/;
+// GoalDSL-specific geometry types
 
-
-DataType: PrimitiveDataType | CustomDataType | Enumeration;
-
-CustomDataType:
-    'DataType' name=ID
-        (description=Description)?
-        properties*=Property  // Each Message has one or more properties.
-    'end'
-;
-
-Enumeration:
-    'Enum' name=ID
-        (description=Description)?
-        elements+=EnumerationElement
-    'end'
-;
-
-EnumerationElement: name=STRING;
-
-// Primitive data types
-PrimitiveDataType:
-    'type' name=ID
-;
-
-Property:
-    ListProperty    |
-    SimpleProperty
-;
-
-SimpleProperty:
-    name=ID ':' type=[DataType:FQN|+m:types] ('=' default=STRING)?
-;
-
-ListProperty:
-    name=ID ':' type=[DataType:FQN|+m:types]'[' ( multiplicity=MultiplicityBound )? ']'
-;
-
-MultiplicityBound:
-    INT | '*'
-;
-
-// Special types
 Point: Point2D | Point3D;
 Orientation: Orientation2D | Orientation3D;
 

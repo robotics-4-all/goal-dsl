@@ -3,8 +3,6 @@
 import uuid
 import os
 import base64
-from typing import Optional
-import subprocess
 
 import tarfile
 
@@ -19,18 +17,17 @@ from pydantic import BaseModel
 
 HAS_DOCKER_EXEC = os.getenv("HAS_DOCKER_EXEC", False)
 API_KEY = os.getenv("API_KEY", "API_KEY")
-TMP_DIR = '/tmp/goaldsl'
+TMP_DIR = "/tmp/goaldsl"
 
 
 if not os.path.exists(TMP_DIR):
     os.mkdir(TMP_DIR)
 
 
-api_keys = [
-    API_KEY
-]
+api_keys = [API_KEY]
 
 api_key_header = APIKeyHeader(name="X-API-Key")
+
 
 def get_api_key(api_key_header: str = Security(api_key_header)) -> str:
     if api_key_header in api_keys:
@@ -87,52 +84,42 @@ async def validate(model: ValidationModel, api_key: str = Security(get_api_key))
 
 
 @api.post("/validate/file")
-async def validate_file(file: UploadFile = File(...),
-                        api_key: str = Security(get_api_key)):
-    print(f'Validation for request: file=<{file.filename}>,' + \
-          f' descriptor=<{file.file}>')
-    resp = {
-        'status': 200,
-        'message': ''
-    }
+async def validate_file(
+    file: UploadFile = File(...), api_key: str = Security(get_api_key)
+):
+    print(
+        f"Validation for request: file=<{file.filename}>,"
+        + f" descriptor=<{file.file}>"
+    )
+    resp = {"status": 200, "message": ""}
     fd = file.file
     u_id = uuid.uuid4().hex[0:8]
-    fpath = os.path.join(
-        TMP_DIR,
-        f'model_for_validation-{u_id}.goal'
-    )
-    with open(fpath, 'w') as f:
-        f.write(fd.read().decode('utf8'))
+    fpath = os.path.join(TMP_DIR, f"model_for_validation-{u_id}.goal")
+    with open(fpath, "w") as f:
+        f.write(fd.read().decode("utf8"))
     try:
-        model, _ = build_model(fpath)
+        model = build_model(fpath)
     except Exception as e:
-        resp['status'] = 404
-        resp['message'] = e
+        resp["status"] = 404
+        resp["message"] = e
     return resp
 
 
 @api.get("/validate/base64")
-async def validate_b64(fenc: str = '',
-                       api_key: str = Security(get_api_key)):
+async def validate_b64(fenc: str = "", api_key: str = Security(get_api_key)):
     if len(fenc) == 0:
         return 404
-    resp = {
-        'status': 200,
-        'message': ''
-    }
+    resp = {"status": 200, "message": ""}
     fdec = base64.b64decode(fenc)
     u_id = uuid.uuid4().hex[0:8]
-    fpath = os.path.join(
-        TMP_DIR,
-        'model_for_validation-{}.goal'.format(u_id)
-    )
-    with open(fpath, 'wb') as f:
+    fpath = os.path.join(TMP_DIR, "model_for_validation-{}.goal".format(u_id))
+    with open(fpath, "wb") as f:
         f.write(fdec)
     try:
-        model, _ = build_model(fpath)
+        model = build_model(fpath)
     except Exception as e:
-        resp['status'] = 404
-        resp['message'] = e
+        resp["status"] = 404
+        resp["message"] = e
     return resp
 
 
@@ -144,26 +131,22 @@ async def gen_from_model(
     resp = {"status": 200, "message": "", "model_json": ""}
     model = gen_auto_model.model
     u_id = uuid.uuid4().hex[0:8]
-    model_path = os.path.join(TMP_DIR, f"model-{u_id}.auto")
+    model_path = os.path.join(TMP_DIR, f"model-{u_id}.goal")
     gen_path = os.path.join(TMP_DIR, f"gen-{u_id}")
     if not os.path.exists(gen_path):
         os.mkdir(gen_path)
     with open(model_path, "w") as f:
         f.write(model)
-    tarball_path = os.path.join(
-        TMP_DIR,
-        f'{u_id}.tar.gz'
-    )
-    gen_path = os.path.join(
-        TMP_DIR,
-        f'gen-{u_id}'
-    )
+    tarball_path = os.path.join(TMP_DIR, f"{u_id}.tar.gz")
+    gen_path = os.path.join(TMP_DIR, f"gen-{u_id}")
     try:
         out_dir = m2t_python(model_path, gen_path)
         make_tarball(tarball_path, out_dir)
-        return FileResponse(tarball_path,
-                            filename=os.path.basename(tarball_path),
-                            media_type='application/x-tar')
+        return FileResponse(
+            tarball_path,
+            filename=os.path.basename(tarball_path),
+            media_type="application/x-tar",
+        )
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Codintxt.Transformation error: {e}"
@@ -171,40 +154,34 @@ async def gen_from_model(
 
 
 @api.post("/generate/file")
-async def gen_from_file(model_file: UploadFile = File(...),
-                        api_key: str = Security(get_api_key)):
-    print(f'Generate for request: file=<{model_file.filename}>,' + \
-          f' descriptor=<{model_file.file}>')
-    resp = {
-        'status': 200,
-        'message': ''
-    }
+async def gen_from_file(
+    model_file: UploadFile = File(...), api_key: str = Security(get_api_key)
+):
+    print(
+        f"Generate for request: file=<{model_file.filename}>,"
+        + f" descriptor=<{model_file.file}>"
+    )
+    resp = {"status": 200, "message": ""}
     fd = model_file.file
     u_id = uuid.uuid4().hex[0:8]
-    model_path = os.path.join(
-        TMP_DIR,
-        f'model-{u_id}.goal'
-    )
-    tarball_path = os.path.join(
-        TMP_DIR,
-        f'{u_id}.tar.gz'
-    )
-    gen_path = os.path.join(
-        TMP_DIR,
-        f'gen-{u_id}'
-    )
-    with open(model_path, 'w') as f:
-        f.write(fd.read().decode('utf8'))
+    model_path = os.path.join(TMP_DIR, f"model-{u_id}.goal")
+    tarball_path = os.path.join(TMP_DIR, f"{u_id}.tar.gz")
+    gen_path = os.path.join(TMP_DIR, f"gen-{u_id}")
+    with open(model_path, "w") as f:
+        f.write(fd.read().decode("utf8"))
     try:
         out_dir = m2t_python(model_path, gen_path)
         make_tarball(tarball_path, out_dir)
-        return FileResponse(tarball_path,
-                            filename=os.path.basename(tarball_path),
-                            media_type='application/x-tar')
+        return FileResponse(
+            tarball_path,
+            filename=os.path.basename(tarball_path),
+            media_type="application/x-tar",
+        )
     except Exception as e:
         print(e)
-        resp['status'] = 404
+        resp["status"] = 404
         return resp
+
 
 def make_tarball(fout, source_dir):
     with tarfile.open(fout, "w:gz") as tar:

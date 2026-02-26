@@ -32,14 +32,14 @@ Broker<Redis> LocalRedis
 end
 
 RTMonitor
-    broker: LocalRedis
+    source: LocalRedis
     eventTopic: "goaldsl.{U_ID}.event"
     logsTopic: "goaldsl.{U_ID}.log"
 end
 
 Entity AppVariables
     type: sensor
-    uri: "appcreator.variables"
+    topic: "appcreator.variables"
     source: LocalRedis
     freq: -1
     attributes:
@@ -49,17 +49,17 @@ Entity AppVariables
 end
 
 Goal<EntityPyCondition> CheckSum_1
-    condition:
+    when
         "AppVariables.name == 'i' and int(AppVariables.value) == 10"
 end
 
 Goal<EntityPyCondition> CheckSum_2
-    condition:
+    when
         "AppVariables.name == 'i' and int(AppVariables.value) == 50"
 end
 
 Goal<EntityPyCondition> CheckSum_3
-    condition:
+    when
         "AppVariables.name == 'sum' and int(AppVariables.value) == 5050"
 end
 

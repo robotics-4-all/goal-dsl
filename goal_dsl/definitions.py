@@ -3,9 +3,10 @@ from os.path import dirname, join
 
 
 THIS_DIR = dirname(__file__)
-TEMPLATES_PATH = join(THIS_DIR, 'templates')
-GRAMMAR_PATH = join(THIS_DIR, 'grammar')
-MODEL_REPO_PATH = None
+TEMPLATES_PATH = join(THIS_DIR, "templates")
+GRAMMAR_PATH = join(THIS_DIR, "grammar")
 BUILTIN_MODELS = None
-ZERO_LOGS = int(os.getenv('GOALDSL_ZERO_LOGS', 0))
-LOG_LEVEL = os.getenv("GOALDSL_LOG_LEVEL", "INFO")
+MODEL_REPO_PATH = os.getenv("GOALDSL_MODEL_REPO", None)
+
+ZERO_LOGS = os.getenv("GOALDSL_ZERO_LOGS", "0") == "1"
+LOG_LEVEL = os.getenv("GOALDSL_LOG_LEVEL", "INFO").upper()
