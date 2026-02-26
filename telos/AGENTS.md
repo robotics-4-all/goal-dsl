@@ -1,14 +1,14 @@
-# goal_dsl — Core Package
+# telos — Core Package
 
 ## OVERVIEW
 
-Main Python package implementing the GoalDSL language: grammar loading, metamodel, validation, code generation, CLI, and API.
+Main Python package implementing the Telos language: grammar loading, metamodel, validation, code generation, CLI, and API.
 Uses SmAuto architecture: `auto_init_attributes=False`, custom classes in `lib/`, `class_provider()`.
 
 ## STRUCTURE
 
 ```
-goal_dsl/
+telos/
 ├── __init__.py          # Package entry: version, textX @language decorator
 ├── language.py          # Central: class_provider, CUSTOM_CLASSES, model_proc validation, get_metamodel()
 ├── definitions.py       # TEMPLATES_PATH, GRAMMAR_PATH, env vars (ZERO_LOGS, LOG_LEVEL, MODEL_REPO)
@@ -19,7 +19,7 @@ goal_dsl/
 ├── transformations/     # Code generators
 │   ├── m2t_python.py    # Python codegen: parse → condition.build() → Jinja render → .py per scenario
 │   └── model_2_plantuml.py  # PlantUML diagram generator
-├── cli/cli.py           # Click CLI: `goaldsl validate|gen`
+├── cli/cli.py           # Click CLI: `telos validate|gen`
 ├── api/api.py           # FastAPI REST: /validate, /generate (with file/b64/JSON variants)
 └── lib/                 # Custom classes (SmAuto pattern)
     ├── condition.py     # Condition tree classes + cond_lambda builder (post-order traversal)
@@ -45,7 +45,7 @@ goal_dsl/
 - `build_model(path)` / `build_model_str(str)` — two parse entry points, return single model
 - Codegen output: one `.py` file per Scenario, named `{scenario.name}.py`
 - Template context: `rtmonitor`, `scenario`, `entities`, `entity_names`, `goals`
-- `__init__.py` re-exports `get_metamodel` and `goaldsl_language` as public API
+- `__init__.py` re-exports `get_metamodel` and `telos_language` as public API
 - `transformations/__init__.py` aliases: `m2t_python = generate`, `m2t_python_str = generate_str`
 - Condition building happens in codegen (not in model_proc)
 
@@ -53,5 +53,4 @@ goal_dsl/
 
 - `build/` dir is a stale artifact — do NOT modify
 - `model_2_plantuml.py` has unused `metamodel_from_file` import
-- No `tests/` directory — no automated test suite
 - textX `auto_init_attributes=False` + multi-file imports bug — workaround: inline entities

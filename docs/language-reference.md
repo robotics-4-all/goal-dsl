@@ -1,6 +1,6 @@
-# GoalDSL Language Reference
+# Telos Language Reference
 
-Complete syntax reference for GoalDSL. For a quick introduction, see the [README](../README.md).
+Complete syntax reference for Telos. For a quick introduction, see the [README](../README.md).
 
 ## Table of Contents
 
@@ -50,10 +50,10 @@ Complete syntax reference for GoalDSL. For a quick introduction, see the [README
 
 ## Model Structure
 
-A GoalDSL model file (`.goal`) has the following top-level structure. All sections are optional and can appear in any order.
+A Telos model file (`.telos`) has the following top-level structure. All sections are optional and can appear in any order.
 
 ```
-import <file>.goal
+import <file>.telos
 
 Metadata ... end
 
@@ -700,8 +700,8 @@ Orientation3D(x, y, z)  // Roll, pitch, yaw
 Split models across files using imports.
 
 ```
-import datasources.goal
-import entities.goal
+import datasources.telos
+import entities.telos
 ```
 
 The import path is relative to the importing file. File extension is included.
@@ -723,8 +723,8 @@ Optional runtime monitor configuration for event and log publishing.
 RTMonitor
     source: LocalRedis
     namespace: 'my_app'
-    eventTopic: 'goaldsl.{U_ID}.event'
-    logsTopic: 'goaldsl.{U_ID}.log'
+    eventTopic: 'telos.{U_ID}.event'
+    logsTopic: 'telos.{U_ID}.log'
 end
 ```
 

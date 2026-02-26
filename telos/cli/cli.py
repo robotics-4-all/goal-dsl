@@ -3,8 +3,8 @@ import os
 import click
 from rich import pretty, print
 
-from goal_dsl.language import build_model
-from goal_dsl.transformations import m2t_python
+from telos.language import build_model
+from telos.transformations import m2t_python
 
 pretty.install()
 
@@ -43,4 +43,4 @@ def gen_scenarios(ctx, model_path: str):
 
 
 def main():
-    cli(prog_name="goaldsl")
+    cli(prog_name="telos")

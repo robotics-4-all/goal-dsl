@@ -1,4 +1,4 @@
-# GoalDSL
+# Telos
 
 An external Domain-Specific Language for goal-driven behaviour verification of IoT-enabled Cyber-Physical Systems. Define declarative verification scenarios for smart entities, robots, and connected devices using typed conditions, spatial constraints, and composable goal structures.
 
@@ -63,8 +63,8 @@ end
 ```
 
 ```bash
-goaldsl validate scenario.goal
-goaldsl gen scenario.goal
+telos validate scenario.telos
+telos gen scenario.telos
 ```
 
 ## Language Overview
@@ -261,14 +261,14 @@ Types: `FROM_GOAL_START`, `FROM_SCENARIO_START`, `FOR_TIME`, `BETWEEN_GOALS_MIN`
 Models can be split across files:
 
 ```
-// datasources.goal
+// datasources.telos
 Broker<MQTT> HomeMQTT
     host: 'localhost'
     port: 1883
 end
 
-// scenario.goal
-import datasources.goal
+// scenario.telos
+import datasources.telos
 
 Entity TempSensor
     type: sensor
@@ -282,8 +282,8 @@ end
 ## CLI
 
 ```bash
-goaldsl validate <model>.goal    # Validate a model
-goaldsl gen <model>.goal         # Generate Python code
+telos validate <model>.telos    # Validate a model
+telos gen <model>.telos         # Generate Python code
 ```
 
 ## REST API
@@ -293,10 +293,10 @@ goaldsl gen <model>.goal         # Generate Python code
 docker compose up --build
 
 # Direct
-uvicorn goal_dsl.api:api --host 0.0.0.0 --port 8080
+uvicorn telos.api:api --host 0.0.0.0 --port 8080
 ```
 
-Endpoints: `POST /validate`, `POST /generate`. See `goal_dsl/api/api.py` for details.
+Endpoints: `POST /validate`, `POST /generate`. See `telos/api/api.py` for details.
 
 ## Examples
 

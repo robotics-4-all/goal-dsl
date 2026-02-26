@@ -4,7 +4,7 @@ import os
 
 
 def test_gen_timestamp():
-    from goal_dsl.utils import gen_timestamp
+    from telos.utils import gen_timestamp
 
     ts = gen_timestamp()
     assert isinstance(ts, int)
@@ -12,7 +12,7 @@ def test_gen_timestamp():
 
 
 def test_gen_timestamp_unique():
-    from goal_dsl.utils import gen_timestamp
+    from telos.utils import gen_timestamp
 
     t1 = gen_timestamp()
     t2 = gen_timestamp()
@@ -20,9 +20,9 @@ def test_gen_timestamp_unique():
 
 
 def test_plantuml_generate_diagram(tmp_path, minimal_model):
-    from goal_dsl.transformations.model_2_plantuml import generate_diagram
+    from telos.transformations.model_2_plantuml import generate_diagram
 
-    model_file = tmp_path / "test.goal"
+    model_file = tmp_path / "test.telos"
     model_file.write_text(minimal_model)
     orig_cwd = os.getcwd()
     os.chdir(tmp_path)

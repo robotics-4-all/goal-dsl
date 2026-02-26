@@ -1,6 +1,6 @@
 from collections import deque
 
-from goal_dsl.lib.types import Time
+from telos.lib.types import Time
 
 
 class Entity:

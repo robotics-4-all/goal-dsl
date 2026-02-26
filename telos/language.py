@@ -10,15 +10,15 @@ from textx import (
     metamodel_from_file,
 )
 
-from goal_dsl.definitions import BUILTIN_MODELS, MODEL_REPO_PATH
-from goal_dsl.lib.broker import (
+from telos.definitions import BUILTIN_MODELS, MODEL_REPO_PATH
+from telos.lib.broker import (
     AMQPBroker,
     Broker,
     BrokerAuthPlain,
     MQTTBroker,
     RedisBroker,
 )
-from goal_dsl.lib.condition import (
+from telos.lib.condition import (
     AdvancedCondition,
     BoolCondition,
     Condition,
@@ -33,7 +33,7 @@ from goal_dsl.lib.condition import (
     StringCondition,
     TimeCondition,
 )
-from goal_dsl.lib.entity import (
+from telos.lib.entity import (
     Attribute,
     BoolAttribute,
     DictAttribute,
@@ -44,7 +44,7 @@ from goal_dsl.lib.entity import (
     StringAttribute,
     TimeAttribute,
 )
-from goal_dsl.lib.types import Date, Dict, List, Time
+from telos.lib.types import Date, Dict, List, Time
 
 CURRENT_FPATH = pathlib.Path(__file__).parent.resolve()
 
@@ -164,7 +164,7 @@ def model_proc(model, metamodel):
 
 def get_metamodel(debug: bool = False, global_repo: bool = False):
     metamodel = metamodel_from_file(
-        CURRENT_FPATH.joinpath("grammar/goal_dsl.tx"),
+        CURRENT_FPATH.joinpath("grammar/telos.tx"),
         classes=class_provider,
         auto_init_attributes=False,
         textx_tools_support=True,
@@ -180,12 +180,16 @@ def get_metamodel(debug: bool = False, global_repo: bool = False):
 def get_scope_providers():
     sp = {"*.*": scoping_providers.FQNImportURI(importAs=True)}
     if BUILTIN_MODELS:
-        sp["brokers*"] = scoping_providers.FQNGlobalRepo(join(BUILTIN_MODELS, "broker", "*.goal"))
-        sp["entities*"] = scoping_providers.FQNGlobalRepo(join(BUILTIN_MODELS, "entity", "*.goal"))
-    if MODEL_REPO_PATH:
-        sp["brokers*"] = scoping_providers.FQNGlobalRepo(join(MODEL_REPO_PATH, "broker", "*.goal"))
+        sp["brokers*"] = scoping_providers.FQNGlobalRepo(join(BUILTIN_MODELS, "broker", "*.telos"))
         sp["entities*"] = scoping_providers.FQNGlobalRepo(
-            join(MODEL_REPO_PATH, "entity", "*.goal")
+            join(BUILTIN_MODELS, "entity", "*.telos")
+        )
+    if MODEL_REPO_PATH:
+        sp["brokers*"] = scoping_providers.FQNGlobalRepo(
+            join(MODEL_REPO_PATH, "broker", "*.telos")
+        )
+        sp["entities*"] = scoping_providers.FQNGlobalRepo(
+            join(MODEL_REPO_PATH, "entity", "*.telos")
         )
     return sp
 
@@ -238,7 +242,7 @@ def get_model_scenarios(model):
     return scenarios
 
 
-@language("goal_dsl", "*.goal")
-def goaldsl_language():
-    "Goal-driven Behavior Verification DSL for CPSs"
+@language("telos", "*.telos")
+def telos_language():
+    "Telos — Goal-driven Behavior Verification DSL for CPSs"
     return get_metamodel()

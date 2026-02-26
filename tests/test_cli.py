@@ -4,7 +4,7 @@ import os
 
 from click.testing import CliRunner
 
-from goal_dsl.cli.cli import cli
+from telos.cli.cli import cli
 
 from .conftest import BROKER_MQTT
 
@@ -35,7 +35,7 @@ end
 
 
 def test_validate_success(tmp_path):
-    f = tmp_path / "test.goal"
+    f = tmp_path / "test.telos"
     f.write_text(_valid_model())
     runner = CliRunner()
     result = runner.invoke(cli, ["validate", str(f)])
@@ -44,7 +44,7 @@ def test_validate_success(tmp_path):
 
 
 def test_validate_failure(tmp_path):
-    f = tmp_path / "bad.goal"
+    f = tmp_path / "bad.telos"
     f.write_text("this is not valid at all!!!")
     runner = CliRunner()
     result = runner.invoke(cli, ["validate", str(f)])
@@ -52,7 +52,7 @@ def test_validate_failure(tmp_path):
 
 
 def test_gen_success(tmp_path):
-    f = tmp_path / "test.goal"
+    f = tmp_path / "test.telos"
     f.write_text(_valid_model())
     runner = CliRunner()
     result = runner.invoke(cli, ["gen", str(f)])
@@ -83,7 +83,7 @@ def test_gen_help():
 
 
 def test_make_executable(tmp_path):
-    from goal_dsl.cli.cli import make_executable
+    from telos.cli.cli import make_executable
 
     f = tmp_path / "test.sh"
     f.write_text("#!/bin/bash\necho hello")

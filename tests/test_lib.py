@@ -1,7 +1,7 @@
 """Tests for custom classes in lib/."""
 
-from goal_dsl.lib.broker import AMQPBroker, Broker, BrokerAuthPlain, MQTTBroker, RedisBroker
-from goal_dsl.lib.condition import (
+from telos.lib.broker import AMQPBroker, Broker, BrokerAuthPlain, MQTTBroker, RedisBroker
+from telos.lib.condition import (
     BoolCondition,
     Condition,
     ConditionGroup,
@@ -14,7 +14,7 @@ from goal_dsl.lib.condition import (
     StringCondition,
     TimeCondition,
 )
-from goal_dsl.lib.entity import (
+from telos.lib.entity import (
     BoolAttribute,
     DictAttribute,
     Entity,
@@ -24,7 +24,7 @@ from goal_dsl.lib.entity import (
     StringAttribute,
     TimeAttribute,
 )
-from goal_dsl.lib.types import Date, Dict, List, Time
+from telos.lib.types import Date, Dict, List, Time
 
 # ── Entity ─────────────────────────────────────────────
 

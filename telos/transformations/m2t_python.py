@@ -3,14 +3,14 @@ from os import chmod, getcwd, mkdir, path
 import jinja2
 from textx import generator
 
-from goal_dsl.definitions import TEMPLATES_PATH
-from goal_dsl.language import (
+from telos.definitions import TEMPLATES_PATH
+from telos.language import (
     build_model,
     build_model_str,
     get_model_entities,
     get_model_scenarios,
 )
-from goal_dsl.logging import default_logger as logger
+from telos.logging import default_logger as logger
 
 THIS_DIR = path.abspath(path.dirname(__file__))
 
@@ -25,7 +25,7 @@ srcgen_folder = path.join(path.realpath(getcwd()), "gen")
 
 
 def generate(model_fpath: str, out_dir: str = ""):
-    """Generate Python code from a GoalDSL model file."""
+    """Generate Python code from a Telos model file."""
     if out_dir in (None, ""):
         out_dir = srcgen_folder
     if not path.exists(out_dir):
@@ -44,7 +44,7 @@ def generate(model_fpath: str, out_dir: str = ""):
 
 
 def generate_str(model_str: str):
-    """Generate Python code from a GoalDSL model string."""
+    """Generate Python code from a Telos model string."""
     model = build_model_str(model_str)
     scenario_code: dict = _generate_internal(model)
     return scenario_code
@@ -173,7 +173,7 @@ def make_condition_lambda(condition):
     return f"lambda entities, goals={{}}: True if {condition.cond_lambda} else False"
 
 
-@generator("goal_dsl", "python")
+@generator("telos", "python")
 def codegen_python(
     metamodel,
     model,
@@ -182,5 +182,5 @@ def codegen_python(
     debug,
     **custom_args,
 ):
-    "Generator for generating goalee from goal_dsl descriptions"
+    "Generator for generating Python code from Telos models"
     generate(model._tx_filename)

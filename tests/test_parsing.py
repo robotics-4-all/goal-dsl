@@ -2,7 +2,7 @@
 
 import pytest
 
-from goal_dsl.language import build_model_str
+from telos.language import build_model_str
 
 from .conftest import BROKER_AMQP, BROKER_MQTT, BROKER_REDIS, ENTITY_ALL_TYPES, REST_ENDPOINT
 
@@ -365,7 +365,7 @@ def test_parse_metadata(full_model):
 def test_parse_rtmonitor(full_model):
     m = build_model_str(full_model)
     assert m.rtmonitor is not None
-    assert m.rtmonitor.eTopic == "goaldsl.test.event"
+    assert m.rtmonitor.eTopic == "telos.test.event"
 
 
 def test_parse_time_constraints(full_model):

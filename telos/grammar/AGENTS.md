@@ -2,14 +2,14 @@
 
 ## OVERVIEW
 
-Modular textX grammar defining the GoalDSL syntax. Root: `goal_dsl.tx`. Each domain concept in its own `.tx` file.
+Modular textX grammar defining the Telos syntax. Root: `telos.tx`. Each domain concept in its own `.tx` file.
 Uses SmAuto-style condition grammar with UPPERCASE logical operators, typed attribute references, and when/then/config blocks.
 
 ## STRUCTURE
 
 ```
 grammar/
-├── goal_dsl.tx          # ROOT — GoalDSLModel, Metadata, RTMonitor, Scenario, imports
+├── telos.tx             # ROOT — TelosModel, Metadata, RTMonitor, Scenario, imports
 ├── goal.tx              # Goal supertype, ComplexGoal, GoalRepeater, WeightedGoal
 ├── entity_goals.tx      # EntityStateChange, EntityStateCondition, EntityPyCondition (when/then/config)
 ├── area_goals.tx        # RectangleArea, CircularArea, PolylineArea, MovingArea, StraightLine

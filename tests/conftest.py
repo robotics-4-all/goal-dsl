@@ -178,8 +178,8 @@ end
 
 RTMonitor
     source: LocalRedis
-    eventTopic: "goaldsl.test.event"
-    logsTopic: "goaldsl.test.log"
+    eventTopic: "telos.test.event"
+    logsTopic: "telos.test.log"
 end
 
 Entity TempSensor

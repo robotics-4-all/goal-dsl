@@ -1,13 +1,13 @@
-# examples — GoalDSL Example Models
+# examples — Telos Example Models
 
 ## OVERVIEW
 
-26 `.goal` model files across 18 scenario directories demonstrating all DSL features.
+26 `.telos` model files across 18 scenario directories demonstrating all DSL features.
 All examples use the refactored syntax: `broker:`/`topic:`, `when`/`then`/`config`, UPPERCASE operators.
 
 ## STRUCTURE
 
-Each subdirectory = one example scenario. Pattern: `scenario.goal`.
+Each subdirectory = one example scenario. Pattern: `scenario.telos`.
 
 ```
 examples/
@@ -25,10 +25,10 @@ examples/
 ├── entity_pycond/         # EntityPyCondition (Python string conditions)
 ├── entity_rest/           # Entity with REST endpoint defined
 ├── variable_entity/       # Value generators + noise on attributes
-├── loc_measure/           # 7 .goal files — multi-entity, multi-goal stress test
+├── loc_measure/           # 7 .telos files — multi-entity, multi-goal stress test
 ├── rse_scenarios/         # 2 subdirs: scenario_1/, scenario_2/
 ├── v3/                    # Comprehensive syntax example
-└── validate_all.sh        # Runs goaldsl validate on all examples
+└── validate_all.sh        # Runs telos validate on all examples
 ```
 
 ## WHERE TO LOOK

@@ -1,27 +1,30 @@
-# goal-dsl changelog
+# Telos Changelog
 
 All _notable_ changes to this project will be documented in this file.
 
 The format is based on _[Keep a Changelog][keepachangelog]_, and this project
 adheres to _[Semantic Versioning][semver]_.
 
-Everything that is documented in the [official docs][textXDocs] is considered
-the part of the public API.
+Backward incompatible changes are marked with **(BIC)**.
 
-Backward incompatible changes are marked with **(BIC)**. These changes are the
-reason for the major version increase so when upgrading between major versions
-please take a look at related PRs and issues and see if the change affects you.
-
-## [Unreleased]
-
-### Added
-
-### Fixed
+## [0.5.0] - 2026-02-26
 
 ### Changed
 
+- **(BIC)** Renamed project from GoalDSL to **Telos**
+- **(BIC)** Python package: `goal_dsl` → `telos`
+- **(BIC)** CLI command: `goaldsl` → `telos`
+- **(BIC)** File extension: `.goal` → `.telos`
+- **(BIC)** Environment variables: `GOALDSL_*` → `TELOS_*`
+- **(BIC)** textX language name: `goal_dsl` → `telos`
+- **(BIC)** Root grammar rule: `GoalDSLModel` → `TelosModel`
+- Docker service name: `goaldsl` → `telos`
+- Version bumped to 0.5.0
 
-[Unreleased]: https://github.com/CHANGEME/goal-dsl/commits/master
+## [Unreleased]
+
+[Unreleased]: https://github.com/robotics-4-all/goal-dsl/commits/devel
+[0.5.0]: https://github.com/robotics-4-all/goal-dsl/releases/tag/v0.5.0
 
 
 [keepachangelog]: https://keepachangelog.com/

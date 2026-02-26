@@ -26,7 +26,7 @@ DictType:
     NUMBER | STRING | BOOL | Dict | List | OBJECT
 ;
 
-// GoalDSL-specific geometry types
+// Telos-specific geometry types
 
 Point: Point2D | Point3D;
 Orientation: Orientation2D | Orientation3D;

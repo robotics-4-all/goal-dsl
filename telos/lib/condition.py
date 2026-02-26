@@ -2,7 +2,7 @@ import statistics
 
 from textx import get_metamodel, textx_isinstance
 
-from goal_dsl.lib.types import Dict, List, Time
+from telos.lib.types import Dict, List, Time
 
 # List of primitive types that can be directly printed
 PRIMITIVES = (int, float, str, bool)

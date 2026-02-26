@@ -1,7 +1,7 @@
 """Tests for condition building and lambda generation."""
 
-from goal_dsl.language import build_model_str
-from goal_dsl.transformations.m2t_python import make_condition_lambda
+from telos.language import build_model_str
+from telos.transformations.m2t_python import make_condition_lambda
 
 from .conftest import BROKER_MQTT
 
@@ -208,7 +208,7 @@ end
 
 
 def test_operators_dict():
-    from goal_dsl.lib.condition import OPERATORS
+    from telos.lib.condition import OPERATORS
 
     assert OPERATORS["=="](1, 2) == "(1 == 2)"
     assert OPERATORS["!="](1, 2) == "(1 != 2)"
@@ -230,7 +230,7 @@ def test_operators_dict():
 
 
 def test_transform_operand_primitives():
-    from goal_dsl.lib.condition import Condition
+    from telos.lib.condition import Condition
 
     assert Condition.transform_operand(42) == 42
     assert Condition.transform_operand(3.14) == 3.14
@@ -240,8 +240,8 @@ def test_transform_operand_primitives():
 
 
 def test_transform_operand_list():
-    from goal_dsl.lib.condition import Condition
-    from goal_dsl.lib.types import List
+    from telos.lib.condition import Condition
+    from telos.lib.types import List
 
     lst = List(items=[1, 2, 3])
     result = Condition.transform_operand(lst)
@@ -249,8 +249,8 @@ def test_transform_operand_list():
 
 
 def test_transform_operand_dict():
-    from goal_dsl.lib.condition import Condition
-    from goal_dsl.lib.types import Dict
+    from telos.lib.condition import Condition
+    from telos.lib.types import Dict
 
     d = Dict(items=[])
     result = Condition.transform_operand(d)
@@ -258,8 +258,8 @@ def test_transform_operand_dict():
 
 
 def test_transform_operand_time():
-    from goal_dsl.lib.condition import Condition
-    from goal_dsl.lib.types import Time
+    from telos.lib.condition import Condition
+    from telos.lib.types import Time
 
     t = Time(hour=1, minute=2, second=3)
     result = Condition.transform_operand(t)

@@ -14,4 +14,4 @@ COPY ./ /app
 
 RUN pip install .
 
-CMD ["uvicorn", "goal_dsl.api:api", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "telos.api:api", "--host", "0.0.0.0", "--port", "8080"]

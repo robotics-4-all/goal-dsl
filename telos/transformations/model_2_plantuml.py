@@ -1,7 +1,7 @@
 import jinja2
 
-from goal_dsl.definitions import TEMPLATES_PATH
-from goal_dsl.language import build_model
+from telos.definitions import TEMPLATES_PATH
+from telos.language import build_model
 
 jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(TEMPLATES_PATH), trim_blocks=True, lstrip_blocks=True

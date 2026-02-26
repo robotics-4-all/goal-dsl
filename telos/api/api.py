@@ -11,12 +11,12 @@ from fastapi.responses import FileResponse
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
 
-from goal_dsl.language import build_model
-from goal_dsl.transformations import m2t_python
+from telos.language import build_model
+from telos.transformations import m2t_python
 
 HAS_DOCKER_EXEC = os.getenv("HAS_DOCKER_EXEC", False)
 API_KEY = os.getenv("API_KEY", "API_KEY")
-TMP_DIR = "/tmp/goaldsl"
+TMP_DIR = "/tmp/telos"
 
 
 if not os.path.exists(TMP_DIR):
@@ -65,7 +65,7 @@ async def validate(model: ValidationModel, api_key: str = Security(get_api_key))
         return 404
     resp = {"status": 200, "message": ""}
     u_id = uuid.uuid4().hex[0:8]
-    fpath = os.path.join(TMP_DIR, f"model_for_validation-{u_id}.goal")
+    fpath = os.path.join(TMP_DIR, f"model_for_validation-{u_id}.telos")
     with open(fpath, "w") as f:
         f.write(text)
     try:
@@ -87,7 +87,7 @@ async def validate_file(file: UploadFile = File(...), api_key: str = Security(ge
     resp = {"status": 200, "message": ""}
     fd = file.file
     u_id = uuid.uuid4().hex[0:8]
-    fpath = os.path.join(TMP_DIR, f"model_for_validation-{u_id}.goal")
+    fpath = os.path.join(TMP_DIR, f"model_for_validation-{u_id}.telos")
     with open(fpath, "w") as f:
         f.write(fd.read().decode("utf8"))
     try:
@@ -105,7 +105,7 @@ async def validate_b64(fenc: str = "", api_key: str = Security(get_api_key)):
     resp = {"status": 200, "message": ""}
     fdec = base64.b64decode(fenc)
     u_id = uuid.uuid4().hex[0:8]
-    fpath = os.path.join(TMP_DIR, "model_for_validation-{}.goal".format(u_id))
+    fpath = os.path.join(TMP_DIR, "model_for_validation-{}.telos".format(u_id))
     with open(fpath, "wb") as f:
         f.write(fdec)
     try:
@@ -123,7 +123,7 @@ async def gen_from_model(
 ):
     model = gen_auto_model.model
     u_id = uuid.uuid4().hex[0:8]
-    model_path = os.path.join(TMP_DIR, f"model-{u_id}.goal")
+    model_path = os.path.join(TMP_DIR, f"model-{u_id}.telos")
     gen_path = os.path.join(TMP_DIR, f"gen-{u_id}")
     if not os.path.exists(gen_path):
         os.mkdir(gen_path)
@@ -151,7 +151,7 @@ async def gen_from_file(model_file: UploadFile = File(...), api_key: str = Secur
     resp = {"status": 200, "message": ""}
     fd = model_file.file
     u_id = uuid.uuid4().hex[0:8]
-    model_path = os.path.join(TMP_DIR, f"model-{u_id}.goal")
+    model_path = os.path.join(TMP_DIR, f"model-{u_id}.telos")
     tarball_path = os.path.join(TMP_DIR, f"{u_id}.tar.gz")
     gen_path = os.path.join(TMP_DIR, f"gen-{u_id}")
     with open(model_path, "w") as f:

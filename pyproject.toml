@@ -3,16 +3,16 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "goal-dsl"
-version = "0.4.0"
-description = "Domain-Specific Language for goal-driven behaviour verification of IoT-enabled CPS."
+name = "telos"
+version = "0.5.0"
+description = "Telos — Domain-Specific Language for goal-driven behaviour verification of IoT-enabled CPS."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
 authors = [
     { name = "Konstantinos Panayiotou", email = "klpanagi@gmail.com" },
 ]
-keywords = ["goaldsl", "dsl", "iot", "cps", "textx", "goal-driven", "verification"]
+keywords = ["telos", "dsl", "iot", "cps", "textx", "goal-driven", "verification"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -47,20 +47,20 @@ test = ["pytest", "pytest-cov", "httpx"]
 Repository = "https://github.com/robotics-4-all/goal-dsl"
 
 [project.scripts]
-goaldsl = "goal_dsl.cli.cli:main"
+telos = "telos.cli.cli:main"
 
 [project.entry-points."textx_languages"]
-goal_dsl = "goal_dsl:goaldsl_language"
+telos = "telos:telos_language"
 
 [project.entry-points."textx_generators"]
-pygen = "goal_dsl.transformations.m2t_python:codegen_python"
+pygen = "telos.transformations.m2t_python:codegen_python"
 
 [tool.setuptools.packages.find]
-include = ["goal_dsl*"]
+include = ["telos*"]
 
 [tool.setuptools.package-data]
-"goal_dsl.grammar" = ["*.tx"]
-"goal_dsl.templates" = ["*.jinja"]
+"telos.grammar" = ["*.tx"]
+"telos.templates" = ["*.jinja"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

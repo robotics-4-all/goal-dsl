@@ -2,7 +2,7 @@ import logging
 
 from rich.logging import RichHandler
 
-from goal_dsl.definitions import LOG_LEVEL, ZERO_LOGS
+from telos.definitions import LOG_LEVEL, ZERO_LOGS
 
 if ZERO_LOGS:
     logging.disable()

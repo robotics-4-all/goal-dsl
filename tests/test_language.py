@@ -3,7 +3,7 @@
 import pytest
 from textx import TextXSemanticError, TextXSyntaxError
 
-from goal_dsl.language import (
+from telos.language import (
     build_model,
     build_model_str,
     class_provider,
@@ -11,7 +11,7 @@ from goal_dsl.language import (
     get_model_entities,
     get_model_goals,
     get_model_scenarios,
-    goaldsl_language,
+    telos_language,
 )
 
 from .conftest import BROKER_MQTT
@@ -24,7 +24,7 @@ def test_build_model_str(minimal_model):
 
 
 def test_build_model_file(minimal_model, tmp_path):
-    f = tmp_path / "test.goal"
+    f = tmp_path / "test.telos"
     f.write_text(minimal_model)
     m = build_model(str(f))
     assert m is not None
@@ -118,7 +118,7 @@ end
 
 
 def test_class_provider_known():
-    from goal_dsl.lib.entity import Entity
+    from telos.lib.entity import Entity
 
     result = class_provider("Entity")
     assert result is Entity
@@ -156,17 +156,15 @@ def test_invalid_model():
         build_model_str("this is not a valid model at all!!!")
 
 
-def test_goaldsl_language():
-    # goaldsl_language is a LanguageDesc (decorated with @language), not callable.
-    # Verify it exposes the expected attributes.
-    assert goaldsl_language is not None
-    assert hasattr(goaldsl_language, "name")
-    assert goaldsl_language.name == "goal_dsl"
+def test_telos_language():
+    assert telos_language is not None
+    assert hasattr(telos_language, "name")
+    assert telos_language.name == "telos"
 
 
 def test_time_obj_processor_valid():
-    from goal_dsl.language import time_obj_processor
-    from goal_dsl.lib.types import Time
+    from telos.language import time_obj_processor
+    from telos.lib.types import Time
 
     t = Time(hour=12, minute=30, second=45)
     # Should not raise
@@ -174,8 +172,8 @@ def test_time_obj_processor_valid():
 
 
 def test_time_obj_processor_invalid_hour():
-    from goal_dsl.language import time_obj_processor
-    from goal_dsl.lib.types import Time
+    from telos.language import time_obj_processor
+    from telos.lib.types import Time
 
     t = Time(hour=25, minute=0, second=0)
     with pytest.raises(TextXSemanticError, match="Time.hours"):
@@ -183,8 +181,8 @@ def test_time_obj_processor_invalid_hour():
 
 
 def test_time_obj_processor_invalid_minute():
-    from goal_dsl.language import time_obj_processor
-    from goal_dsl.lib.types import Time
+    from telos.language import time_obj_processor
+    from telos.lib.types import Time
 
     t = Time(hour=0, minute=61, second=0)
     with pytest.raises(TextXSemanticError, match="Time.minutes"):
@@ -192,8 +190,8 @@ def test_time_obj_processor_invalid_minute():
 
 
 def test_time_obj_processor_invalid_second():
-    from goal_dsl.language import time_obj_processor
-    from goal_dsl.lib.types import Time
+    from telos.language import time_obj_processor
+    from telos.lib.types import Time
 
     t = Time(hour=0, minute=0, second=61)
     with pytest.raises(TextXSemanticError, match="Time.seconds"):
@@ -201,7 +199,7 @@ def test_time_obj_processor_invalid_second():
 
 
 def test_verify_source_names_duplicate_rest():
-    from goal_dsl.language import build_model_str
+    from telos.language import build_model_str
 
     with pytest.raises(TextXSemanticError, match="Source.*already exists"):
         build_model_str("""

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-IMAGE_ID=goaldsl
+IMAGE_ID=telos
 
 docker build -t ${IMAGE_ID} $@ .

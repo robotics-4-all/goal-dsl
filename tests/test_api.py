@@ -2,7 +2,7 @@
 
 from fastapi.testclient import TestClient
 
-from goal_dsl.api.api import api
+from telos.api.api import api
 
 from .conftest import BROKER_MQTT
 
@@ -107,7 +107,7 @@ def test_validate_file_success():
     content = _valid_model().encode("utf-8")
     resp = client.post(
         "/validate/file",
-        files={"file": ("test.goal", io.BytesIO(content), "text/plain")},
+        files={"file": ("test.telos", io.BytesIO(content), "text/plain")},
         headers=HEADERS,
     )
     assert resp.status_code == 200
@@ -121,7 +121,7 @@ def test_validate_file_invalid():
     content = b"not valid at all!!!"
     resp = client.post(
         "/validate/file",
-        files={"file": ("bad.goal", io.BytesIO(content), "text/plain")},
+        files={"file": ("bad.telos", io.BytesIO(content), "text/plain")},
         headers=HEADERS,
     )
     assert resp.status_code == 200
@@ -172,7 +172,7 @@ def test_generate_file_success():
     content = _valid_model().encode("utf-8")
     resp = client.post(
         "/generate/file",
-        files={"model_file": ("test.goal", io.BytesIO(content), "text/plain")},
+        files={"model_file": ("test.telos", io.BytesIO(content), "text/plain")},
         headers=HEADERS,
     )
     assert resp.status_code == 200
@@ -185,7 +185,7 @@ def test_generate_file_invalid():
     content = b"not valid at all!!!"
     resp = client.post(
         "/generate/file",
-        files={"model_file": ("bad.goal", io.BytesIO(content), "text/plain")},
+        files={"model_file": ("bad.telos", io.BytesIO(content), "text/plain")},
         headers=HEADERS,
     )
     assert resp.status_code == 200

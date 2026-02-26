@@ -2,7 +2,7 @@
 
 import os
 
-from goal_dsl.transformations.m2t_python import generate, generate_str
+from telos.transformations.m2t_python import generate, generate_str
 
 from .conftest import BROKER_MQTT
 
@@ -114,7 +114,7 @@ def test_generate_repeater_goal(full_model):
 
 
 def test_generate_to_file(minimal_model, tmp_path):
-    model_file = tmp_path / "test.goal"
+    model_file = tmp_path / "test.telos"
     model_file.write_text(minimal_model)
     out_dir = str(tmp_path / "gen")
     generate(str(model_file), out_dir)
@@ -311,7 +311,7 @@ end
 
 
 def test_generate_to_file_default_dir(minimal_model, tmp_path):
-    model_file = tmp_path / "test.goal"
+    model_file = tmp_path / "test.telos"
     model_file.write_text(minimal_model)
     out_dir = str(tmp_path / "out")
     result = generate(str(model_file), out_dir)

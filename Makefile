@@ -15,28 +15,28 @@ install-dev: ## Install with dev + test dependencies
 # ── Code Quality ───────────────────────────────────────
 
 lint: ## Run ruff linter
-	ruff check goal_dsl/
+	ruff check telos/
 
 format: ## Auto-format code with ruff
-	ruff format goal_dsl/
-	ruff check --fix goal_dsl/
+	ruff format telos/
+	ruff check --fix telos/
 
 check: ## Lint + format check (no writes)
-	ruff check goal_dsl/
-	ruff format --check goal_dsl/
+	ruff check telos/
+	ruff format --check telos/
 
 # ── Testing ────────────────────────────────────────────
 
 test: ## Run pytest with coverage
-	@if [ -d tests ]; then python -m pytest tests/ -v --cov=goal_dsl --cov-report=term-missing; else echo "No tests/ directory — skipping"; fi
+	@if [ -d tests ]; then python -m pytest tests/ -v --cov=telos --cov-report=term-missing; else echo "No tests/ directory — skipping"; fi
 
-validate: ## Validate all example .goal files
+validate: ## Validate all example .telos files
 	@python -c "$$VALIDATE_SCRIPT"
 
 define VALIDATE_SCRIPT
 import glob, sys
-from goal_dsl.language import build_model
-files = sorted(glob.glob('examples/**/*.goal', recursive=True))
+from telos.language import build_model
+files = sorted(glob.glob('examples/**/*.telos', recursive=True))
 ok = fail = 0
 for f in files:
     try:
@@ -49,8 +49,8 @@ endef
 export VALIDATE_SCRIPT
 
 gen: ## Generate Python code for all examples
-	@for f in $$(find examples -name '*.goal' | sort); do \
-		goaldsl gen "$$f" 2>/dev/null && echo "  OK: $$f" || echo "FAIL: $$f"; \
+	@for f in $$(find examples -name '*.telos' | sort); do \
+		telos gen "$$f" 2>/dev/null && echo "  OK: $$f" || echo "FAIL: $$f"; \
 	done
 
 # ── CI ─────────────────────────────────────────────────
@@ -74,6 +74,6 @@ logs: ## Tail service logs
 # ── Cleanup ────────────────────────────────────────────
 
 clean: ## Remove build artifacts
-	rm -rf build/ dist/ *.egg-info goal_dsl.egg-info goaldsl.egg-info gen/
+	rm -rf build/ dist/ *.egg-info telos.egg-info gen/
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name '*.pyc' -delete 2>/dev/null || true

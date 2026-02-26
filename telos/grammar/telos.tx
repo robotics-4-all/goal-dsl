@@ -1,5 +1,5 @@
 /*
-    Goal DSL
+    Telos
 */
 import communication
 import goal
@@ -9,7 +9,7 @@ import types
 import time_constraint
 
 
-GoalDSLModel:
+TelosModel:
     imports*=Import
     (metadata=Metadata)?
     (
