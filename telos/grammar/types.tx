@@ -4,7 +4,7 @@ Time:
     hour=INT ':' minute=INT (':' second=INT)?
 ;
 
-Date: month=INT ':' day=INT ':' year=INT;
+Date: month=INT '/' day=INT '/' year=INT;
 
 List:
     '[' items*=ListItem[','] ']'

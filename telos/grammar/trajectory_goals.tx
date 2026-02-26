@@ -5,7 +5,8 @@ import utils
 
 TrajectoryGoal:
     StraightLineTrajectoryGoal  |
-    WaypointTrajectoryGoal
+    WaypointTrajectoryGoal |
+    CurveTrajectoryGoal
 ;
 
 StraightLineTrajectoryGoal:
@@ -16,6 +17,8 @@ StraightLineTrajectoryGoal:
         ('finishPoint:' finishPoint=Point)
         ('maxDeviation:' maxDeviation=NUMBER)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#
     'end'
 ;
@@ -27,6 +30,8 @@ WaypointTrajectoryGoal:
         ('points:' '[' points+=Point[','] ']')
         ('maxDeviation:' maxDeviation=NUMBER)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#
     'end'
 ;
@@ -40,6 +45,8 @@ CurveTrajectoryGoal:
         ('curvature:' curvature=NUMBER)
         ('maxDeviation:' maxDeviation=NUMBER)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#
     'end'
 ;

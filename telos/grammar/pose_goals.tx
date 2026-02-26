@@ -13,6 +13,8 @@ PoseGoal:
         ('maxDeviationPos:' maxDeviationPos=NUMBER)
         ('maxDeviationOri:' maxDeviationOri=NUMBER)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#
     'end'
 ;
@@ -24,6 +26,8 @@ OrientationGoal:
         ('orientation:' orientation=Orientation)
         ('maxDeviation:' maxDeviation=NUMBER)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#
     'end'
 ;
@@ -32,9 +36,11 @@ PositionGoal:
     'Goal<Pos>' name=ID
     (
         ('entity:' entity=[Entity:FQN|+pm:entities*])
-        ('position:' point=Point)
+        ('position:' position=Point)
         ('maxDeviation:' maxDeviation=NUMBER)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#
     'end'
 ;

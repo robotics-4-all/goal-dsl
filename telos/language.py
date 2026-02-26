@@ -155,11 +155,53 @@ def verify_goal_names(model):
         _ids.append(goal.name)
 
 
+DANGEROUS_PATTERNS = [
+    "__import__",
+    "__builtins__",
+    "__class__",
+    "__subclasses__",
+    "import ",
+    "exec(",
+    "eval(",
+    "compile(",
+    "open(",
+    "os.",
+    "sys.",
+    "subprocess",
+    "lambda ",
+    "def ",
+    "class ",
+    "globals(",
+    "locals(",
+    "getattr(",
+    "setattr(",
+    "delattr(",
+    "breakpoint(",
+    "__dict__",
+]
+
+
+def verify_eval_conditions(model):
+    goals = get_children_of_type("EntityPyConditionGoal", model)
+    for goal in goals:
+        condition = getattr(goal, "condition", None)
+        if condition is None:
+            continue
+        for pattern in DANGEROUS_PATTERNS:
+            if pattern in condition:
+                raise TextXSemanticError(
+                    f"Goal<Eval> '{goal.name}' contains dangerous pattern"
+                    f" '{pattern}' in condition",
+                    **get_location(goal),
+                )
+
+
 def model_proc(model, metamodel):
     process_time_class(model)
     verify_entity_names(model)
     verify_source_names(model)
     verify_goal_names(model)
+    verify_eval_conditions(model)
 
 
 def get_metamodel(debug: bool = False, global_repo: bool = False):

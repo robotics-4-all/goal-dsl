@@ -411,3 +411,156 @@ end
     g = m.goals[0]
     assert g.__class__.__name__ == "MovingAreaGoal"
     assert g.radius == 2
+
+
+def test_parse_arc_goal():
+    m = build_model_str(
+        _model("""
+Entity R1
+    type: sensor
+    topic: 'r1.pose'
+    source: HomeMQTT
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+Goal<Arc> G1
+    entity: R1
+    startPoint: Point3D(0, 0, 0)
+    finishPoint: Point3D(5, 5, 0)
+    curvature: 0.3
+    maxDeviation: 0.5
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+""")
+    )
+    g = m.goals[0]
+    assert g.__class__.__name__ == "CurveTrajectoryGoal"
+    assert g.name == "G1"
+    assert g.entity.name == "R1"
+    assert g.curvature == pytest.approx(0.3)
+    assert g.maxDeviation == pytest.approx(0.5)
+    assert g.startPoint is not None
+    assert g.finishPoint is not None
+
+
+def test_parse_area_goal_stay_tag():
+    m = build_model_str(
+        _model("""
+Entity R1
+    type: sensor
+    topic: 'r1.pos'
+    source: HomeMQTT
+    attributes:
+        - x: float
+end
+
+Goal<Circle> G1
+    entities:
+        - R1
+    center: Point2D(0, 0)
+    radius: 5
+    tag: STAY
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+""")
+    )
+    g = m.goals[0]
+    assert g.__class__.__name__ == "CircularAreaGoal"
+    assert g.tag == "STAY"
+
+
+def test_parse_area_goal_cross_tag():
+    m = build_model_str(
+        _model("""
+Entity R1
+    type: sensor
+    topic: 'r1.pos'
+    source: HomeMQTT
+    attributes:
+        - x: float
+end
+
+Goal<Rect> G1
+    entities:
+        - R1
+    bottomLeftEdge: Point2D(0, 0)
+    lengthX: 10
+    lengthY: 10
+    tag: CROSS
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+""")
+    )
+    g = m.goals[0]
+    assert g.tag == "CROSS"
+
+
+def test_parse_goal_with_timeout():
+    m = build_model_str(
+        _model("""
+Entity TempSensor
+    type: sensor
+    topic: 'bedroom.temp'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
+Goal<Watch> G1
+    entity: TempSensor
+    timeout: 30.0
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+""")
+    )
+    g = m.goals[0]
+    assert g.timeout == 30.0
+
+
+def test_parse_goal_with_tags():
+    m = build_model_str(
+        _model("""
+Entity TempSensor
+    type: sensor
+    topic: 'bedroom.temp'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
+Goal<Watch> G1
+    entity: TempSensor
+    tags: [safety, critical]
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+""")
+    )
+    g = m.goals[0]
+    assert g.tags == ["safety", "critical"]

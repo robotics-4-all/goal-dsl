@@ -217,3 +217,110 @@ RESTEndpoint A1
     path: '/b'
 end
 """)
+
+
+def test_eval_condition_safe():
+    build_model_str(
+        BROKER_MQTT
+        + """
+Entity S1
+    type: sensor
+    topic: 'test'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
+Goal<Eval> G1
+    when
+        'S1.temp > 10 and S1.temp < 50'
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+"""
+    )
+
+
+def test_eval_condition_import_rejected():
+    with pytest.raises(TextXSemanticError, match="dangerous"):
+        build_model_str(
+            BROKER_MQTT
+            + """
+Entity S1
+    type: sensor
+    topic: 'test'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
+Goal<Eval> G1
+    when
+        '__import__("os").system("ls")'
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+"""
+        )
+
+
+def test_eval_condition_exec_rejected():
+    with pytest.raises(TextXSemanticError, match="dangerous"):
+        build_model_str(
+            BROKER_MQTT
+            + """
+Entity S1
+    type: sensor
+    topic: 'test'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
+Goal<Eval> G1
+    when
+        'exec("bad")'
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+"""
+        )
+
+
+def test_eval_condition_os_rejected():
+    with pytest.raises(TextXSemanticError, match="dangerous"):
+        build_model_str(
+            BROKER_MQTT
+            + """
+Entity S1
+    type: sensor
+    topic: 'test'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
+Goal<Eval> G1
+    when
+        'os.system("ls")'
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+"""
+        )

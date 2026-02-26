@@ -31,6 +31,8 @@ ComplexGoal:
                 ('description:' description=STRING)?
             )#
         )?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#
     'end'
 ;
@@ -56,11 +58,13 @@ GoalRepeater:
                 ('description:' description=STRING)?
             )#
         )?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#
     'end'
 ;
 
 WeightedGoal:
-    goal=[Goal:FQN|+m:goals*] ('->' weight=FLOAT)?
+    goal=[Goal:FQN|+m:goals*] ('@' weight=FLOAT)?
 ;
 

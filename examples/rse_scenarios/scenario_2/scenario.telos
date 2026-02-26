@@ -73,10 +73,10 @@ end
 
 Scenario ScenarioB
     goals:
-        - Goal_1 -> 0.2
-        - Goal_2 -> 0.2
-        - Goal_3 -> 0.2
-        - Goal_4 -> 0.2
-        - Goal_5 -> 0.2
+        - Goal_1 @0.2
+        - Goal_2 @0.2
+        - Goal_3 @0.2
+        - Goal_4 @0.2
+        - Goal_5 @0.2
     concurrent: false
 end

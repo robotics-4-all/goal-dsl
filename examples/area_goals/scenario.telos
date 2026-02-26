@@ -44,7 +44,7 @@ end
 
 Scenario MyScenario
     goals:
-        - Goal_1 -> 0.5
-        - Goal_2 -> 0.5
+        - Goal_1 @0.5
+        - Goal_2 @0.5
     concurrent: False
 end

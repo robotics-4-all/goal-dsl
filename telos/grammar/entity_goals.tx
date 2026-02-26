@@ -21,6 +21,8 @@ EntityStateChangeGoal:
                 ('description:' description=STRING)?
             )#
         )?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#
     'end'
 ;
@@ -36,6 +38,8 @@ EntityStateConditionGoal:
                 ('description:' description=STRING)?
             )#
         )?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#
     'end'
 ;
@@ -51,6 +55,8 @@ EntityPyConditionGoal:
                 ('description:' description=STRING)?
             )#
         )?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#
     'end'
 ;

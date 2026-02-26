@@ -35,26 +35,12 @@ GoalStatus:
 
 StatusOperator: '==' | '!=' ;
 
-AdvancedCondition: InRangeCondition | MathExpression;
+AdvancedCondition: InRangeCondition;
 
 InRangeCondition:
     attribute=AugmentedNumericAttr  'in range'
         '[' min=NUMBER ',' max=NUMBER ']'
 ;
-
-MathExpression:
-	'math' '(' op=MathTerm (op=PlusOrMinus op=MathTerm)* ')'
-;
-
-PlusOrMinus: '+' | '-';
-MulOrDiv: '*' | '/' ;
-
-MathTerm: op=MathFactor (op=MulOrDiv op=MathFactor)*;
-
-MathFactor: (sign=PlusOrMinus)?  op=MathOperand;
-
-MathOperand: op=NUMBER | op=[NumericAttribute:FQN|+m:entities.attributes] |
-	('(' op=MathExpression ')');
 
 StdAttr:
     'std' '(' attribute=AugmentedNumericAttr ',' size=INT ')'

@@ -287,9 +287,9 @@ end
 
 Scenario MainScenario
     goals:
-        - G_Cluster -> 0.5
-        - G_Loop -> 0.3
-        - G_Rect -> 0.2
+        - G_Cluster @0.5
+        - G_Loop @0.3
+        - G_Rect @0.2
     antigoals:
         - G_Bool
     concurrent: true

@@ -318,6 +318,35 @@ def test_generate_to_file_default_dir(minimal_model, tmp_path):
     assert result == out_dir
 
 
+def test_generate_timeout_shorthand():
+    model = (
+        BROKER_MQTT
+        + """
+Entity TempSensor
+    type: sensor
+    topic: 'bedroom.temp'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
+Goal<Watch> G1
+    entity: TempSensor
+    timeout: 45.0
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+"""
+    )
+    result = generate_str(model)
+    code = result["Sc"]
+    assert "max_duration=45.0" in code
+
+
 def test_generate_with_generators(model_with_generators):
     result = generate_str(model_with_generators)
     assert isinstance(result, dict)

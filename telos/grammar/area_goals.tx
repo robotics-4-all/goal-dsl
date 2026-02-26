@@ -22,6 +22,8 @@ RectangleAreaGoal:
         ('lengthY:' lengthY=NUMBER)
         ('tag:' tag=AreaGoalTag )
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#  // Any order
     'end'
 ;
@@ -33,6 +35,8 @@ PolylineAreaGoal:
         ('points:' '[' points+=Point[','] ']' )
         ('tag:' tag=AreaGoalTag )
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#  // Any order
     'end'
 ;
@@ -45,6 +49,8 @@ MovingAreaGoal:
         ('radius:' radius=NUMBER)
         ('tag:' tag=AreaGoalTag)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#  // Any order
     'end'
 ;
@@ -57,6 +63,8 @@ CircularAreaGoal:
         ('radius:' radius=NUMBER)
         ('tag:' tag=AreaGoalTag)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#
     'end'
 ;
@@ -69,8 +77,10 @@ StraightLine:
         ('endPoint:' endPoint=Point)
         ('tag:' tag=AreaGoalTag)
         ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
     )#
     'end'
 ;
 
-AreaGoalTag: 'ENTER' | 'EXIT' | 'AVOID' | 'STEP';
+AreaGoalTag: 'ENTER' | 'EXIT' | 'AVOID' | 'STEP' | 'STAY' | 'CROSS';

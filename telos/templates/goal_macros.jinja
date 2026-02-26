@@ -101,7 +101,7 @@ g = MovingAreaGoal(
 g = PositionGoal(
         name='{{ goal.name }}',
         entity={{ goal.entity.name }},
-        position=Point(x={{ goal.point.x or 0 }}, y={{ goal.point.y or 0 }}, z={{ goal.point.z or 0 }}),
+        position=Point(x={{ goal.position.x or 0 }}, y={{ goal.position.y or 0 }}, z={{ goal.position.z or 0 }}),
         deviation={{ goal.maxDeviation }},
         max_duration={{ goal.max_duration }},
         min_duration={{ goal.min_duration }},

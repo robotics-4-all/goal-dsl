@@ -116,6 +116,12 @@ def process_goals(goals):
             "PoseGoal",
         ):
             pass
+        elif goal_type in (
+            "StraightLineTrajectoryGoal",
+            "WaypointTrajectoryGoal",
+            "CurveTrajectoryGoal",
+        ):
+            pass
         elif goal_type == "GoalRepeater":
             _g = process_goals([goal.goal])
             _goals.extend(_g)
@@ -161,6 +167,9 @@ def goal_max_min_duration_from_tc(goal):
                     min_duration = tc.time
             elif tc.type == "FOR_TIME":
                 for_duration = tc.time
+    timeout = getattr(goal, "timeout", None)
+    if timeout is not None and max_duration is None:
+        max_duration = timeout
     logger.info(f"[*] - Goal <{goal.name}> max duration: {max_duration} seconds")
     logger.info(f"[*] - Goal <{goal.name}> min duration: {min_duration} seconds")
     logger.info(f"[*] - Goal <{goal.name}> for duration: {for_duration} seconds")
