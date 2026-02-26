@@ -3,11 +3,36 @@ import types
 import utils
 
 // === Conditions ===
-Condition: AdvancedCondition | PrimitiveCondition | ConditionGroup ;
+Condition: OrExpr;
 
-ConditionGroup:
-    '(' r1=Condition ')' operator=LogicalOperator '(' r2=Condition ')'
+OrExpr:
+    operands+=AndExpr['OR']
 ;
+
+AndExpr:
+    operands+=NotExpr['AND']
+;
+
+NotExpr:
+    ('NOT' operand=NotExpr) | operand=AtomicCondition
+;
+
+AtomicCondition:
+    BinaryLogical |
+    ParenCondition |
+    AdvancedCondition |
+    PrimitiveCondition
+;
+
+ParenCondition:
+    '(' inner=Condition ')'
+;
+
+BinaryLogical:
+    '(' r1=Condition ')' operator=BinaryLogicalOp '(' r2=Condition ')'
+;
+
+BinaryLogicalOp: 'XOR' | 'NOR' | 'XNOR' | 'NAND';
 
 PrimitiveCondition:
     GoalStatusCondition |

@@ -20,7 +20,7 @@ StraightLineTrajectoryGoal:
         ('timeout:' timeout=FLOAT)?
         ('tags:' '[' tags*=ID[','] ']')?
     )#
-    'end'
+    ('end' | ';')
 ;
 
 WaypointTrajectoryGoal:
@@ -33,7 +33,7 @@ WaypointTrajectoryGoal:
         ('timeout:' timeout=FLOAT)?
         ('tags:' '[' tags*=ID[','] ']')?
     )#
-    'end'
+    ('end' | ';')
 ;
 
 CurveTrajectoryGoal:
@@ -48,5 +48,5 @@ CurveTrajectoryGoal:
         ('timeout:' timeout=FLOAT)?
         ('tags:' '[' tags*=ID[','] ']')?
     )#
-    'end'
+    ('end' | ';')
 ;

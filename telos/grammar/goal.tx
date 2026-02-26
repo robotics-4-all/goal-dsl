@@ -34,7 +34,7 @@ ComplexGoal:
         ('timeout:' timeout=FLOAT)?
         ('tags:' '[' tags*=ID[','] ']')?
     )#
-    'end'
+    ('end' | ';')
 ;
 
 ComplexGoalAlgorithmType:
@@ -61,7 +61,7 @@ GoalRepeater:
         ('timeout:' timeout=FLOAT)?
         ('tags:' '[' tags*=ID[','] ']')?
     )#
-    'end'
+    ('end' | ';')
 ;
 
 WeightedGoal:

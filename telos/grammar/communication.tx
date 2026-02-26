@@ -24,7 +24,7 @@ AuthCert:
 ;
 
 AMQPBroker:
-    'Broker<AMQP>' name=ID
+    'Source<AMQP>' name=ID
     (
         ('host:' host=STRING)
         ('port:' port=INT)
@@ -38,7 +38,7 @@ AMQPBroker:
 ;
 
 MQTTBroker:
-    'Broker<MQTT>' name=ID
+    'Source<MQTT>' name=ID
     (
         ('host:' host=STRING)
         ('port:' port=INT)
@@ -52,7 +52,7 @@ MQTTBroker:
 ;
 
 RedisBroker:
-    'Broker<Redis>' name=ID
+    'Source<Redis>' name=ID
     (
         ('host:' host=STRING)
         ('port:' port=INT)

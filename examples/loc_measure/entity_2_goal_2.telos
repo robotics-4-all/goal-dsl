@@ -1,4 +1,4 @@
-Broker<MQTT> HomeMQTT
+Source<MQTT> HomeMQTT
     host: 'localhost'
     port: 1883
     auth:

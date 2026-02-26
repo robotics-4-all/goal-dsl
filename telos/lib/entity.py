@@ -23,7 +23,7 @@ class Entity:
         self.freq = freq if freq not in (None, 0) else 1
         self.topic = topic
         self.state = {}
-        self.source = source
+        self.source = source.ref if hasattr(source, "ref") else source
         self.attributes = attributes or []
         self.description = description
         self.attr_buffs = []

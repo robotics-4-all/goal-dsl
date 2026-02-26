@@ -1,5 +1,7 @@
 """Tests for language module — validation, metamodel, model utilities."""
 
+import textwrap
+
 import pytest
 from textx import TextXSemanticError, TextXSyntaxError
 
@@ -58,12 +60,12 @@ end
 def test_duplicate_broker_names():
     with pytest.raises(TextXSemanticError, match="Source.*already exists"):
         build_model_str("""
-Broker<MQTT> B1
+Source<MQTT> B1
     host: 'localhost'
     port: 1883
 end
 
-Broker<MQTT> B1
+Source<MQTT> B1
     host: 'localhost'
     port: 1884
 end
@@ -217,6 +219,16 @@ RESTEndpoint A1
     path: '/b'
 end
 """)
+
+
+def test_duplicate_constant_names():
+    with pytest.raises(TextXSemanticError, match="already exists"):
+        build_model_str(
+            textwrap.dedent("""\
+            const X = 1
+            const X = 2
+        """)
+        )
 
 
 def test_eval_condition_safe():

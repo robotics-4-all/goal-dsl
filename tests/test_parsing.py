@@ -1,5 +1,7 @@
 """Tests for grammar parsing — verify all constructs parse via build_model_str."""
 
+import textwrap
+
 import pytest
 
 from telos.language import build_model_str
@@ -129,9 +131,9 @@ end
     )
     e = m.entities[0]
     assert e.source is not None
-    assert e.source.ref is not None
-    assert e.source.ref.__class__.__name__ == "MQTTBroker"
-    assert e.source.ref.name == "HomeMQTT"
+    assert e.source is not None
+    assert e.source.__class__.__name__ == "MQTTBroker"
+    assert e.source.name == "HomeMQTT"
 
 
 def test_parse_entity_with_generators(model_with_generators):
@@ -184,7 +186,7 @@ end
 def test_parse_when_goal_compound(condition_model):
     m = build_model_str(condition_model)
     g = next(g for g in m.goals if g.name == "CompoundGoal")
-    assert g.condition.__class__.__name__ == "ConditionGroup"
+    assert g.condition.__class__.__name__ == "OrExpr"
 
 
 def test_parse_when_goal_with_then_config(full_model):
@@ -297,13 +299,13 @@ def test_parse_bool_condition(condition_model):
 def test_parse_goal_status_condition(goal_status_model):
     m = build_model_str(goal_status_model)
     g = next(g for g in m.goals if g.name == "G2")
-    assert g.condition.__class__.__name__ == "GoalStatusCondition"
+    assert g.condition.__class__.__name__ == "OrExpr"
 
 
 def test_parse_inrange_condition(inrange_model):
     m = build_model_str(inrange_model)
     g = m.goals[0]
-    assert g.condition.__class__.__name__ == "InRangeCondition"
+    assert g.condition.__class__.__name__ == "OrExpr"
 
 
 def test_parse_aggregation(condition_model):
@@ -336,7 +338,7 @@ end
 """)
     )
     g = m.goals[0]
-    assert g.condition.__class__.__name__ == "StringCondition"
+    assert g.condition.__class__.__name__ == "OrExpr"
 
 
 # ── Scenario / Metadata / RTMonitor ────────────────────
@@ -564,3 +566,198 @@ end
     )
     g = m.goals[0]
     assert g.tags == ["safety", "critical"]
+
+
+# ── Imports ────────────────────────────────────────────
+
+
+_IMPORTABLE_BROKER = textwrap.dedent("""\
+    Source<MQTT> ImportedBroker
+        host: 'localhost'
+        port: 1883
+        auth:
+            username: ''
+            password: ''
+    end
+""")
+
+
+def test_parse_quoted_import(tmp_path):
+    (tmp_path / "datasources.telos").write_text(_IMPORTABLE_BROKER)
+    main = tmp_path / "main.telos"
+    main.write_text('import "datasources.telos"\n')
+    from telos.language import build_model
+
+    m = build_model(str(main))
+    assert len(m.imports) == 1
+    assert m.imports[0].importURI == "datasources.telos"
+
+
+def test_parse_bare_import(tmp_path):
+    (tmp_path / "datasources.telos").write_text(_IMPORTABLE_BROKER)
+    main = tmp_path / "main.telos"
+    main.write_text("import datasources\n")
+    from telos.language import build_model
+
+    m = build_model(str(main))
+    assert len(m.imports) == 1
+    assert m.imports[0].importURI == "datasources"
+
+
+def test_parse_bare_import_dotted(tmp_path):
+    sub = tmp_path / "some" / "path"
+    sub.mkdir(parents=True)
+    (sub / "file.telos").write_text(_IMPORTABLE_BROKER)
+    main = tmp_path / "main.telos"
+    main.write_text("import some.path.file\n")
+    from telos.language import build_model
+
+    m = build_model(str(main))
+    assert len(m.imports) == 1
+    assert m.imports[0].importURI == "some.path.file"
+
+
+# ── Semicolon terminator ──────────────────────────────
+
+
+# ── Constants ──────────────────────────────────────────
+
+
+def test_parse_constant_int():
+    m = build_model_str("const THRESHOLD = 30")
+    assert len(m.constants) == 1
+    assert m.constants[0].name == "THRESHOLD"
+    assert m.constants[0].value == 30
+
+
+def test_parse_constant_float():
+    m = build_model_str("const RATE = 0.5")
+    assert len(m.constants) == 1
+    assert m.constants[0].value == 0.5
+
+
+def test_parse_constant_string():
+    m = build_model_str("const LABEL = 'high'")
+    assert len(m.constants) == 1
+    assert m.constants[0].value == "high"
+
+
+def test_parse_constant_bool():
+    m = build_model_str("const ACTIVE = true")
+    assert len(m.constants) == 1
+    assert m.constants[0].value is True
+
+
+def test_parse_multiple_constants():
+    m = build_model_str(
+        textwrap.dedent("""\
+        const A = 10
+        const B = 20
+        const C = 'hello'
+    """)
+    )
+    assert len(m.constants) == 3
+    assert m.constants[0].name == "A"
+    assert m.constants[1].name == "B"
+    assert m.constants[2].name == "C"
+    assert m.constants[0].value == 10
+    assert m.constants[1].value == 20
+    assert m.constants[2].value == "hello"
+
+
+def test_parse_constants_with_model():
+    m = build_model_str(
+        _model(
+            textwrap.dedent("""\
+
+        const TEMP_LIMIT = 30
+        const LABEL = 'high'
+
+        Entity S1
+            type: sensor
+            topic: 'a'
+            source: HomeMQTT
+            attributes:
+                - temp: float
+        end
+
+        Goal<Watch> G1
+            entity: S1
+        end
+
+        Scenario Sc
+            goals:
+                - G1
+            concurrent: false
+        end
+    """)
+        )
+    )
+    assert len(m.constants) == 2
+    assert len(m.entities) == 1
+    assert len(m.goals) == 1
+
+
+# ── Semicolon terminator ──────────────────────────────
+
+
+def test_parse_goal_semicolon_when():
+    """Test Goal<When> with semicolon terminator."""
+    m = build_model_str(
+        textwrap.dedent("""\
+        Source<MQTT> HomeMQTT
+            host: 'localhost'
+            port: 1883
+        end
+
+        Entity Sensor1
+            type: sensor
+            topic: 'test.topic'
+            source: HomeMQTT
+            attributes:
+                - temp: float
+        end
+
+        Goal<When> TempHigh when Sensor1.temp > 30 ;
+
+        Scenario S1
+            goals:
+                - TempHigh
+        end
+    """)
+    )
+    goals = m.goals
+    assert len(goals) == 1
+    assert goals[0].name == "TempHigh"
+    assert goals[0].__class__.__name__ == "EntityStateConditionGoal"
+
+
+def test_parse_goal_semicolon_watch():
+    """Test Goal<Watch> with semicolon terminator."""
+    m = build_model_str(
+        textwrap.dedent("""\
+        Source<MQTT> HomeMQTT
+            host: 'localhost'
+            port: 1883
+        end
+
+        Entity Sensor1
+            type: sensor
+            topic: 'test.topic'
+            source: HomeMQTT
+            attributes:
+                - temp: float
+        end
+
+        Goal<Watch> AnyMessage entity: Sensor1 ;
+
+        Scenario S1
+            goals:
+                - AnyMessage
+        end
+    """)
+    )
+    goals = m.goals
+    assert len(goals) == 1
+    assert goals[0].name == "AnyMessage"
+    assert goals[0].__class__.__name__ == "EntityStateChangeGoal"

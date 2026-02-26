@@ -20,15 +20,20 @@ from telos.lib.broker import (
 )
 from telos.lib.condition import (
     AdvancedCondition,
+    AndExpr,
+    AtomicCondition,
+    BinaryLogical,
     BoolCondition,
     Condition,
-    ConditionGroup,
     DictCondition,
     GoalStatusCondition,
     GoalStatusRef,
     InRangeCondition,
     ListCondition,
+    NotExpr,
     NumericCondition,
+    OrExpr,
+    ParenCondition,
     PrimitiveCondition,
     StringCondition,
     TimeCondition,
@@ -48,10 +53,24 @@ from telos.lib.types import Date, Dict, List, Time
 
 CURRENT_FPATH = pathlib.Path(__file__).parent.resolve()
 
+
+class Constant:
+    def __init__(self, parent=None, name=None, value=None, **kwargs):
+        self.parent = parent
+        self.name = name
+        self.value = value
+
+
 CUSTOM_CLASSES = [
+    Constant,
     Entity,
     Condition,
-    ConditionGroup,
+    OrExpr,
+    AndExpr,
+    NotExpr,
+    AtomicCondition,
+    ParenCondition,
+    BinaryLogical,
     PrimitiveCondition,
     AdvancedCondition,
     NumericCondition,
@@ -181,6 +200,17 @@ DANGEROUS_PATTERNS = [
 ]
 
 
+def verify_constant_names(model):
+    _ids = []
+    constants = getattr(model, "constants", []) or []
+    for c in constants:
+        if c.name in _ids:
+            raise TextXSemanticError(
+                f"Constant with name <{c.name}> already exists", **get_location(c)
+            )
+        _ids.append(c.name)
+
+
 def verify_eval_conditions(model):
     goals = get_children_of_type("EntityPyConditionGoal", model)
     for goal in goals:
@@ -198,6 +228,7 @@ def verify_eval_conditions(model):
 
 def model_proc(model, metamodel):
     process_time_class(model)
+    verify_constant_names(model)
     verify_entity_names(model)
     verify_source_names(model)
     verify_goal_names(model)
@@ -219,8 +250,18 @@ def get_metamodel(debug: bool = False, global_repo: bool = False):
     return metamodel
 
 
+def _normalize_import_uri(uri):
+    if uri.endswith(".telos"):
+        return uri
+    return uri.replace(".", "/") + ".telos"
+
+
 def get_scope_providers():
-    sp = {"*.*": scoping_providers.FQNImportURI(importAs=True)}
+    sp = {
+        "*.*": scoping_providers.FQNImportURI(
+            importAs=True, importURI_converter=_normalize_import_uri
+        )
+    }
     if BUILTIN_MODELS:
         sp["brokers*"] = scoping_providers.FQNGlobalRepo(join(BUILTIN_MODELS, "broker", "*.telos"))
         sp["entities*"] = scoping_providers.FQNGlobalRepo(

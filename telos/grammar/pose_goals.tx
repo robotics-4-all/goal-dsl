@@ -16,7 +16,7 @@ PoseGoal:
         ('timeout:' timeout=FLOAT)?
         ('tags:' '[' tags*=ID[','] ']')?
     )#
-    'end'
+    ('end' | ';')
 ;
 
 OrientationGoal:
@@ -29,7 +29,7 @@ OrientationGoal:
         ('timeout:' timeout=FLOAT)?
         ('tags:' '[' tags*=ID[','] ']')?
     )#
-    'end'
+    ('end' | ';')
 ;
 
 PositionGoal:
@@ -42,5 +42,5 @@ PositionGoal:
         ('timeout:' timeout=FLOAT)?
         ('tags:' '[' tags*=ID[','] ']')?
     )#
-    'end'
+    ('end' | ';')
 ;

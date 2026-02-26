@@ -34,7 +34,7 @@ Requires Python >= 3.11.
 ## Quick Start
 
 ```
-Broker<MQTT> HomeMQTT
+Source<MQTT> HomeMQTT
     host: 'localhost'
     port: 1883
     auth:
@@ -78,7 +78,7 @@ Entities connect to data sources — either message brokers or REST endpoints.
 **Message Brokers** (MQTT, AMQP, Redis):
 
 ```
-Broker<MQTT> HomeMQTT
+Source<MQTT> HomeMQTT
     host: 'localhost'
     port: 1883
     auth:
@@ -262,7 +262,7 @@ Models can be split across files:
 
 ```
 // datasources.telos
-Broker<MQTT> HomeMQTT
+Source<MQTT> HomeMQTT
     host: 'localhost'
     port: 1883
 end

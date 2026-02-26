@@ -14,6 +14,7 @@ TelosModel:
     (metadata=Metadata)?
     (
         (rtmonitor=RTMonitor)?
+        (constants*=Constant)
         (brokers*=MessageBroker)
         (restEndpoints*=RESTEndpoint)
         (entities*=Entity)
@@ -21,6 +22,9 @@ TelosModel:
         (scenarios*=Scenario)
     )#
 ;
+
+Constant: 'const' name=ID '=' value=ConstantValue;
+ConstantValue: STRING | FLOAT | INT | BOOL;
 
 
 Metadata:

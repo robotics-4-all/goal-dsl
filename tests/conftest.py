@@ -1,7 +1,7 @@
 import pytest
 
 BROKER_MQTT = """
-Broker<MQTT> HomeMQTT
+Source<MQTT> HomeMQTT
     host: 'localhost'
     port: 1883
     auth:
@@ -11,7 +11,7 @@ end
 """
 
 BROKER_REDIS = """
-Broker<Redis> LocalRedis
+Source<Redis> LocalRedis
     host: 'localhost'
     port: 6379
     db: 2
@@ -23,7 +23,7 @@ end
 """
 
 BROKER_AMQP = """
-Broker<AMQP> MyAMQP
+Source<AMQP> MyAMQP
     host: 'rabbitmq.local'
     port: 5672
     vhost: '/test'
@@ -160,7 +160,7 @@ Metadata
     description: "Test project"
 end
 
-Broker<MQTT> HomeMQTT
+Source<MQTT> HomeMQTT
     host: 'localhost'
     port: 1883
     auth:
@@ -168,7 +168,7 @@ Broker<MQTT> HomeMQTT
         password: ''
 end
 
-Broker<Redis> LocalRedis
+Source<Redis> LocalRedis
     host: 'localhost'
     port: 6379
     auth:

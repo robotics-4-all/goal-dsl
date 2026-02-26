@@ -3,7 +3,9 @@ FQN: ID+['.'];
 FQNI: ID+['.']('.*')?;
 NID: /(.*?)\n/;
 NIDREF: NID+['.']('.*')?;
-Import: 'import' importURI=STRING;
+Import: 'import' importURI=ImportPath;
+ImportPath: STRING | /[a-zA-Z_]\w*(\.[a-zA-Z_]\w*)*/;
+
 
 // Comments
 Comment: CommentLine | CommentBlock ;

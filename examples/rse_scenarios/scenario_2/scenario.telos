@@ -1,4 +1,4 @@
-Broker<MQTT> MyMQTTBroker
+Source<MQTT> MyMQTTBroker
     host: 'localhost'
     port: 1883
     auth:

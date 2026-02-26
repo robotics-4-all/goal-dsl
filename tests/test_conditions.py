@@ -285,8 +285,8 @@ def test_aggregation_max():
 
 
 def test_not_operator():
-    lam = _build_and_get_lambda("(S1.temp > 30) NOT (S1.humidity > 0.5)")
-    assert "is not" in lam
+    lam = _build_and_get_lambda("NOT S1.temp > 30")
+    assert "not" in lam
 
 
 def test_xor_operator():
@@ -324,3 +324,35 @@ def test_string_has():
 def test_string_neq():
     lam = _build_and_get_lambda("S1.label != 'inactive'")
     assert "!=" in lam
+
+
+def test_nary_and():
+    lam = _build_and_get_lambda("S1.temp > 30 AND S1.humidity > 0.5 AND S1.temp < 100")
+    assert lam.count("and") == 2
+
+
+def test_nary_or():
+    lam = _build_and_get_lambda("S1.temp > 30 OR S1.humidity > 0.5 OR S1.temp < 100")
+    assert lam.count("or") == 2
+
+
+def test_mixed_precedence():
+    lam = _build_and_get_lambda("S1.temp > 30 AND S1.humidity > 0.5 OR S1.temp < 100")
+    assert "and" in lam
+    assert "or" in lam
+
+
+def test_not_condition():
+    lam = _build_and_get_lambda("NOT S1.temp > 30")
+    assert "not" in lam
+
+
+def test_not_with_parens():
+    lam = _build_and_get_lambda("NOT (S1.temp > 30)")
+    assert "not" in lam
+
+
+def test_grouped_or_and():
+    lam = _build_and_get_lambda("(S1.temp > 30 OR S1.humidity > 0.5) AND S1.temp < 100")
+    assert "and" in lam
+    assert "or" in lam

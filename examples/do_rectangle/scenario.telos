@@ -1,4 +1,4 @@
-Broker<MQTT> LocsysMQTT
+Source<MQTT> LocsysMQTT
     host: 'locsys.issel.ee.auth.gr'
     port: 8883
     ssl: true
@@ -7,7 +7,7 @@ Broker<MQTT> LocsysMQTT
         password: 'issel.sensors'
 end
 
-Broker<MQTT> HomeMQTT
+Source<MQTT> HomeMQTT
     host: 'localhost'
     port: 1883
     auth:
@@ -15,7 +15,7 @@ Broker<MQTT> HomeMQTT
         password: ''
 end
 
-Broker<Redis> LocalRedis
+Source<Redis> LocalRedis
     host: 'localhost'
     port: 6379
     auth:

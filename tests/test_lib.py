@@ -2,15 +2,18 @@
 
 from telos.lib.broker import AMQPBroker, Broker, BrokerAuthPlain, MQTTBroker, RedisBroker
 from telos.lib.condition import (
+    AndExpr,
+    BinaryLogical,
     BoolCondition,
     Condition,
-    ConditionGroup,
     DictCondition,
     GoalStatusCondition,
     GoalStatusRef,
     InRangeCondition,
     ListCondition,
+    NotExpr,
     NumericCondition,
+    OrExpr,
     StringCondition,
     TimeCondition,
 )
@@ -216,11 +219,26 @@ def test_condition_init():
     assert c.cond_raw is None
 
 
-def test_condition_group_init():
-    c = ConditionGroup(r1="left", operator="AND", r2="right")
+def test_or_expr_init():
+    c = OrExpr(operands=["a", "b"])
+    assert c.operands == ["a", "b"]
+
+
+def test_and_expr_init():
+    c = AndExpr(operands=["a", "b"])
+    assert c.operands == ["a", "b"]
+
+
+def test_not_expr_init():
+    c = NotExpr(operand="a")
+    assert c.operand == "a"
+
+
+def test_binary_logical_init():
+    c = BinaryLogical(r1="left", operator="XOR", r2="right")
     assert c.r1 == "left"
     assert c.r2 == "right"
-    assert c.operator == "AND"
+    assert c.operator == "XOR"
 
 
 def test_numeric_condition_init():

@@ -40,12 +40,12 @@ entities_list = []
     etype='{{ entity.etype }}',
     topic='{{ entity.topic }}'.format(**{k: os.environ.get(k, "") for k in os.environ}).replace('..', '.'),
     attributes={{ entity.attr_list }},
-    {% if entity.source.ref.__class__.__name__ == 'AMQPBroker' %}
-    source={{ broker_macros.amqp_broker(entity.source.ref) }},
-    {% elif entity.source.ref.__class__.__name__ == 'RedisBroker' %}
-    source={{ broker_macros.redis_broker(entity.source.ref) }},
-    {% elif entity.source.ref.__class__.__name__ == 'MQTTBroker' %}
-    source={{ broker_macros.mqtt_broker(entity.source.ref) }},
+    {% if entity.source.__class__.__name__ == 'AMQPBroker' %}
+    source={{ broker_macros.amqp_broker(entity.source) }},
+    {% elif entity.source.__class__.__name__ == 'RedisBroker' %}
+    source={{ broker_macros.redis_broker(entity.source) }},
+    {% elif entity.source.__class__.__name__ == 'MQTTBroker' %}
+    source={{ broker_macros.mqtt_broker(entity.source) }},
     {% endif %}
 )
 entities_list.append({{ entity.name }})
@@ -53,12 +53,12 @@ entities_list.append({{ entity.name }})
 
 
 if __name__ == '__main__':
-    {% if rtmonitor and rtmonitor.source.ref.__class__.__name__ == 'AMQPBroker' %}
-    broker = {{ broker_macros.amqp_broker(rtmonitor.source.ref) }}
-    {% elif rtmonitor and rtmonitor.source.ref.__class__.__name__ == 'RedisBroker' %}
-    broker = {{ broker_macros.redis_broker(rtmonitor.source.ref) }}
-    {% elif rtmonitor and rtmonitor.source.ref.__class__.__name__ == 'MQTTBroker' %}
-    broker = {{ broker_macros.mqtt_broker(rtmonitor.source.ref) }}
+    {% if rtmonitor and rtmonitor.source.__class__.__name__ == 'AMQPBroker' %}
+    broker = {{ broker_macros.amqp_broker(rtmonitor.source) }}
+    {% elif rtmonitor and rtmonitor.source.__class__.__name__ == 'RedisBroker' %}
+    broker = {{ broker_macros.redis_broker(rtmonitor.source) }}
+    {% elif rtmonitor and rtmonitor.source.__class__.__name__ == 'MQTTBroker' %}
+    broker = {{ broker_macros.mqtt_broker(rtmonitor.source) }}
     {% else %}
     broker = None
     {% endif %}

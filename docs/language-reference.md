@@ -57,7 +57,7 @@ import <file>.telos
 
 Metadata ... end
 
-Broker<...> ... end
+Source<...> ... end
 RESTEndpoint ... end
 Entity ... end
 Goal<...> ... end
@@ -91,7 +91,7 @@ Three broker protocols are supported.
 **MQTT:**
 
 ```
-Broker<MQTT> HomeMQTT
+Source<MQTT> HomeMQTT
     host: 'localhost'
     port: 1883
     ssl: false
@@ -117,7 +117,7 @@ end
 **AMQP:**
 
 ```
-Broker<AMQP> MyAMQP
+Source<AMQP> MyAMQP
     host: 'rabbitmq.local'
     port: 5672
     vhost: '/'
@@ -141,7 +141,7 @@ end
 **Redis:**
 
 ```
-Broker<Redis> LocalRedis
+Source<Redis> LocalRedis
     host: 'localhost'
     port: 6379
     db: 0

@@ -127,20 +127,53 @@ class Condition:
     @staticmethod
     def process_node_condition(cond_node):
         metamodel = get_metamodel(cond_node.parent)
+        cond_ns = metamodel.namespaces["condition"]
 
-        if textx_isinstance(cond_node, metamodel.namespaces["condition"]["ConditionGroup"]):
+        if textx_isinstance(cond_node, cond_ns["OrExpr"]):
+            for op in cond_node.operands:
+                Condition.process_node_condition(op)
+            lambdas = [op.cond_lambda for op in cond_node.operands]
+            if len(lambdas) > 1:
+                cond_node.cond_lambda = " or ".join(f"({lam})" for lam in lambdas)
+            else:
+                cond_node.cond_lambda = lambdas[0]
+
+        elif textx_isinstance(cond_node, cond_ns["AndExpr"]):
+            for op in cond_node.operands:
+                Condition.process_node_condition(op)
+            lambdas = [op.cond_lambda for op in cond_node.operands]
+            if len(lambdas) > 1:
+                cond_node.cond_lambda = " and ".join(f"({lam})" for lam in lambdas)
+            else:
+                cond_node.cond_lambda = lambdas[0]
+
+        elif textx_isinstance(cond_node, cond_ns["NotExpr"]):
+            Condition.process_node_condition(cond_node.operand)
+            if isinstance(cond_node.operand, NotExpr):
+                cond_node.cond_lambda = f"(not ({cond_node.operand.cond_lambda}))"
+            else:
+                cond_node.cond_lambda = cond_node.operand.cond_lambda
+
+        elif textx_isinstance(cond_node, cond_ns["ParenCondition"]):
+            Condition.process_node_condition(cond_node.inner)
+            cond_node.cond_lambda = cond_node.inner.cond_lambda
+
+        elif textx_isinstance(cond_node, cond_ns["BinaryLogical"]):
             Condition.process_node_condition(cond_node.r1)
             Condition.process_node_condition(cond_node.r2)
             cond_node.cond_lambda = (OPERATORS[cond_node.operator])(
                 cond_node.r1.cond_lambda, cond_node.r2.cond_lambda
             )
-        elif textx_isinstance(cond_node, metamodel.namespaces["condition"]["InRangeCondition"]):
+
+        elif textx_isinstance(cond_node, cond_ns["InRangeCondition"]):
             cond_node.process_node_condition()
-        elif textx_isinstance(cond_node, metamodel.namespaces["condition"]["GoalStatusCondition"]):
+
+        elif textx_isinstance(cond_node, cond_ns["GoalStatusCondition"]):
             goal_name = cond_node.operand1.goal
             status_val = cond_node.operand2
             op = OPERATORS[cond_node.operator]
             cond_node.cond_lambda = op(f"goals['{goal_name}'].status", f"'{status_val}'")
+
         else:
             operand1 = Condition.transform_operand(cond_node.operand1)
             operand2 = Condition.transform_operand(cond_node.operand2)
@@ -173,7 +206,36 @@ class Condition:
             return False, f"{self.parent.name}: condition not built."
 
 
-class ConditionGroup(Condition):
+class OrExpr(Condition):
+    def __init__(self, parent=None, operands=None, **kwargs):
+        self.operands = operands or []
+        super().__init__(parent)
+
+
+class AndExpr(Condition):
+    def __init__(self, parent=None, operands=None, **kwargs):
+        self.operands = operands or []
+        super().__init__(parent)
+
+
+class NotExpr(Condition):
+    def __init__(self, parent=None, operand=None, **kwargs):
+        self.operand = operand
+        super().__init__(parent)
+
+
+class AtomicCondition(Condition):
+    def __init__(self, parent=None, **kwargs):
+        super().__init__(parent)
+
+
+class ParenCondition(Condition):
+    def __init__(self, parent=None, inner=None, **kwargs):
+        self.inner = inner
+        super().__init__(parent)
+
+
+class BinaryLogical(Condition):
     def __init__(self, parent=None, r1=None, operator=None, r2=None, **kwargs):
         self.r1 = r1
         self.r2 = r2
