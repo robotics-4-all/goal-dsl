@@ -167,6 +167,74 @@ g = WaypointTrajectoryGoal(
     )
 {% endmacro %}
 
+{% macro rate_goal(goal) %}
+g = RateGoal(
+        entity={{ goal.entity.name }},
+        name='{{ goal.name }}',
+        interval={{ goal.interval.to_seconds() }},
+        {% if goal.tolerance %}
+        tolerance={{ goal.tolerance.to_seconds() }},
+        {% endif %}
+        {% if goal.jitter %}
+        jitter={{ goal.jitter.to_seconds() }},
+        {% endif %}
+        {% if goal.window %}
+        window={{ goal.window }},
+        {% endif %}
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
+{% macro latency_goal(goal, entity_names) %}
+g = LatencyGoal(
+        name='{{ goal.name }}',
+        {% if goal.triggerCondition %}
+        trigger_entities=[{{ ", ".join(entity_names) }}],
+        trigger_condition={{ goal.triggerCondition.cond_lambda }},
+        {% elif goal.triggerEntity %}
+        trigger_entities=[{{ goal.triggerEntity.name }}],
+        {% endif %}
+        {% if goal.responseCondition %}
+        response_entities=[{{ ", ".join(entity_names) }}],
+        response_condition={{ goal.responseCondition.cond_lambda }},
+        {% elif goal.responseEntity %}
+        response_entities=[{{ goal.responseEntity.name }}],
+        {% endif %}
+        max_latency={{ goal.within.to_seconds() }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
+{% macro ordering_goal(goal) %}
+g = OrderingGoal(
+        name='{{ goal.name }}',
+        goals=[
+            {% for ref in goal.sequence %}
+            '{{ ref }}',
+            {% endfor %}
+        ],
+        within={{ goal.within.to_seconds() }},
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
+{% macro deadline_goal(goal, entity_names) %}
+g = DeadlineGoal(
+        name='{{ goal.name }}',
+        entities=[{{ ", ".join(entity_names) }}],
+        condition={{ goal.condition.cond_lambda }},
+        deadline_time='{{ goal.by.hour }}:{{ goal.by.minute }}:{{ goal.by.second }}',
+        {% if goal.after %}
+        after_time='{{ goal.after.hour }}:{{ goal.after.minute }}:{{ goal.after.second }}',
+        {% endif %}
+        max_duration={{ goal.max_duration }},
+        min_duration={{ goal.min_duration }},
+    )
+{% endmacro %}
+
 {% macro complex_goal(goal, entity_names) %}
 {% set ns.ccounter = ns.ccounter + 1 %}
 cg_{{ ns.ccounter }} = ComplexGoal(

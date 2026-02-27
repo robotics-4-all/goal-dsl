@@ -30,6 +30,13 @@ from goalee.pose_goals import (
 
 from goalee.trajectory_goals import WaypointTrajectoryGoal
 
+from goalee.timing_goals import (
+    RateGoal,
+    LatencyGoal,
+    OrderingGoal,
+    DeadlineGoal,
+)
+
 from goalee.repeater import GoalRepeater
 
 entities_list = []
@@ -95,6 +102,18 @@ if __name__ == '__main__':
     {% elif goal.__class__.__name__ == 'GoalRepeater' %}
     {{ goal_macros.goal_repeater(goal, entity_names) }}
     goals_l.append(gr)
+    {% elif goal.__class__.__name__ == 'RateGoal' %}
+    {{ goal_macros.rate_goal(goal) }}
+    goals_l.append(g)
+    {% elif goal.__class__.__name__ == 'LatencyGoal' %}
+    {{ goal_macros.latency_goal(goal, entity_names) }}
+    goals_l.append(g)
+    {% elif goal.__class__.__name__ == 'OrderingGoal' %}
+    {{ goal_macros.ordering_goal(goal) }}
+    goals_l.append(g)
+    {% elif goal.__class__.__name__ == 'DeadlineGoal' %}
+    {{ goal_macros.deadline_goal(goal, entity_names) }}
+    goals_l.append(g)
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
     {{ goal_macros.complex_goal(goal, entity_names) }}
     goals_l.append(cg_{{goal_macros.ns.ccounter}})
@@ -133,6 +152,18 @@ if __name__ == '__main__':
     {% elif goal.__class__.__name__ == 'GoalRepeater' %}
     {{ goal_macros.goal_repeater(goal, entity_names) }}
     antigoals_l.append(gr)
+    {% elif goal.__class__.__name__ == 'RateGoal' %}
+    {{ goal_macros.rate_goal(goal) }}
+    antigoals_l.append(g)
+    {% elif goal.__class__.__name__ == 'LatencyGoal' %}
+    {{ goal_macros.latency_goal(goal, entity_names) }}
+    antigoals_l.append(g)
+    {% elif goal.__class__.__name__ == 'OrderingGoal' %}
+    {{ goal_macros.ordering_goal(goal) }}
+    antigoals_l.append(g)
+    {% elif goal.__class__.__name__ == 'DeadlineGoal' %}
+    {{ goal_macros.deadline_goal(goal, entity_names) }}
+    antigoals_l.append(g)
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
     {{ goal_macros.complex_goal(goal, entity_names) }}
     antigoals_l.append(cg_{{goal_macros.ns.ccounter}})
@@ -171,6 +202,18 @@ if __name__ == '__main__':
     {% elif goal.__class__.__name__ == 'GoalRepeater' %}
     {{ goal_macros.goal_repeater(goal, entity_names) }}
     fatals_l.append(gr)
+    {% elif goal.__class__.__name__ == 'RateGoal' %}
+    {{ goal_macros.rate_goal(goal) }}
+    fatals_l.append(g)
+    {% elif goal.__class__.__name__ == 'LatencyGoal' %}
+    {{ goal_macros.latency_goal(goal, entity_names) }}
+    fatals_l.append(g)
+    {% elif goal.__class__.__name__ == 'OrderingGoal' %}
+    {{ goal_macros.ordering_goal(goal) }}
+    fatals_l.append(g)
+    {% elif goal.__class__.__name__ == 'DeadlineGoal' %}
+    {{ goal_macros.deadline_goal(goal, entity_names) }}
+    fatals_l.append(g)
     {% elif goal.__class__.__name__ == 'ComplexGoal' %}
     {{ goal_macros.complex_goal(goal, entity_names) }}
     fatals_l.append(cg_{{goal_macros.ns.ccounter}})

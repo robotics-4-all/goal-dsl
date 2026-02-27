@@ -2,6 +2,7 @@ import entity_goals
 import area_goals
 import pose_goals
 import trajectory_goals
+import timing_goals
 import time_constraint
 import utils
 import condition
@@ -14,6 +15,7 @@ Goal:
     PositionGoal         |
     OrientationGoal      |
     TrajectoryGoal       |
+    TimingGoal           |
     ComplexGoal          |
     GoalRepeater
 ;

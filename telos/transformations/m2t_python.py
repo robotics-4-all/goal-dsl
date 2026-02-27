@@ -122,6 +122,30 @@ def process_goals(goals):
             "CurveTrajectoryGoal",
         ):
             pass
+        elif goal_type == "RateGoal":
+            logger.info(
+                f"[*] - Goal <{goal.name}> rate: entity={goal.entity.name}, "
+                f"interval={goal.interval}"
+            )
+        elif goal_type == "LatencyGoal":
+            if goal.triggerCondition is not None:
+                goal.triggerCondition.build()
+                cond_lambda = make_condition_lambda(goal.triggerCondition)
+                goal.triggerCondition.cond_lambda = cond_lambda
+                logger.info(f"[*] - Goal <{goal.name}> trigger condition lambda: {cond_lambda}")
+            if goal.responseCondition is not None:
+                goal.responseCondition.build()
+                cond_lambda = make_condition_lambda(goal.responseCondition)
+                goal.responseCondition.cond_lambda = cond_lambda
+                logger.info(f"[*] - Goal <{goal.name}> response condition lambda: {cond_lambda}")
+        elif goal_type == "OrderingGoal":
+            logger.info(f"[*] - Goal <{goal.name}> ordering: {goal.sequence}")
+        elif goal_type == "DeadlineGoal":
+            if goal.condition is not None:
+                goal.condition.build()
+                cond_lambda = make_condition_lambda(goal.condition)
+                goal.condition.cond_lambda = cond_lambda
+                logger.info(f"[*] - Goal <{goal.name}> deadline condition lambda: {cond_lambda}")
         elif goal_type == "GoalRepeater":
             _g = process_goals([goal.goal])
             _goals.extend(_g)

@@ -1,0 +1,95 @@
+import entity
+import condition
+import types
+import time_constraint
+import utils
+
+
+TimingGoal:
+    RateGoal        |
+    LatencyGoal     |
+    OrderingGoal    |
+    DeadlineGoal
+;
+
+
+Duration:
+    raw=/(\d+(\.\d+)?)(ms|s|m|h)/
+;
+
+
+RateGoal:
+    'Goal<Rate>' name=ID
+    (
+        ('entity:' entity=[Entity:FQN|+m:entities*])
+        ('interval:' interval=Duration)
+        ('tolerance:' tolerance=Duration)?
+        ('jitter:' jitter=Duration)?
+        ('window:' window=INT)?
+        ('config'
+            (
+                ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+                ('description:' description=STRING)?
+            )#
+        )?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
+    )#
+    ('end' | ';')
+;
+
+
+LatencyGoal:
+    'Goal<Latency>' name=ID
+    (
+        ('trigger:' (triggerCondition=Condition | triggerEntity=[Entity:FQN|+m:entities*]))
+        ('response:' (responseCondition=Condition | responseEntity=[Entity:FQN|+m:entities*]))
+        ('within:' within=Duration)
+        ('config'
+            (
+                ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+                ('description:' description=STRING)?
+            )#
+        )?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
+    )#
+    ('end' | ';')
+;
+
+
+OrderingGoal:
+    'Goal<Ordering>' name=ID
+    (
+        ('sequence:' '-' sequence+=ID['-'])
+        ('within:' within=Duration)
+        ('config'
+            (
+                ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+                ('description:' description=STRING)?
+            )#
+        )?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
+    )#
+    ('end' | ';')
+;
+
+
+DeadlineGoal:
+    'Goal<Deadline>' name=ID
+    (
+        ('when' condition=Condition)
+        ('by:' by=Time)
+        ('after:' after=Time)?
+        ('config'
+            (
+                ('timeConstraints:' '-' timeConstraints*=TimeConstraint['-'])?
+                ('description:' description=STRING)?
+            )#
+        )?
+        ('timeout:' timeout=FLOAT)?
+        ('tags:' '[' tags*=ID[','] ']')?
+    )#
+    ('end' | ';')
+;

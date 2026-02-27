@@ -351,3 +351,76 @@ def test_generate_with_generators(model_with_generators):
     result = generate_str(model_with_generators)
     assert isinstance(result, dict)
     assert "S1" in result
+
+
+def test_generate_timing_goals():
+    model = (
+        BROKER_MQTT
+        + """
+Entity TempSensor
+    type: sensor
+    topic: 'monitoring.temp'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
+Entity CmdSensor
+    type: sensor
+    topic: 'monitoring.cmd'
+    source: HomeMQTT
+    attributes:
+        - command: str
+end
+
+Entity StatusSensor
+    type: sensor
+    topic: 'monitoring.status'
+    source: HomeMQTT
+    attributes:
+        - status: str
+end
+
+Goal<Rate> RateG
+    entity: TempSensor
+    interval: 2s
+    tolerance: 200ms
+    window: 10
+end
+
+Goal<Latency> LatG
+    trigger: CmdSensor.command == 'go'
+    response: StatusSensor.status == 'ok'
+    within: 100ms
+end
+
+Goal<Ordering> OrdG
+    sequence:
+        - RateG
+        - LatG
+    within: 30s
+end
+
+Goal<Deadline> DeadG
+    when TempSensor.temp > 20
+    by: 08:00:00
+end
+
+Scenario TimingSc
+    goals:
+        - RateG
+        - LatG
+        - OrdG
+        - DeadG
+    concurrent: true
+end
+"""
+    )
+    result = generate_str(model)
+    code = result["TimingSc"]
+    assert "from goalee.timing_goals import" in code
+    assert "RateGoal" in code
+    assert "LatencyGoal" in code
+    assert "OrderingGoal" in code
+    assert "DeadlineGoal" in code
+    compile(code, "<string>", "exec")

@@ -949,3 +949,60 @@ class TestE2EValueGenerators:
                 f"Goal '{goal_name}': expected {'✓' if expected else '✗'}, "
                 f"got {'✓' if results[goal_name] else '✗'}"
             )
+
+
+@pytest.mark.integration
+class TestE2ETimingGoals:
+    """E2E test for 16_timing_goals — timing verification goals.
+
+    Tests that the generated code for Goal<Rate>, Goal<Latency>,
+    Goal<Ordering>, and Goal<Deadline> starts correctly and processes
+    messages without crashing.  Timing goals have complex runtime
+    semantics (wall-clock evaluation, interval tracking) so we verify
+    no-crash + entity startup.
+    """
+
+    MODEL = EXAMPLES_DIR / "16_timing_goals" / "scenario.telos"
+
+    def test_e2e_no_crash(self, broker_services, mqtt_client, gen_dir):
+        files = _generate_to_file(self.MODEL, gen_dir)
+        script = files["TimingGoals"]
+
+        env = {**os.environ, "U_ID": "test"}
+        proc = subprocess.Popen(
+            [sys.executable, str(script)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            env=env,
+        )
+
+        time.sleep(3)
+
+        # Publish temperature readings for RateGoal
+        for i in range(5):
+            publish_mqtt(
+                mqtt_client,
+                "monitoring.temperature",
+                {"temp": 22.0 + i},
+                settle=0.5,
+            )
+
+        # Publish command + status for LatencyGoal
+        publish_mqtt(mqtt_client, "monitoring.command", {"command": "read"}, settle=0.1)
+        publish_mqtt(mqtt_client, "monitoring.status", {"status": "ok"}, settle=0.3)
+
+        # Publish pressure
+        publish_mqtt(mqtt_client, "monitoring.pressure", {"value": 5.0}, settle=0.3)
+
+        try:
+            stdout, stderr = proc.communicate(timeout=15)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            stdout, stderr = proc.communicate()
+
+        combined = stdout + stderr
+        assert "Traceback" not in combined, f"Generated script crashed:\n{combined[-2000:]}"
+        assert "Started Entity" in combined, (
+            f"Script did not start properly.\nOutput:\n{combined[-2000:]}"
+        )

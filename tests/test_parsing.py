@@ -761,3 +761,283 @@ def test_parse_goal_semicolon_watch():
     assert len(goals) == 1
     assert goals[0].name == "AnyMessage"
     assert goals[0].__class__.__name__ == "EntityStateChangeGoal"
+
+
+# ── Timing Goals ──────────────────────────────────────
+
+
+def test_parse_duration_ms():
+    m = build_model_str(
+        _model("""
+Entity S1
+    type: sensor
+    topic: 'a'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
+Goal<Rate> G1
+    entity: S1
+    interval: 100ms
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+""")
+    )
+    g = m.goals[0]
+    assert g.interval.value == 100.0
+    assert g.interval.unit == "ms"
+    assert g.interval.to_seconds() == pytest.approx(0.1)
+
+
+def test_parse_duration_s():
+    m = build_model_str(
+        _model("""
+Entity S1
+    type: sensor
+    topic: 'a'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
+Goal<Rate> G1
+    entity: S1
+    interval: 2s
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+""")
+    )
+    g = m.goals[0]
+    assert g.interval.value == 2.0
+    assert g.interval.unit == "s"
+    assert g.interval.to_seconds() == pytest.approx(2.0)
+
+
+def test_parse_duration_m():
+    m = build_model_str(
+        _model("""
+Entity S1
+    type: sensor
+    topic: 'a'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
+Goal<Rate> G1
+    entity: S1
+    interval: 5m
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+""")
+    )
+    g = m.goals[0]
+    assert g.interval.value == 5.0
+    assert g.interval.unit == "m"
+    assert g.interval.to_seconds() == pytest.approx(300.0)
+
+
+def test_parse_rate_goal():
+    m = build_model_str(
+        _model("""
+Entity S1
+    type: sensor
+    topic: 'a'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
+Goal<Rate> G1
+    entity: S1
+    interval: 2s
+    tolerance: 200ms
+    jitter: 50ms
+    window: 10
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+""")
+    )
+    g = m.goals[0]
+    assert g.__class__.__name__ == "RateGoal"
+    assert g.name == "G1"
+    assert g.entity.name == "S1"
+    assert g.interval.to_seconds() == pytest.approx(2.0)
+    assert g.tolerance.to_seconds() == pytest.approx(0.2)
+    assert g.jitter.to_seconds() == pytest.approx(0.05)
+    assert g.window == 10
+
+
+def test_parse_latency_goal_condition():
+    m = build_model_str(
+        _model("""
+Entity S1
+    type: sensor
+    topic: 'a'
+    source: HomeMQTT
+    attributes:
+        - cmd: str
+end
+
+Entity S2
+    type: sensor
+    topic: 'b'
+    source: HomeMQTT
+    attributes:
+        - status: str
+end
+
+Goal<Latency> G1
+    trigger: S1.cmd == 'go'
+    response: S2.status == 'done'
+    within: 100ms
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+""")
+    )
+    g = m.goals[0]
+    assert g.__class__.__name__ == "LatencyGoal"
+    assert g.name == "G1"
+    assert g.triggerCondition is not None
+    assert g.responseCondition is not None
+    assert g.within.to_seconds() == pytest.approx(0.1)
+
+
+def test_parse_latency_goal_entity():
+    m = build_model_str(
+        _model("""
+Entity S1
+    type: sensor
+    topic: 'a'
+    source: HomeMQTT
+    attributes:
+        - cmd: str
+end
+
+Entity S2
+    type: sensor
+    topic: 'b'
+    source: HomeMQTT
+    attributes:
+        - status: str
+end
+
+Goal<Latency> G1
+    trigger: S1
+    response: S2
+    within: 500ms
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+""")
+    )
+    g = m.goals[0]
+    assert g.__class__.__name__ == "LatencyGoal"
+    assert g.triggerEntity is not None
+    assert g.triggerEntity.name == "S1"
+    assert g.responseEntity is not None
+    assert g.responseEntity.name == "S2"
+    assert g.within.to_seconds() == pytest.approx(0.5)
+
+
+def test_parse_ordering_goal():
+    m = build_model_str(
+        _model("""
+Entity S1
+    type: sensor
+    topic: 'a'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
+Goal<Watch> G1
+    entity: S1
+end
+
+Goal<Watch> G2
+    entity: S1
+end
+
+Goal<Ordering> G3
+    sequence:
+        - G1
+        - G2
+    within: 30s
+end
+
+Scenario Sc
+    goals:
+        - G1
+        - G2
+        - G3
+    concurrent: false
+end
+""")
+    )
+    g = next(g for g in m.goals if g.name == "G3")
+    assert g.__class__.__name__ == "OrderingGoal"
+    assert g.sequence == ["G1", "G2"]
+    assert g.within.to_seconds() == pytest.approx(30.0)
+
+
+def test_parse_deadline_goal():
+    m = build_model_str(
+        _model("""
+Entity S1
+    type: sensor
+    topic: 'a'
+    source: HomeMQTT
+    attributes:
+        - temp: float
+end
+
+Goal<Deadline> G1
+    when S1.temp > 20
+    by: 08:00:00
+end
+
+Scenario Sc
+    goals:
+        - G1
+    concurrent: false
+end
+""")
+    )
+    g = m.goals[0]
+    assert g.__class__.__name__ == "DeadlineGoal"
+    assert g.name == "G1"
+    assert g.condition is not None
+    assert g.by.hour == 8
+    assert g.by.minute == 0
+    assert g.by.second == 0

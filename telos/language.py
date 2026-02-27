@@ -49,6 +49,13 @@ from telos.lib.entity import (
     StringAttribute,
     TimeAttribute,
 )
+from telos.lib.timing import (
+    DeadlineGoal,
+    Duration,
+    LatencyGoal,
+    OrderingGoal,
+    RateGoal,
+)
 from telos.lib.types import Date, Dict, List, Time
 
 CURRENT_FPATH = pathlib.Path(__file__).parent.resolve()
@@ -99,6 +106,11 @@ CUSTOM_CLASSES = [
     Dict,
     Time,
     Date,
+    Duration,
+    RateGoal,
+    LatencyGoal,
+    OrderingGoal,
+    DeadlineGoal,
 ]
 
 
@@ -226,6 +238,16 @@ def verify_eval_conditions(model):
                 )
 
 
+def verify_duration_values(model):
+    durations = get_children_of_type("Duration", model)
+    for d in durations:
+        if d.value <= 0:
+            raise TextXSemanticError(
+                f"Duration value must be positive, got {d.value}{d.unit}",
+                **get_location(d),
+            )
+
+
 def model_proc(model, metamodel):
     process_time_class(model)
     verify_constant_names(model)
@@ -233,6 +255,7 @@ def model_proc(model, metamodel):
     verify_source_names(model)
     verify_goal_names(model)
     verify_eval_conditions(model)
+    verify_duration_values(model)
 
 
 def get_metamodel(debug: bool = False, global_repo: bool = False):

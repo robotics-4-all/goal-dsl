@@ -1,0 +1,77 @@
+Source<MQTT> LocalBroker
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Entity TempSensor
+    type: sensor
+    topic: 'monitoring.temperature'
+    source: LocalBroker
+    attributes:
+        - temp: float
+end
+
+Entity PressureSensor
+    type: sensor
+    topic: 'monitoring.pressure'
+    source: LocalBroker
+    attributes:
+        - value: float
+end
+
+Entity CommandSensor
+    type: sensor
+    topic: 'monitoring.command'
+    source: LocalBroker
+    attributes:
+        - command: str
+end
+
+Entity StatusSensor
+    type: sensor
+    topic: 'monitoring.status'
+    source: LocalBroker
+    attributes:
+        - status: str
+end
+
+// Rate: temperature sensor must publish every 2s ± 200ms
+Goal<Rate> StableHeartbeat
+    entity: TempSensor
+    interval: 2s
+    tolerance: 200ms
+    window: 10
+end
+
+// Latency: command → status response within 100ms
+Goal<Latency> QuickResponse
+    trigger: CommandSensor.command == 'read'
+    response: StatusSensor.status == 'ok'
+    within: 100ms
+end
+
+// Ordering: StableHeartbeat must complete before QuickResponse
+Goal<Ordering> StartupOrder
+    sequence:
+        - StableHeartbeat
+        - QuickResponse
+    within: 30s
+end
+
+// Deadline: temperature must exceed 20 by 08:00
+Goal<Deadline> MorningWarmup
+    when TempSensor.temp > 20
+    by: 08:00:00
+end
+
+Scenario TimingGoals
+    goals:
+        - StableHeartbeat
+        - QuickResponse
+        - StartupOrder
+        - MorningWarmup
+    concurrent: true
+end
