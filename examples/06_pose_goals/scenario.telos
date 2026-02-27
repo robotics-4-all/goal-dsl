@@ -1,0 +1,76 @@
+// =============================================================================
+// Example 06: Pose Goals
+// =============================================================================
+// Demonstrates position and orientation verification goals.
+//
+// Covered:
+//   - Goal<Pos> — verify entity reaches a target position
+//   - Goal<Heading> — verify entity faces a target orientation
+//   - Goal<Pose> — combined position + orientation check
+//   - Geometry types: Point3D, Point2D, Orientation2D, Orientation3D
+//   - maxDeviation tolerance
+// =============================================================================
+
+Source<MQTT> LocalBroker
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Entity Robot
+    type: robot
+    topic: 'warehouse.agv_1.pose'
+    source: LocalBroker
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+Entity Drone
+    type: robot
+    topic: 'warehouse.drone_1.pose'
+    source: LocalBroker
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+// --- Goal<Pos> ---
+// Robot must reach the loading dock within 0.5m tolerance.
+Goal<Pos> ReachLoadingDock
+    entity: Robot
+    position: Point3D(15, 2, 0)
+    maxDeviation: 0.5
+end
+
+// --- Goal<Heading> ---
+// Robot must face north (yaw = 0) within 0.1 rad tolerance.
+// Orientation2D takes a single yaw angle.
+Goal<Heading> FaceNorth
+    entity: Robot
+    orientation: Orientation2D(0)
+    maxDeviation: 0.1
+end
+
+// --- Goal<Pose> ---
+// Drone must reach a precise 3D position and orientation.
+// Separate tolerances for position and orientation.
+Goal<Pose> DroneLandingPose
+    entity: Drone
+    position: Point3D(10, 10, 0.5)
+    orientation: Orientation2D(1.57)
+    maxDeviationPos: 0.2
+    maxDeviationOri: 0.05
+end
+
+// --- Scenario ---
+
+Scenario PoseGoals
+    goals:
+        - ReachLoadingDock
+        - FaceNorth
+        - DroneLandingPose
+    concurrent: false
+end

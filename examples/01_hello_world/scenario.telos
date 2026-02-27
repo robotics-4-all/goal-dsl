@@ -1,0 +1,44 @@
+// =============================================================================
+// Example 01: Hello World
+// =============================================================================
+// The minimal Telos model. Every model needs at least:
+//   1. A data source (where data comes from)
+//   2. An entity (what you're monitoring)
+//   3. A goal (what you want to verify)
+//   4. A scenario (which goals to run)
+// =============================================================================
+
+// Step 1: Define a data source.
+// Source<MQTT> declares an MQTT broker connection.
+Source<MQTT> LocalBroker
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+// Step 2: Define an entity.
+// An entity is a connected device that publishes data on a topic.
+Entity TemperatureSensor
+    type: sensor
+    topic: 'home.bedroom.temperature'
+    source: LocalBroker
+    attributes:
+        - temp: float
+end
+
+// Step 3: Define a goal.
+// Goal<Watch> is the simplest goal type — it succeeds when any message
+// arrives on the entity's topic.
+Goal<Watch> SensorAlive
+    entity: TemperatureSensor
+end
+
+// Step 4: Define a scenario.
+// A scenario groups goals for execution.
+Scenario HelloWorld
+    goals:
+        - SensorAlive
+    concurrent: false
+end

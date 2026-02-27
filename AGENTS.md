@@ -29,7 +29,7 @@ goal-dsl/
 │   ├── definitions.py     # Path constants, env vars (LOG_LEVEL, ZERO_LOGS, MODEL_REPO)
 │   ├── logging.py         # Rich-based logging config
 │   └── utils.py           # Timestamp utility
-├── examples/              # 26 .telos example models across 18 scenario directories
+├── examples/              # 16 .telos example models across 15 numbered tutorial directories
 ├── tests/                 # 210 tests, 93% coverage
 ├── build/                 # IGNORE — stale artifact
 ├── pyproject.toml         # Build config, deps, entry points, ruff
@@ -50,7 +50,7 @@ goal-dsl/
 | Condition evaluation logic | `telos/lib/condition.py` | `Condition.build()` → `process_node_condition()` post-order traversal |
 | CLI commands | `telos/cli/cli.py` | Click-based: `validate`, `gen` |
 | REST API endpoints | `telos/api/api.py` | FastAPI: `/validate`, `/generate`, file upload |
-| DSL examples | `examples/*/scenario.telos` | Each subdir = one scenario with .telos files |
+| DSL examples | `examples/01_hello_world/` → `examples/15_real_world/` | 15 numbered tutorials, progressive |
 | Docker deployment | `Dockerfile`, `docker-compose.yml` | Uvicorn serves API |
 
 ## CONVENTIONS

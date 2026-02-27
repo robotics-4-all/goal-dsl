@@ -1,0 +1,99 @@
+// =============================================================================
+// Example 02: Sources and Entities
+// =============================================================================
+// Demonstrates multiple data source types and entity configuration.
+//
+// Covered:
+//   - Source<MQTT> and Source<Redis>
+//   - Entity types: sensor, actuator
+//   - Attribute types: float, int, str, bool, dict, list
+//   - Default attribute values
+//   - Publishing frequency
+// =============================================================================
+
+// --- Data Sources ---
+
+Source<MQTT> CloudMQTT
+    host: 'mqtt.example.com'
+    port: 1883
+    auth:
+        username: 'device_gateway'
+        password: 'secret'
+end
+
+Source<Redis> LocalRedis
+    host: 'localhost'
+    port: 6379
+    auth:
+        username: ''
+        password: ''
+end
+
+// --- Entities ---
+
+// A sensor publishes data at a fixed frequency.
+Entity TemperatureSensor
+    type: sensor
+    topic: 'warehouse.zone_a.temperature'
+    source: CloudMQTT
+    freq: 10
+    description: 'Zone A temperature probe'
+    attributes:
+        - temp: float
+        - humidity: float
+        - unit: str = 'celsius'
+end
+
+// Actuators receive commands — no frequency needed.
+Entity HVACController
+    type: actuator
+    topic: 'warehouse.zone_a.hvac'
+    source: CloudMQTT
+    attributes:
+        - power: bool = false
+        - setpoint: float = 22.0
+        - mode: str = 'auto'
+end
+
+// Entities can use different sources in the same model.
+Entity MotionDetector
+    type: sensor
+    topic: 'warehouse.zone_a.motion'
+    source: LocalRedis
+    freq: 5
+    attributes:
+        - detected: bool
+        - count: int = 0
+end
+
+// Attributes support dict and list types.
+Entity RobotStatus
+    type: sensor
+    topic: 'warehouse.robot_1.status'
+    source: LocalRedis
+    attributes:
+        - position: dict
+        - orientation: dict
+        - waypoints: list
+        - battery: float
+        - operational: bool = true
+end
+
+// --- Goals ---
+
+Goal<Watch> TempSensorAlive
+    entity: TemperatureSensor
+end
+
+Goal<Watch> RobotReporting
+    entity: RobotStatus
+end
+
+// --- Scenario ---
+
+Scenario SourcesAndEntities
+    goals:
+        - TempSensorAlive
+        - RobotReporting
+    concurrent: true
+end

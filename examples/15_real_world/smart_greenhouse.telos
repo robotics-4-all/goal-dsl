@@ -1,0 +1,199 @@
+// =============================================================================
+// Example 15a: Smart Greenhouse Monitoring
+// =============================================================================
+// A realistic scenario verifying environmental conditions in a multi-zone
+// greenhouse. Demonstrates entity goals, conditions, clusters, time
+// constraints, weighted scoring, antigoals, and fatals.
+// =============================================================================
+
+Metadata
+    name: SmartGreenhouse
+    version: "1.0.0"
+    author: "AgriTech Team"
+    description: "Multi-zone greenhouse environmental verification"
+end
+
+Source<MQTT> GreenhouseMQTT
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: 'greenhouse'
+        password: 'secret'
+end
+
+Source<Redis> StateStore
+    host: 'localhost'
+    port: 6379
+    auth:
+        username: ''
+        password: ''
+end
+
+RTMonitor
+    source: StateStore
+    eventTopic: 'telos.{U_ID}.event'
+    logsTopic: 'telos.{U_ID}.log'
+end
+
+// --- Entities ---
+
+Entity TempZoneA
+    type: sensor
+    topic: 'greenhouse.zone_a.temperature'
+    source: GreenhouseMQTT
+    freq: 1.0
+    attributes:
+        - temp: float
+        - humidity: float
+end
+
+Entity TempZoneB
+    type: sensor
+    topic: 'greenhouse.zone_b.temperature'
+    source: GreenhouseMQTT
+    freq: 1.0
+    attributes:
+        - temp: float
+        - humidity: float
+end
+
+Entity SoilMoisture
+    type: sensor
+    topic: 'greenhouse.soil'
+    source: GreenhouseMQTT
+    freq: 0.1
+    attributes:
+        - moisture: float
+        - ph: float
+end
+
+Entity Ventilation
+    type: actuator
+    topic: 'greenhouse.ventilation'
+    source: GreenhouseMQTT
+    attributes:
+        - fan_on: bool
+        - louver_open: bool
+end
+
+Entity IrrigationValve
+    type: actuator
+    topic: 'greenhouse.irrigation'
+    source: GreenhouseMQTT
+    attributes:
+        - open: bool
+end
+
+// --- Phase 1: Sensor Health ---
+
+Goal<Watch> ZoneAAlive
+    entity: TempZoneA
+end
+
+Goal<Watch> ZoneBAlive
+    entity: TempZoneB
+end
+
+Goal<Cluster> AllSensorsOnline
+    goals:
+        - ZoneAAlive
+        - ZoneBAlive
+    strategy: ALL_ACCOMPLISHED
+    config
+        description: 'Verify all zone sensors are reporting'
+end
+
+// --- Phase 2: Environmental Conditions ---
+
+Goal<When> ZoneATempOK
+    when
+        TempZoneA.temp > 18 AND TempZoneA.temp < 30
+    config
+        timeConstraints:
+            - FOR_TIME(60)
+        description: 'Zone A temperature must hold 18-30C for 60s'
+    timeout: 300.0
+    tags: [temperature, zone_a]
+end
+
+Goal<When> ZoneBTempOK
+    when
+        TempZoneB.temp > 18 AND TempZoneB.temp < 30
+    config
+        timeConstraints:
+            - FOR_TIME(60)
+    timeout: 300.0
+    tags: [temperature, zone_b]
+end
+
+Goal<When> HumidityBalance
+    when
+        mean(TempZoneA.humidity, 10) > 40 AND mean(TempZoneA.humidity, 10) < 75
+end
+
+Goal<When> SoilMoistureOK
+    when
+        SoilMoisture.moisture > 30 AND SoilMoisture.moisture < 70
+end
+
+Goal<Cluster> EnvironmentNominal
+    goals:
+        - ZoneATempOK
+        - ZoneBTempOK
+        - HumidityBalance
+        - SoilMoistureOK
+    strategy: ALL_ACCOMPLISHED
+    config
+        description: 'All environmental parameters within range'
+end
+
+// --- Phase 3: Actuator Verification ---
+
+Goal<When> VentilationResponds
+    when
+        Ventilation.fan_on is true
+    config
+        timeConstraints:
+            - FROM_GOAL_START(<120)
+end
+
+Goal<When> IrrigationResponds
+    when
+        IrrigationValve.open is true
+    config
+        timeConstraints:
+            - FROM_GOAL_START(<120)
+end
+
+// --- Safety Conditions ---
+
+// Antigoal: temperature should never exceed 45C.
+Goal<When> Overheating
+    when
+        TempZoneA.temp > 45 OR TempZoneB.temp > 45
+end
+
+// Fatal: soil pH out of survivable range.
+Goal<When> SoilCritical
+    when
+        SoilMoisture.ph < 4.0 OR SoilMoisture.ph > 9.0
+end
+
+// --- Full Verification Scenario ---
+
+Scenario GreenhouseVerification
+    goals:
+        - AllSensorsOnline @0.2
+        - EnvironmentNominal @0.5
+        - VentilationResponds @0.15
+        - IrrigationResponds @0.15
+    antigoals:
+        - Overheating
+    fatals:
+        - SoilCritical
+    concurrent: false
+    tickFreq: 5
+    description: 'Complete greenhouse verification scenario'
+    timeConstraints:
+        - FROM_SCENARIO_START(<1800)
+end

@@ -63,11 +63,11 @@ class Condition:
         elif textx_isinstance(node, get_metamodel(node).namespaces["condition"]["SimpleTimeAttr"]):
             val = (
                 f"entities['{node.attribute.parent.name}']."
-                + f"attributes_dict['{node.attribute.name}'].value.to_int()"
+                + f"attributes['{node.attribute.name}']"
             )
             return val
         else:
-            val = f"entities['{node.parent.name}']." + f"attributes_dict['{node.name}'].value"
+            val = f"entities['{node.parent.name}']." + f"attributes['{node.name}']"
             return val
 
     @staticmethod
@@ -88,25 +88,23 @@ class Condition:
                 entity_ref.attr_buffs.append((attr_ref.name, parent.size))
                 val = f"entities['{entity_ref.name}']." + f"get_buffer('{attr_ref.name}')"
             else:
-                val = (
-                    f"entities['{entity_ref.name}']." + f"attributes_dict['{attr_ref.name}'].value"
-                )
+                val = f"entities['{entity_ref.name}']." + f"attributes['{attr_ref.name}']"
         elif aattr.__class__.__name__ == "SimpleBoolAttr":
             attr_ref = aattr.attribute
             entity_ref = aattr.attribute.parent
-            val = f"entities['{entity_ref.name}']." + f"attributes_dict['{attr_ref.name}'].value"
+            val = f"entities['{entity_ref.name}']." + f"attributes['{attr_ref.name}']"
         elif aattr.__class__.__name__ == "SimpleStringAttr":
             attr_ref = aattr.attribute
             entity_ref = aattr.attribute.parent
-            val = f"entities['{entity_ref.name}']." + f"attributes_dict['{attr_ref.name}'].value"
+            val = f"entities['{entity_ref.name}']." + f"attributes['{attr_ref.name}']"
         elif aattr.__class__.__name__ == "SimpleDictAttr":
             attr_ref = aattr.attribute
             entity_ref = aattr.attribute.parent
-            val = f"entities['{entity_ref.name}']." + f"attributes_dict['{attr_ref.name}'].value"
+            val = f"entities['{entity_ref.name}']." + f"attributes['{attr_ref.name}']"
         elif aattr.__class__.__name__ == "SimpleListAttr":
             attr_ref = aattr.attribute
             entity_ref = aattr.attribute.parent
-            val = f"entities['{entity_ref.name}']." + f"attributes_dict['{attr_ref.name}'].value"
+            val = f"entities['{entity_ref.name}']." + f"attributes['{attr_ref.name}']"
         elif aattr.__class__.__name__ in "StdAttr":
             val = f"std({Condition.transform_augmented_attr(aattr.attribute)})"
         elif aattr.__class__.__name__ == "MeanAttr":

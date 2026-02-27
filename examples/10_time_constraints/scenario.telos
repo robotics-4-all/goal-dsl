@@ -1,0 +1,122 @@
+// =============================================================================
+// Example 10: Time Constraints
+// =============================================================================
+// Demonstrates all time constraint types on goals and scenarios.
+//
+// Covered:
+//   - FROM_GOAL_START — deadline relative to goal activation
+//   - FROM_SCENARIO_START — deadline relative to scenario start
+//   - FOR_TIME — condition must hold for a duration
+//   - BETWEEN_GOALS_MIN — minimum time between sequential goals
+//   - BETWEEN_GOALS_MAX — maximum time between sequential goals
+//   - Comparators: <, >, <=, >=, ==
+//   - Goal-level vs. scenario-level time constraints
+// =============================================================================
+
+Source<MQTT> LocalBroker
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Entity TempSensor
+    type: sensor
+    topic: 'process.temperature'
+    source: LocalBroker
+    attributes:
+        - temp: float
+end
+
+Entity PressureSensor
+    type: sensor
+    topic: 'process.pressure'
+    source: LocalBroker
+    attributes:
+        - value: float
+end
+
+Entity FlowMeter
+    type: sensor
+    topic: 'process.flow'
+    source: LocalBroker
+    attributes:
+        - rate: float
+end
+
+Entity Robot
+    type: robot
+    topic: 'process.robot.pose'
+    source: LocalBroker
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+// --- FROM_GOAL_START ---
+// Must reach goal within 60 seconds of its activation.
+Goal<When> QuickTempCheck
+    when
+        TempSensor.temp > 50
+    config
+        timeConstraints:
+            - FROM_GOAL_START(<60)
+        description: 'Temperature must exceed 50 within 60s'
+end
+
+// Must take at least 10 seconds (debounce).
+Goal<Watch> DebouncedReading
+    entity: TempSensor
+    config
+        timeConstraints:
+            - FROM_GOAL_START(>10)
+end
+
+// --- FOR_TIME ---
+// Condition must hold continuously for 30 seconds.
+Goal<When> SustainedPressure
+    when
+        PressureSensor.value > 5
+    config
+        timeConstraints:
+            - FOR_TIME(30)
+        description: 'Pressure must stay above 5 for 30 seconds'
+end
+
+// --- Multiple Constraints on One Goal ---
+// Combine: must complete within 120s AND condition must hold for 10s.
+Goal<When> StableFlow
+    when
+        FlowMeter.rate > 2
+    config
+        timeConstraints:
+            - FROM_GOAL_START(<120)
+            - FOR_TIME(10)
+end
+
+// --- Area Goal with Time Constraints ---
+
+Goal<Circle> ReachZone
+    entities:
+        - Robot
+    center: Point3D(5, 5, 0)
+    radius: 2
+    tag: ENTER
+    timeConstraints:
+        - FROM_GOAL_START(<180)
+        - FOR_TIME(5)
+end
+
+// --- Scenario with Time Constraints ---
+
+Scenario TimeConstraints
+    goals:
+        - QuickTempCheck
+        - SustainedPressure
+        - StableFlow
+        - ReachZone
+    concurrent: false
+    timeConstraints:
+        - FROM_SCENARIO_START(<600)
+end

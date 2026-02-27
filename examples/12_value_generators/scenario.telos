@@ -1,0 +1,79 @@
+// =============================================================================
+// Example 12: Value Generators
+// =============================================================================
+// Demonstrates virtual entity simulation with value generators and noise.
+//
+// Covered:
+//   - Generator functions: constant, linear, saw, gaussian, sinus, replay
+//   - Noise functions: uniform, gaussian
+//   - Default attribute values
+//   - Combined generator + noise syntax
+// =============================================================================
+
+Source<MQTT> LocalBroker
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+// Virtual sensor with various generator types.
+Entity VirtualWeatherStation
+    type: sensor
+    topic: 'sim.weather'
+    source: LocalBroker
+    freq: 5
+    attributes:
+        // Constant: always produces the same value.
+        - altitude: float -> constant(150.0)
+
+        // Linear: starts at 10, increments by 0.5 each tick.
+        - pressure: float -> linear(1013, 0.1)
+
+        // Gaussian: centered at 22, max 35, sigma 5.
+        // With gaussian noise (mu=0, sigma=0.5).
+        - temperature: float -> gaussian(22, 35, 5) with noise gaussian(0, 0.5)
+
+        // Sinus: DC offset 50, amplitude 20, step 0.1.
+        // With uniform noise between -1 and 1.
+        - humidity: float -> sinus(50, 20, 0.1) with noise uniform(-1, 1)
+
+        // Sawtooth: ramps from 0 to 100 in steps of 5, then resets.
+        - windDirection: int -> saw(0, 360, 10)
+
+        // Replay: cycles through a list of values, 3 times.
+        - condition: int -> replay([0, 1, 2, 1, 0], 3)
+end
+
+// Entity with default attribute values (no generators).
+Entity ConfiguredSensor
+    type: sensor
+    topic: 'sim.configured'
+    source: LocalBroker
+    attributes:
+        - temp: float = 22.0
+        - label: str = 'default'
+        - active: bool = true
+        - count: int = 0
+end
+
+// --- Goals ---
+
+Goal<When> TempAboveBaseline
+    when
+        VirtualWeatherStation.temperature > 25
+end
+
+Goal<Watch> ConfigCheck
+    entity: ConfiguredSensor
+end
+
+// --- Scenario ---
+
+Scenario ValueGenerators
+    goals:
+        - TempAboveBaseline
+        - ConfigCheck
+    concurrent: true
+end

@@ -338,7 +338,25 @@ Endpoints: `POST /validate`, `POST /generate`. See `telos/api/api.py` for detail
 
 ## Examples
 
-See the [examples/](./examples/) directory for working models covering all goal types.
+The [examples/](./examples/) directory provides a progressive tutorial covering all Telos features:
+
+| # | Directory | Topics |
+|---|-----------|--------|
+| 01 | `hello_world` | Minimal model: source, entity, goal, scenario |
+| 02 | `sources_and_entities` | MQTT/Redis sources, entity types, attribute types, defaults |
+| 03 | `conditions` | Numeric, string, boolean conditions, AND/OR/NOT |
+| 04 | `entity_goals` | Watch, When, Eval, then/config blocks, timeout, tags, `;` syntax |
+| 05 | `area_goals` | Rect, Circle, Poly, Shadow, Line, area tags |
+| 06 | `pose_goals` | Pos, Heading, Pose, geometry types |
+| 07 | `trajectory_goals` | Trace, Route, Arc |
+| 08 | `composition` | Cluster strategies, Loop, nested composition |
+| 09 | `advanced_conditions` | Aggregation functions, InRange, GoalStatus, n-ary, XOR/NOR |
+| 10 | `time_constraints` | FROM_GOAL_START, FOR_TIME, FROM_SCENARIO_START |
+| 11 | `scenarios` | Weights, antigoals, fatals, concurrent, tickFreq |
+| 12 | `value_generators` | Generator functions, noise, default values |
+| 13 | `all_data_sources` | MQTT+SSL, AMQP, Redis, REST, authentication |
+| 14 | `constants_and_metadata` | Constants, Metadata, RTMonitor, comments |
+| 15 | `real_world` | Complete greenhouse and robot inspection scenarios |
 
 ## License
 

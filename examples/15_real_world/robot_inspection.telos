@@ -1,0 +1,213 @@
+// =============================================================================
+// Example 15b: Robot Inspection Mission
+// =============================================================================
+// A realistic scenario for a mobile robot performing an inspection patrol
+// in a warehouse. Demonstrates spatial goals, trajectory goals, pose goals,
+// cluster composition, loops, and time constraints.
+// =============================================================================
+
+Metadata
+    name: RobotInspection
+    version: "1.0.0"
+    author: "Robotics Team"
+    description: "Warehouse inspection patrol with safety constraints"
+end
+
+Source<Redis> RobotBridge
+    host: 'localhost'
+    port: 6379
+    auth:
+        username: ''
+        password: ''
+end
+
+RTMonitor
+    source: RobotBridge
+    eventTopic: 'telos.{U_ID}.event'
+    logsTopic: 'telos.{U_ID}.log'
+end
+
+// --- Entities ---
+
+Entity InspectionBot
+    type: robot
+    topic: 'warehouse.robot_1.pose'
+    source: RobotBridge
+    freq: 10.0
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+Entity SafetyBot
+    type: robot
+    topic: 'warehouse.robot_2.pose'
+    source: RobotBridge
+    freq: 10.0
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+Entity BatteryStatus
+    type: sensor
+    topic: 'warehouse.robot_1.battery'
+    source: RobotBridge
+    attributes:
+        - level: float
+        - charging: bool
+end
+
+// --- Phase 1: Pre-Flight Checks ---
+
+Goal<Watch> RobotOnline
+    entity: InspectionBot
+    config
+        description: 'Verify robot is publishing pose data'
+end
+
+Goal<When> BatteryOK
+    when
+        BatteryStatus.level > 20
+    config
+        description: 'Battery must be above 20%'
+end
+
+Goal<Cluster> PreFlight
+    goals:
+        - RobotOnline
+        - BatteryOK
+    strategy: ALL_ACCOMPLISHED
+    config
+        description: 'Pre-flight checks'
+    timeout: 30.0
+end
+
+// --- Phase 2: Navigation to Start Position ---
+
+Goal<Pos> ReachStart
+    entity: InspectionBot
+    position: Point3D(0, 0, 0)
+    maxDeviation: 0.5
+    timeConstraints:
+        - FROM_GOAL_START(<60)
+end
+
+Goal<Heading> FaceEast
+    entity: InspectionBot
+    orientation: Orientation2D(0)
+    maxDeviation: 0.2
+end
+
+// --- Phase 3: Inspection Patrol ---
+
+// Follow the warehouse patrol route.
+Goal<Route> PatrolRoute
+    entity: InspectionBot
+    points: [
+        Point3D(0, 0, 0),
+        Point3D(10, 0, 0),
+        Point3D(10, 15, 0),
+        Point3D(20, 15, 0),
+        Point3D(20, 0, 0),
+        Point3D(30, 0, 0)
+    ]
+    maxDeviation: 1.0
+    timeConstraints:
+        - FROM_GOAL_START(<600)
+end
+
+// Stop at each inspection point.
+Goal<Pos> InspectPoint1
+    entity: InspectionBot
+    position: Point3D(10, 0, 0)
+    maxDeviation: 0.3
+end
+
+Goal<Pos> InspectPoint2
+    entity: InspectionBot
+    position: Point3D(20, 15, 0)
+    maxDeviation: 0.3
+end
+
+Goal<Pos> InspectPoint3
+    entity: InspectionBot
+    position: Point3D(30, 0, 0)
+    maxDeviation: 0.3
+end
+
+Goal<Cluster> InspectionStops
+    goals:
+        - InspectPoint1
+        - InspectPoint2
+        - InspectPoint3
+    strategy: ALL_ACCOMPLISHED_ORDERED
+    config
+        description: 'Visit all inspection points in order'
+end
+
+// --- Phase 4: Return to Dock ---
+
+Goal<Pos> ReturnToDock
+    entity: InspectionBot
+    position: Point3D(0, 0, 0)
+    maxDeviation: 0.5
+    timeConstraints:
+        - FROM_GOAL_START(<120)
+end
+
+// --- Safety Constraints ---
+
+// Keep safe distance between robots at all times.
+Goal<Shadow> RobotSafeDistance
+    movingEntity: InspectionBot
+    entities:
+        - SafetyBot
+    radius: 2
+    tag: AVOID
+end
+
+// Robot must stay within warehouse bounds.
+Goal<Rect> StayInWarehouse
+    entities:
+        - InspectionBot
+    bottomLeftEdge: Point3D(-1, -1, 0)
+    lengthX: 35
+    lengthY: 20
+    tag: STAY
+end
+
+// Hazard zone: robot must never enter.
+Goal<Circle> AvoidStorageArea
+    entities:
+        - InspectionBot
+    center: Point3D(15, 8, 0)
+    radius: 3
+    tag: AVOID
+end
+
+// Fatal: battery critically low during mission.
+Goal<When> BatteryCritical
+    when
+        BatteryStatus.level < 5
+end
+
+// --- Full Mission Scenario ---
+
+Scenario InspectionMission
+    goals:
+        - PreFlight @0.1
+        - ReachStart @0.1
+        - InspectionStops @0.5
+        - ReturnToDock @0.1
+        - StayInWarehouse @0.1
+        - RobotSafeDistance @0.1
+    fatals:
+        - BatteryCritical
+        - AvoidStorageArea
+    concurrent: false
+    tickFreq: 10
+    description: 'Complete warehouse inspection mission'
+    timeConstraints:
+        - FROM_SCENARIO_START(<1200)
+end

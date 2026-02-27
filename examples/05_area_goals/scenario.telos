@@ -1,0 +1,114 @@
+// =============================================================================
+// Example 05: Area Goals
+// =============================================================================
+// Demonstrates spatial area goals for verifying entity positions.
+//
+// Covered:
+//   - Goal<Rect> — rectangular area
+//   - Goal<Circle> — circular area
+//   - Goal<Poly> — polygon area
+//   - Goal<Shadow> — dynamic area following a moving entity
+//   - Goal<Line> — straight line boundary
+//   - Area tags: ENTER, EXIT, AVOID, STAY, CROSS
+//   - Point2D, Point3D geometry types
+// =============================================================================
+
+Source<MQTT> LocalBroker
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Entity Robot1
+    type: robot
+    topic: 'factory.robot_1.pose'
+    source: LocalBroker
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+Entity Robot2
+    type: robot
+    topic: 'factory.robot_2.pose'
+    source: LocalBroker
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+// --- Goal<Rect> ---
+// Robot must ENTER a rectangular work zone.
+Goal<Rect> EnterWorkZone
+    entities:
+        - Robot1
+    bottomLeftEdge: Point3D(0, 0, 0)
+    lengthX: 10
+    lengthY: 8
+    tag: ENTER
+end
+
+// --- Goal<Circle> ---
+// Robot must AVOID a circular hazard zone.
+Goal<Circle> AvoidHazard
+    entities:
+        - Robot1
+    center: Point3D(20, 15, 0)
+    radius: 3
+    tag: AVOID
+end
+
+// Robot must STAY within a safe perimeter.
+Goal<Circle> StayInPerimeter
+    entities:
+        - Robot1
+        - Robot2
+    center: Point3D(10, 10, 0)
+    radius: 25
+    tag: STAY
+end
+
+// --- Goal<Poly> ---
+// Robot must CROSS through an irregular inspection zone.
+Goal<Poly> CrossInspectionZone
+    entities:
+        - Robot1
+    points: [Point2D(5, 0), Point2D(10, 5), Point2D(8, 10), Point2D(2, 8)]
+    tag: CROSS
+end
+
+// --- Goal<Shadow> ---
+// Dynamic exclusion zone that follows Robot1 — Robot2 must not enter.
+Goal<Shadow> KeepSafeDistance
+    movingEntity: Robot1
+    entities:
+        - Robot2
+    radius: 2
+    tag: AVOID
+end
+
+// --- Goal<Line> ---
+// Robots must not cross this boundary line.
+Goal<Line> DoNotCrossBoundary
+    entities:
+        - Robot1
+        - Robot2
+    startPoint: Point3D(0, 20, 0)
+    endPoint: Point3D(30, 20, 0)
+    tag: AVOID
+end
+
+// --- Scenario ---
+
+Scenario AreaGoals
+    goals:
+        - EnterWorkZone @0.2
+        - AvoidHazard @0.3
+        - StayInPerimeter @0.2
+        - CrossInspectionZone @0.1
+        - KeepSafeDistance @0.1
+        - DoNotCrossBoundary @0.1
+    concurrent: true
+end

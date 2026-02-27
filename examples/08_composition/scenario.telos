@@ -1,0 +1,126 @@
+// =============================================================================
+// Example 08: Goal Composition
+// =============================================================================
+// Demonstrates composing goals into complex structures.
+//
+// Covered:
+//   - Goal<Cluster> — group goals with execution strategies
+//   - Strategies: ALL_ACCOMPLISHED, ALL_ACCOMPLISHED_ORDERED,
+//     AT_LEAST_ONE_ACCOMPLISHED, EXACTLY_X_ACCOMPLISHED
+//   - Goal<Loop> — repeat a goal N times
+//   - Nested composition: Loop wrapping a Cluster
+//   - xAccomplished parameter
+// =============================================================================
+
+Source<MQTT> LocalBroker
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Entity TempSensor
+    type: sensor
+    topic: 'plant.reactor.temperature'
+    source: LocalBroker
+    attributes:
+        - temp: float
+end
+
+Entity PressureSensor
+    type: sensor
+    topic: 'plant.reactor.pressure'
+    source: LocalBroker
+    attributes:
+        - value: float
+end
+
+Entity FlowSensor
+    type: sensor
+    topic: 'plant.reactor.flow'
+    source: LocalBroker
+    attributes:
+        - rate: float
+end
+
+// --- Base Goals ---
+
+Goal<When> TempInRange
+    when
+        TempSensor.temp > 50 AND TempSensor.temp < 200
+end
+
+Goal<When> PressureStable
+    when
+        PressureSensor.value > 1 AND PressureSensor.value < 10
+end
+
+Goal<When> FlowActive
+    when
+        FlowSensor.rate > 0
+end
+
+Goal<Watch> TempReading
+    entity: TempSensor
+end
+
+// --- Goal<Cluster> with ALL_ACCOMPLISHED_ORDERED ---
+// All goals must be reached in the order listed.
+Goal<Cluster> StartupSequence
+    goals:
+        - FlowActive
+        - PressureStable
+        - TempInRange
+    strategy: ALL_ACCOMPLISHED_ORDERED
+    config
+        description: 'Reactor startup sequence'
+end
+
+// --- Goal<Cluster> with AT_LEAST_ONE_ACCOMPLISHED ---
+// At least one sensor must report a reading.
+Goal<Cluster> AnyReading
+    goals:
+        - TempReading
+        - FlowActive
+        - PressureStable
+    strategy: AT_LEAST_ONE_ACCOMPLISHED
+end
+
+// --- Goal<Cluster> with EXACTLY_X_ACCOMPLISHED ---
+// Exactly 2 out of 3 conditions must hold.
+Goal<Cluster> TwoOfThree
+    goals:
+        - TempInRange
+        - PressureStable
+        - FlowActive
+    strategy: EXACTLY_X_ACCOMPLISHED
+    config
+        xAccomplished: 2
+        description: 'At least 2 of 3 subsystems nominal'
+end
+
+// --- Goal<Loop> ---
+// Repeat the temperature reading 5 times.
+Goal<Loop> RepeatedCheck
+    goal: TempReading
+    times: 5
+    config
+        description: 'Collect 5 consecutive temperature readings'
+end
+
+// --- Nested Composition ---
+// Loop wrapping a Cluster: repeat the full startup sequence 3 times.
+Goal<Loop> TripleStartup
+    goal: StartupSequence
+    times: 3
+end
+
+// --- Scenario ---
+
+Scenario Composition
+    goals:
+        - StartupSequence
+        - RepeatedCheck
+    concurrent: false
+end

@@ -1,0 +1,111 @@
+// =============================================================================
+// Example 04: Entity Goals
+// =============================================================================
+// Demonstrates all three entity goal types and their optional blocks.
+//
+// Covered:
+//   - Goal<Watch> — triggered by any message on entity topic
+//   - Goal<When> — triggered by a typed condition
+//   - Goal<Eval> — triggered by a Python expression string
+//   - 'then' block — trigger subsequent goals on completion
+//   - 'config' block — time constraints and description
+//   - timeout and tags fields
+//   - Semicolon (;) compact goal syntax
+// =============================================================================
+
+Source<MQTT> LocalBroker
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Entity TempSensor
+    type: sensor
+    topic: 'factory.line_1.temperature'
+    source: LocalBroker
+    attributes:
+        - temp: float
+        - humidity: float
+end
+
+Entity PressureSensor
+    type: sensor
+    topic: 'factory.line_1.pressure'
+    source: LocalBroker
+    attributes:
+        - value: float
+end
+
+Entity AlarmPanel
+    type: actuator
+    topic: 'factory.line_1.alarm'
+    source: LocalBroker
+    attributes:
+        - active: bool
+end
+
+// --- Goal<Watch> ---
+// Simplest goal: succeeds when any message arrives on the entity's topic.
+Goal<Watch> SensorHeartbeat
+    entity: TempSensor
+end
+
+// Watch with 'then' to trigger a follow-up goal, and a 'config' block.
+Goal<Watch> PressureHeartbeat
+    entity: PressureSensor
+    then
+        - CheckPressure
+    config
+        description: 'Wait for pressure sensor to come online'
+end
+
+// --- Goal<When> ---
+// Succeeds when a typed condition evaluates to true.
+Goal<When> HighTemperature
+    when
+        TempSensor.temp > 80
+end
+
+// When with full then/config/timeout/tags.
+Goal<When> CheckPressure
+    when
+        PressureSensor.value > 5 AND PressureSensor.value < 100
+    then
+        - VerifyAlarm
+    config
+        timeConstraints:
+            - FROM_GOAL_START(<120)
+        description: 'Pressure must be within operating range'
+    timeout: 120.0
+    tags: [safety, pressure]
+end
+
+// --- Goal<Eval> ---
+// Uses a Python expression string for conditions that require arithmetic.
+Goal<Eval> ThermalDelta
+    when
+        'TempSensor.temp * 1.8 + 32 > 180'
+    config
+        description: 'Fahrenheit conversion exceeds 180F'
+end
+
+// --- Semicolon Compact Syntax ---
+// Goals can use ; instead of end for one-line definitions.
+Goal<Watch> AlarmActive entity: AlarmPanel ;
+
+Goal<When> VerifyAlarm when AlarmPanel.active is true ;
+
+// --- Scenario ---
+
+Scenario EntityGoals
+    goals:
+        - SensorHeartbeat
+        - PressureHeartbeat
+        - HighTemperature
+        - CheckPressure
+        - ThermalDelta
+        - AlarmActive
+    concurrent: true
+end

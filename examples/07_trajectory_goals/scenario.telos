@@ -1,0 +1,71 @@
+// =============================================================================
+// Example 07: Trajectory Goals
+// =============================================================================
+// Demonstrates trajectory verification for entity movement paths.
+//
+// Covered:
+//   - Goal<Trace> — straight-line trajectory between two points
+//   - Goal<Route> — multi-waypoint path
+//   - Goal<Arc> — curved trajectory with curvature factor
+//   - maxDeviation tolerance for path adherence
+// =============================================================================
+
+Source<MQTT> LocalBroker
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Entity AGV
+    type: robot
+    topic: 'factory.agv_1.pose'
+    source: LocalBroker
+    attributes:
+        - position: dict
+        - orientation: dict
+end
+
+// --- Goal<Trace> ---
+// AGV must travel in a straight line from start to finish.
+Goal<Trace> StraightToStation
+    entity: AGV
+    startPoint: Point3D(0, 0, 0)
+    finishPoint: Point3D(10, 0, 0)
+    maxDeviation: 0.3
+end
+
+// --- Goal<Route> ---
+// AGV must follow a sequence of waypoints in order.
+Goal<Route> WarehousePatrol
+    entity: AGV
+    points: [
+        Point3D(0, 0, 0),
+        Point3D(5, 0, 0),
+        Point3D(5, 10, 0),
+        Point3D(10, 10, 0),
+        Point3D(10, 0, 0)
+    ]
+    maxDeviation: 0.5
+end
+
+// --- Goal<Arc> ---
+// AGV must follow a curved path around an obstacle.
+Goal<Arc> CurveAroundObstacle
+    entity: AGV
+    startPoint: Point3D(0, 5, 0)
+    finishPoint: Point3D(10, 5, 0)
+    curvature: 0.3
+    maxDeviation: 0.4
+end
+
+// --- Scenario ---
+
+Scenario TrajectoryGoals
+    goals:
+        - StraightToStation
+        - WarehousePatrol
+        - CurveAroundObstacle
+    concurrent: false
+end

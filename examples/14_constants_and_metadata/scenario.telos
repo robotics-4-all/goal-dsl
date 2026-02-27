@@ -1,0 +1,95 @@
+// =============================================================================
+// Example 14: Constants, Metadata, and RTMonitor
+// =============================================================================
+// Demonstrates model-level configuration and organizational features.
+//
+// Covered:
+//   - Metadata block (name, version, author, email, description)
+//   - Constants (const NAME = VALUE)
+//   - RTMonitor (runtime event/log publishing)
+//   - Single-line comments (//)
+//   - Multi-line comments (/* ... */)
+// =============================================================================
+
+/*
+    This example shows how to add metadata, define reusable constants,
+    and configure runtime monitoring for a Telos model.
+*/
+
+// --- Metadata ---
+// Optional block describing the model. Useful for versioning and authorship.
+Metadata
+    name: SmartFactory
+    version: "2.1.0"
+    author: "Engineering Team"
+    email: "engineering@example.com"
+    description: "Production line monitoring scenario"
+end
+
+// --- Constants ---
+// Define named constants at the model level.
+// Supported types: int, float, string, bool.
+const TEMP_THRESHOLD = 80
+const PRESSURE_MAX = 15.0
+const ZONE_LABEL = 'production_a'
+const MONITORING_ACTIVE = true
+
+// --- Data Sources ---
+
+Source<MQTT> FactoryMQTT
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Source<Redis> MonitorRedis
+    host: 'localhost'
+    port: 6379
+    auth:
+        username: ''
+        password: ''
+end
+
+// --- RTMonitor ---
+// Configures where runtime events and logs are published.
+// {U_ID} is replaced at runtime with the unique execution ID.
+RTMonitor
+    source: MonitorRedis
+    namespace: 'smart_factory'
+    eventTopic: 'telos.{U_ID}.event'
+    logsTopic: 'telos.{U_ID}.log'
+end
+
+// --- Entities ---
+
+Entity LineSensor
+    type: sensor
+    topic: 'factory.line_1.temperature'
+    source: FactoryMQTT
+    attributes:
+        - temp: float
+        - label: str
+end
+
+// --- Goals ---
+
+Goal<When> OverTemp
+    when
+        LineSensor.temp > 80
+end
+
+Goal<When> ZoneMatch
+    when
+        LineSensor.label == 'production_a'
+end
+
+// --- Scenario ---
+
+Scenario ConstantsAndMetadata
+    goals:
+        - OverTemp
+        - ZoneMatch
+    concurrent: true
+end

@@ -1,0 +1,141 @@
+// =============================================================================
+// Example 03: Conditions
+// =============================================================================
+// Demonstrates the typed condition system used in Goal<When>.
+//
+// Covered:
+//   - Numeric conditions: >, >=, <, <=, ==, !=
+//   - String conditions: ==, ~, has
+//   - Boolean conditions: is, is not
+//   - Logical operators: AND, OR, NOT
+//   - Cross-entity comparisons
+// =============================================================================
+
+Source<MQTT> LocalBroker
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Entity TempSensor
+    type: sensor
+    topic: 'lab.temperature'
+    source: LocalBroker
+    attributes:
+        - temp: float
+        - humidity: float
+end
+
+Entity PressureSensor
+    type: sensor
+    topic: 'lab.pressure'
+    source: LocalBroker
+    attributes:
+        - value: float
+end
+
+Entity StatusPanel
+    type: sensor
+    topic: 'lab.status'
+    source: LocalBroker
+    attributes:
+        - label: str
+        - active: bool
+end
+
+Entity DoorSensor
+    type: sensor
+    topic: 'lab.door'
+    source: LocalBroker
+    attributes:
+        - locked: bool
+end
+
+// --- Numeric Conditions ---
+
+// Simple threshold
+Goal<When> TempAboveThreshold
+    when
+        TempSensor.temp > 30
+end
+
+// Two conditions combined with AND
+Goal<When> TempAndHumidity
+    when
+        TempSensor.temp > 25 AND TempSensor.humidity < 60
+end
+
+// Cross-entity comparison: one sensor vs another
+Goal<When> TempExceedsPressure
+    when
+        TempSensor.temp > PressureSensor.value
+end
+
+// --- String Conditions ---
+
+// Exact string match
+Goal<When> StatusIsActive
+    when
+        StatusPanel.label == 'active'
+end
+
+// String contains (partial match)
+Goal<When> StatusContainsError
+    when
+        StatusPanel.label ~ 'error'
+end
+
+// --- Boolean Conditions ---
+
+// Boolean check with 'is'
+Goal<When> DoorIsLocked
+    when
+        DoorSensor.locked is true
+end
+
+// Negated boolean
+Goal<When> DoorIsUnlocked
+    when
+        DoorSensor.locked is not true
+end
+
+// --- Logical Operators ---
+
+// OR: either condition triggers
+Goal<When> AlertCondition
+    when
+        TempSensor.temp > 40 OR TempSensor.humidity > 80
+end
+
+// NOT: negated condition
+Goal<When> SystemNotActive
+    when
+        NOT StatusPanel.active is true
+end
+
+// Combined: AND + OR with precedence (AND binds tighter than OR)
+Goal<When> ComplexCondition
+    when
+        TempSensor.temp > 30 AND TempSensor.humidity > 60 OR PressureSensor.value > 100
+end
+
+// Parentheses override precedence
+Goal<When> GroupedCondition
+    when
+        (TempSensor.temp > 30 OR PressureSensor.value > 100) AND TempSensor.humidity < 80
+end
+
+// --- Scenario ---
+
+Scenario ConditionTypes
+    goals:
+        - TempAboveThreshold
+        - TempAndHumidity
+        - StatusIsActive
+        - DoorIsLocked
+        - AlertCondition
+        - ComplexCondition
+    concurrent: true
+end

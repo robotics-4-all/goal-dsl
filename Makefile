@@ -1,4 +1,4 @@
-.PHONY: help install install-dev lint format check test validate gen ci build up down logs clean
+.PHONY: help install install-dev lint format check test integration validate gen ci build up down logs clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -27,8 +27,11 @@ check: ## Lint + format check (no writes)
 
 # ── Testing ────────────────────────────────────────────
 
-test: ## Run pytest with coverage
-	@if [ -d tests ]; then python -m pytest tests/ -v --cov=telos --cov-report=term-missing; else echo "No tests/ directory — skipping"; fi
+test: ## Run unit tests with coverage
+	@if [ -d tests ]; then python -m pytest tests/ -v --cov=telos --cov-report=term-missing --ignore=tests/integration; else echo "No tests/ directory — skipping"; fi
+
+integration: ## Run integration tests (requires Docker)
+	python -m pytest tests/integration/ -v -m integration --timeout=120
 
 validate: ## Validate all example .telos files
 	@python -c "$$VALIDATE_SCRIPT"

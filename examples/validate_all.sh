@@ -1,21 +1,5 @@
 #!/bin/bash
 
-# find . -type f -name "*.telos" -print0 | while IFS= read -r -d $'\0' file; do
-#   echo "Validating: $file"
-#   telos validate "$file"
-#   if [ $? -ne 0 ]; then
-#     echo "Validation failed for: $file"
-#   fi
-# done
-
-# find . -type f -name "*.telos" -not -path "./rse_scenarios*" -print0 | while IFS= read -r -d $'\0' file; do
-#   echo "Validating: $file"
-#   telos validate "$file"
-#   if [ $? -ne 0 ]; then
-#     echo "Validation failed for: $file"
-#   fi
-# done
-
 SUCCESS_COUNT=0
 FAILURE_COUNT=0
 
@@ -30,7 +14,7 @@ while IFS= read -r -d $'\0' file; do
     echo -e "\e[31m[Failure]\e[0m Validation failed for: \"$file\" (Exit Code: $RESULT)"
     ((FAILURE_COUNT++))
   fi
-done < <(find . -type f -name "*.telos" -not -path "./rse_scenarios*" -print0)
+done < <(find . -type f -name "*.telos" -print0)
 
 echo -e ""
 echo -e "--------------------------------------------------"

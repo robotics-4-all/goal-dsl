@@ -1,0 +1,101 @@
+// =============================================================================
+// Example 11: Scenarios
+// =============================================================================
+// Demonstrates all scenario configuration options.
+//
+// Covered:
+//   - Weighted goals with @ syntax
+//   - antigoals — goals that should NOT be reached
+//   - fatals — goals that abort the scenario if reached
+//   - concurrent vs. sequential execution
+//   - tickFreq — goal evaluation frequency
+//   - namespace — topic scoping
+//   - description
+//   - Scenario-level time constraints
+// =============================================================================
+
+Source<MQTT> LocalBroker
+    host: 'localhost'
+    port: 1883
+    auth:
+        username: ''
+        password: ''
+end
+
+Entity TempSensor
+    type: sensor
+    topic: 'reactor.temperature'
+    source: LocalBroker
+    attributes:
+        - temp: float
+end
+
+Entity PressureSensor
+    type: sensor
+    topic: 'reactor.pressure'
+    source: LocalBroker
+    attributes:
+        - value: float
+end
+
+Entity SafetyValve
+    type: actuator
+    topic: 'reactor.safety_valve'
+    source: LocalBroker
+    attributes:
+        - open: bool
+end
+
+// --- Goals ---
+
+Goal<When> TempNominal
+    when
+        TempSensor.temp > 50 AND TempSensor.temp < 200
+end
+
+Goal<When> PressureNominal
+    when
+        PressureSensor.value > 1 AND PressureSensor.value < 10
+end
+
+Goal<Watch> SensorAlive
+    entity: TempSensor
+end
+
+// Antigoal: this condition should NOT be reached.
+Goal<When> Overheating
+    when
+        TempSensor.temp > 300
+end
+
+// Fatal: if safety valve opens unexpectedly, abort everything.
+Goal<When> SafetyValveTriggered
+    when
+        SafetyValve.open is true
+end
+
+// Fatal: overpressure event.
+Goal<When> Overpressure
+    when
+        PressureSensor.value > 20
+end
+
+// --- Scenario with All Options ---
+
+Scenario ReactorVerification
+    goals:
+        - TempNominal @0.4
+        - PressureNominal @0.4
+        - SensorAlive @0.2
+    antigoals:
+        - Overheating
+    fatals:
+        - SafetyValveTriggered
+        - Overpressure
+    concurrent: true
+    tickFreq: 10
+    namespace: 'reactor_1'
+    description: 'Verify reactor operating within safe parameters'
+    timeConstraints:
+        - FROM_SCENARIO_START(<3600)
+end

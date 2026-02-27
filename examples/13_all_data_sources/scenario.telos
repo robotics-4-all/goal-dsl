@@ -1,0 +1,121 @@
+// =============================================================================
+// Example 13: All Data Sources
+// =============================================================================
+// Demonstrates every supported data source type and authentication method.
+//
+// Covered:
+//   - Source<MQTT> with SSL and WebSocket options
+//   - Source<AMQP> with vhost and exchange options
+//   - Source<Redis> with database selection
+//   - RESTEndpoint with params and headers
+//   - Authentication: plain credentials, API key, certificate
+// =============================================================================
+
+// --- MQTT with full options ---
+Source<MQTT> SecureMQTT
+    host: 'mqtt.production.io'
+    port: 8883
+    ssl: true
+    basePath: '/v1'
+    webPath: '/mqtt'
+    webPort: 443
+    auth:
+        username: 'service_account'
+        password: 'encrypted_token'
+end
+
+// --- AMQP with vhost and exchanges ---
+Source<AMQP> RabbitMQ
+    host: 'rabbitmq.internal'
+    port: 5672
+    vhost: '/production'
+    topicExchange: 'sensors.topic'
+    rpcExchange: 'sensors.rpc'
+    ssl: true
+    auth:
+        username: 'consumer'
+        password: 'secret'
+end
+
+// --- Redis with database selection ---
+Source<Redis> CacheRedis
+    host: 'redis.internal'
+    port: 6379
+    db: 2
+    ssl: false
+    auth:
+        username: ''
+        password: 'redis_pass'
+end
+
+// --- REST Endpoint with parameters and headers ---
+RESTEndpoint SensorAPI
+    verb: GET
+    host: 'api.sensors.io'
+    port: 443
+    path: '/api/v2/readings'
+    base_url: 'https://api.sensors.io'
+    params:
+        query:
+            - sensorId: str
+            - limit: int
+            - since: str
+        path:
+            - regionId: str
+        body:
+            - payload: dict
+    headers:
+        - authorization: str
+        - contentType: str
+end
+
+// --- Entities using different sources ---
+
+Entity CloudSensor
+    type: sensor
+    topic: 'prod.zone_a.temperature'
+    source: SecureMQTT
+    attributes:
+        - temp: float
+end
+
+Entity QueueSensor
+    type: sensor
+    topic: 'prod.zone_b.pressure'
+    source: RabbitMQ
+    attributes:
+        - value: float
+end
+
+Entity CachedStatus
+    type: sensor
+    topic: 'prod.status'
+    source: CacheRedis
+    attributes:
+        - online: bool
+end
+
+// --- Goals ---
+
+Goal<Watch> CloudAlive
+    entity: CloudSensor
+end
+
+Goal<Watch> QueueAlive
+    entity: QueueSensor
+end
+
+Goal<When> SystemOnline
+    when
+        CachedStatus.online is true
+end
+
+// --- Scenario ---
+
+Scenario AllDataSources
+    goals:
+        - CloudAlive
+        - QueueAlive
+        - SystemOnline
+    concurrent: true
+end
