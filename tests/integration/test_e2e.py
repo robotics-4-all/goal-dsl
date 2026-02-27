@@ -260,18 +260,41 @@ def _run_generated_script(
 def _parse_goal_results(output: str) -> dict[str, bool]:
     """Parse goal results from scenario output (stderr, via logging).
 
-    Looks for lines like:  '       - GoalName: ✓' or '       - GoalName: ✗'
+    Checks two formats:
+    1. Final summary:  '       - GoalName: ✓' or '       - GoalName: ✗'
+    2. Intermediate:   'Goal <GoalName> exited with state: COMPLETED'
+       (useful when scenario hangs on incomplete goals and never prints summary)
+
+    goalee uses rich logging which wraps long lines, so intermediate
+    messages are matched with regex across the full output text.
     """
+    import re
+
     results = {}
+
+    # 1. Final summary format (line-by-line)
     for line in output.splitlines():
         line = line.strip()
         if ": ✓" in line or ": ✗" in line:
-            # Format: "- GoalName: ✓"
             parts = line.lstrip("- ").split(": ", 1)
             if len(parts) == 2:
                 goal_name = parts[0].strip()
                 status = "✓" in parts[1]
                 results[goal_name] = status
+
+    # 2. Intermediate completion format (regex across full text, handles
+    #    rich line wrapping and inserted source locations like
+    #    "Goal           scenario.py:530\n<Name> exited with state:\nCOMPLETED")
+    for match in re.finditer(
+        r"<(\w+)>\s+exited with state:\s+(COMPLETED|FAILED)",
+        output,
+    ):
+        goal_name = match.group(1)
+        completed = match.group(2) == "COMPLETED"
+        # Final summary takes precedence over intermediate
+        if goal_name not in results:
+            results[goal_name] = completed
+
     return results
 
 
@@ -506,14 +529,13 @@ class TestE2EAreaGoals:
     """E2E test for 05_area_goals — spatial area goals.
 
     Area goals (Rect, Circle, Poly, Shadow, Line) evaluate entity
-    positions against geometric regions.  goalee's AreaGoalTag enum
-    is missing STAY/CROSS/AVOID variants, so the generated code
-    crashes at import time.  This is a known goalee limitation.
+    positions against geometric regions.  We publish robot poses and
+    verify the script starts correctly and processes messages without
+    crashing.  Requires goalee AreaGoalTag to support STAY and CROSS.
     """
 
     MODEL = EXAMPLES_DIR / "05_area_goals" / "scenario.telos"
 
-    @pytest.mark.xfail(reason="goalee AreaGoalTag missing STAY/CROSS/AVOID variants")
     def test_e2e_no_crash(self, broker_services, mqtt_client, gen_dir):
         files = _generate_to_file(self.MODEL, gen_dir)
         script = files["AreaGoals"]
@@ -525,33 +547,6 @@ class TestE2EAreaGoals:
             stderr=subprocess.PIPE,
             text=True,
             env=env,
-        )
-
-        time.sleep(3)
-
-        publish_mqtt(
-            mqtt_client,
-            "factory.robot_1.pose",
-            {"position": {"x": 5, "y": 4, "z": 0}, "orientation": {"x": 0, "y": 0, "z": 0}},
-            settle=0.3,
-        )
-        publish_mqtt(
-            mqtt_client,
-            "factory.robot_2.pose",
-            {"position": {"x": 12, "y": 10, "z": 0}, "orientation": {"x": 0, "y": 0, "z": 0}},
-            settle=0.3,
-        )
-
-        try:
-            stdout, stderr = proc.communicate(timeout=15)
-        except subprocess.TimeoutExpired:
-            proc.kill()
-            stdout, stderr = proc.communicate()
-
-        combined = stdout + stderr
-        assert "Traceback" not in combined, f"Generated script crashed:\n{combined[-2000:]}"
-        assert "Started Entity" in combined, (
-            f"Script did not start properly.\nOutput:\n{combined[-2000:]}"
         )
 
         time.sleep(3)
@@ -600,14 +595,13 @@ class TestE2EAreaGoals:
 class TestE2EPoseGoals:
     """E2E test for 06_pose_goals — position/orientation goals.
 
-    goalee's Orientation constructor doesn't accept x/y/z kwargs
-    from Orientation2D codegen, so the generated script crashes at
-    import time.  This is a known goalee limitation.
+    Publishes robot/drone poses near target positions and verifies
+    the generated script runs without errors.  Requires goalee
+    Orientation to accept x/y/z kwargs (mapped to roll/pitch/yaw).
     """
 
     MODEL = EXAMPLES_DIR / "06_pose_goals" / "scenario.telos"
 
-    @pytest.mark.xfail(reason="goalee Orientation constructor API mismatch with codegen")
     def test_e2e_no_crash(self, broker_services, mqtt_client, gen_dir):
         files = _generate_to_file(self.MODEL, gen_dir)
         script = files["PoseGoals"]
@@ -619,39 +613,6 @@ class TestE2EPoseGoals:
             stderr=subprocess.PIPE,
             text=True,
             env=env,
-        )
-
-        time.sleep(3)
-
-        publish_mqtt(
-            mqtt_client,
-            "warehouse.agv_1.pose",
-            {
-                "position": {"x": 15.1, "y": 2.0, "z": 0},
-                "orientation": {"x": 0, "y": 0, "z": 0.05},
-            },
-            settle=0.3,
-        )
-        publish_mqtt(
-            mqtt_client,
-            "warehouse.drone_1.pose",
-            {
-                "position": {"x": 10.1, "y": 10.0, "z": 0.5},
-                "orientation": {"x": 0, "y": 0, "z": 1.57},
-            },
-            settle=0.3,
-        )
-
-        try:
-            stdout, stderr = proc.communicate(timeout=15)
-        except subprocess.TimeoutExpired:
-            proc.kill()
-            stdout, stderr = proc.communicate()
-
-        combined = stdout + stderr
-        assert "Traceback" not in combined, f"Generated script crashed:\n{combined[-2000:]}"
-        assert "Started Entity" in combined, (
-            f"Script did not start properly.\nOutput:\n{combined[-2000:]}"
         )
 
         time.sleep(3)
@@ -754,17 +715,21 @@ class TestE2ETrajectory:
 
 @pytest.mark.integration
 class TestE2EAdvancedConditions:
-    """E2E test for 09_advanced_conditions — InRange, XOR, n-ary AND.
+    """E2E test for 09_advanced_conditions — aggregation, InRange, XOR, n-ary.
 
-    Scenario AdvancedConditions runs concurrently with 5 goals.
-    Aggregation goals (MeanTempHigh, StableReadings) depend on buffer
-    fill timing at runtime and may not reach in time.  We verify:
+    Scenario AdvancedConditions runs concurrently with 5 goals (all have
+    timeouts so the scenario always completes):
+    - MeanTempHigh: mean(temp, 10) > 25 — timeout 30s
+    - StableReadings: std(temp, 20) < 2.0 — timeout 30s
     - TempInBounds: temp in range [18.0, 26.0]
     - AllSensorsNominal: temp > 15 AND pressure > 1 AND co2 < 1000
     - ExclusiveAlert: (temp > 50) XOR (pressure > 20)
 
-    We publish temp ~25.5, pressure=25 (>20 for XOR, >1 for n-ary),
-    co2=500 (<1000).
+    We publish temp ~25.5 (satisfies in-range, n-ary, and XOR conditions),
+    pressure=25 (>1 for AllSensorsNominal, >20 for XOR with temp≤50),
+    co2=500 (<1000).  Non-aggregation goals are verified as reached.
+    Aggregation goals complete (via timeout) but may not reach if
+    goalee buffer evaluation has issues.
     """
 
     MODEL = EXAMPLES_DIR / "09_advanced_conditions" / "scenario.telos"
@@ -789,7 +754,8 @@ class TestE2EAdvancedConditions:
         publish_mqtt(mqtt_client, "lab.air_quality", {"co2": 500.0, "pm25": 10.0}, settle=0.3)
 
         # Publish 25 temperature readings with small variance to fill
-        # aggregation buffers.  Values ~25.5: in [18,26] ✓, > 15 ✓
+        # aggregation buffers (need 10 for mean, 20 for std).
+        # Values ~25.5: mean > 25 ✓, in [18,26] ✓, std ≈ 0.3 < 2.0 ✓
         temps = [25.0 + (i % 5) * 0.2 for i in range(25)]
         for t in temps:
             publish_mqtt(
@@ -799,8 +765,10 @@ class TestE2EAdvancedConditions:
                 settle=0.2,
             )
 
+        # Aggregation goals have 30s timeouts, so scenario completes
+        # within ~40s even if aggregation conditions never evaluate true.
         try:
-            stdout, stderr = proc.communicate(timeout=30)
+            stdout, stderr = proc.communicate(timeout=45)
         except subprocess.TimeoutExpired:
             proc.kill()
             stdout, stderr = proc.communicate()
@@ -808,22 +776,20 @@ class TestE2EAdvancedConditions:
         combined = stdout + stderr
         results = _parse_goal_results(combined)
 
-        # Verify non-aggregation goals.  Aggregation goals (MeanTempHigh,
-        # StableReadings) depend on goalee buffer fill timing and may not
-        # reach within the test window.
-        verified_goals = {
-            "TempInBounds": True,
-            "AllSensorsNominal": True,
-            "ExclusiveAlert": True,
-        }
-        for goal_name, expected_status in verified_goals.items():
+        # Non-aggregation goals must be reached
+        for goal_name in ("TempInBounds", "AllSensorsNominal", "ExclusiveAlert"):
             assert goal_name in results, (
                 f"Goal '{goal_name}' not found in output. "
                 f"Got: {results}. Output:\n{combined[-2000:]}"
             )
-            assert results[goal_name] == expected_status, (
-                f"Goal '{goal_name}': expected {'✓' if expected_status else '✗'}, "
-                f"got {'✓' if results[goal_name] else '✗'}"
+            assert results[goal_name] is True, f"Goal '{goal_name}': expected ✓, got ✗"
+
+        # Aggregation goals must at least appear in results (they
+        # complete via timeout even if the condition was never met)
+        for goal_name in ("MeanTempHigh", "StableReadings"):
+            assert goal_name in results, (
+                f"Aggregation goal '{goal_name}' not found in output. "
+                f"Got: {results}. Output:\n{combined[-2000:]}"
             )
 
 

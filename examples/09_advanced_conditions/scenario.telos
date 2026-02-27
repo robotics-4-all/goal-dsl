@@ -49,27 +49,36 @@ end
 // --- Aggregation Functions ---
 
 // Mean of the last 10 temperature readings must exceed 25.
+// Timeout ensures the goal completes even if buffer doesn't fill.
 Goal<When> MeanTempHigh
     when
         mean(TempSensor.temp, 10) > 25
+    config
+        timeout: 30
 end
 
 // Standard deviation must be low (stable readings).
 Goal<When> StableReadings
     when
         std(TempSensor.temp, 20) < 2.0
+    config
+        timeout: 30
 end
 
 // Combined: mean above threshold AND variance below limit.
 Goal<When> ConsistentHeat
     when
         mean(TempSensor.temp, 10) > 25 AND var(TempSensor.temp, 10) < 5.0
+    config
+        timeout: 30
 end
 
 // Min and max over a sliding window.
 Goal<When> TempRange
     when
         min(TempSensor.temp, 10) > 15 AND max(TempSensor.temp, 10) < 40
+    config
+        timeout: 30
 end
 
 // --- InRange Condition ---
