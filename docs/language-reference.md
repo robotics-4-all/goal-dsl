@@ -40,6 +40,11 @@ Complete syntax reference for Telos. For a quick introduction, see the [README](
   - [Arc](#arc)
   - [Cluster](#cluster)
   - [Loop](#loop)
+  - [Duration](#duration)
+  - [Rate](#rate)
+  - [Latency](#latency)
+  - [Ordering](#ordering)
+  - [Deadline](#deadline)
 - [Scenarios](#scenarios)
 - [Time Constraints](#time-constraints)
 - [Geometry Types](#geometry-types)
@@ -665,6 +670,107 @@ Goal<Loop> RepeatCheck
         description: 'Repeat target goal 10 times'
 end
 ```
+
+### Duration
+
+A compact duration literal used by timing goals. Combines a numeric value with a time unit.
+
+```
+100ms    // 100 milliseconds
+2s       // 2 seconds
+5m       // 5 minutes
+1h       // 1 hour
+0.5s     // 500 milliseconds
+```
+
+Supported units: `ms` (milliseconds), `s` (seconds), `m` (minutes), `h` (hours). Decimal values are allowed.
+
+### Rate
+
+Verify that an entity publishes messages at a consistent rate.
+
+```
+Goal<Rate> StableHeartbeat
+    entity: TempSensor
+    interval: 2s
+    tolerance: 200ms
+    window: 10
+    jitter: 50ms
+end
+```
+
+| Property | Required | Description |
+|----------|----------|-------------|
+| `entity` | yes | Entity reference to monitor |
+| `interval` | yes | Expected publish interval (Duration) |
+| `tolerance` | yes | Acceptable deviation from interval (Duration) |
+| `window` | no | Number of messages to evaluate (default: 10) |
+| `jitter` | no | Maximum allowed jitter (Duration) |
+
+### Latency
+
+Measure the time between a trigger condition and a response condition (or entity message).
+
+**Condition-based trigger and response:**
+
+```
+Goal<Latency> QuickResponse
+    trigger: CommandSensor.command == 'read'
+    response: StatusSensor.status == 'ok'
+    within: 100ms
+end
+```
+
+**Entity-based response (watch for any message):**
+
+```
+Goal<Latency> EntityLatency
+    trigger: CommandSensor.command == 'start'
+    response: StatusSensor
+    within: 500ms
+end
+```
+
+| Property | Required | Description |
+|----------|----------|-------------|
+| `trigger` | yes | Condition that starts the measurement |
+| `response` | yes | Condition or entity that ends the measurement |
+| `within` | yes | Maximum acceptable latency (Duration) |
+
+### Ordering
+
+Verify that a sequence of goals complete in the specified order within a time window.
+
+```
+Goal<Ordering> StartupSequence
+    sequence:
+        - InitGoal
+        - ConfigGoal
+        - ReadyGoal
+    within: 30s
+end
+```
+
+| Property | Required | Description |
+|----------|----------|-------------|
+| `sequence` | yes | Ordered list of goal references |
+| `within` | yes | Time window for the entire sequence (Duration) |
+
+### Deadline
+
+A condition must be satisfied by a specific wall-clock time.
+
+```
+Goal<Deadline> MorningWarmup
+    when TempSensor.temp > 20
+    by: 08:00:00
+end
+```
+
+| Property | Required | Description |
+|----------|----------|-------------|
+| `when` | yes | Condition that must become true |
+| `by` | yes | Wall-clock deadline (HH:MM:SS format) |
 
 ## Scenarios
 

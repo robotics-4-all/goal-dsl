@@ -30,6 +30,7 @@ Requires Python >= 3.11.
 | Pose | Pos, Heading, Pose |
 | Trajectory | Trace, Route, Arc |
 | Composition | Cluster, Loop |
+| Timing | Rate, Latency, Ordering, Deadline |
 
 ## Quick Start
 
@@ -278,6 +279,51 @@ timeConstraints:
 
 Types: `FROM_GOAL_START`, `FROM_SCENARIO_START`, `FOR_TIME`, `BETWEEN_GOALS_MIN`, `BETWEEN_GOALS_MAX`.
 
+### Timing Goals
+
+Timing goals verify temporal behavior using the `Duration` type (`100ms`, `2s`, `5m`, `1h`).
+
+**Rate** — verify entity publishes at a consistent rate:
+
+```
+Goal<Rate> StableHeartbeat
+    entity: TempSensor
+    interval: 2s
+    tolerance: 200ms
+    window: 10
+end
+```
+
+**Latency** — measure trigger→response time:
+
+```
+Goal<Latency> QuickResponse
+    trigger: CommandSensor.command == 'read'
+    response: StatusSensor.status == 'ok'
+    within: 100ms
+end
+```
+
+**Ordering** — verify goals complete in sequence:
+
+```
+Goal<Ordering> StartupOrder
+    sequence:
+        - StableHeartbeat
+        - QuickResponse
+    within: 30s
+end
+```
+
+**Deadline** — condition must be met by a wall-clock time:
+
+```
+Goal<Deadline> MorningWarmup
+    when TempSensor.temp > 20
+    by: 08:00:00
+end
+```
+
 ### Imports
 
 Models can be split across files:
@@ -357,6 +403,7 @@ The [examples/](./examples/) directory provides a progressive tutorial covering 
 | 13 | `all_data_sources` | MQTT+SSL, AMQP, Redis, REST, authentication |
 | 14 | `constants_and_metadata` | Constants, Metadata, RTMonitor, comments |
 | 15 | `real_world` | Complete greenhouse and robot inspection scenarios |
+| 16 | `timing_goals` | Rate, Latency, Ordering, Deadline goals, Duration type |
 
 ## License
 
