@@ -16,7 +16,7 @@ def pytest_configure(config):
 
 PROJECT_ROOT = subprocess.check_output(["git", "rev-parse", "--show-toplevel"], text=True).strip()
 
-COMPOSE_FILE = f"{PROJECT_ROOT}/docker-compose.test.yml"
+COMPOSE_FILE = f"{PROJECT_ROOT}/docker/docker-compose.test.yml"
 
 
 # ---------------------------------------------------------------------------

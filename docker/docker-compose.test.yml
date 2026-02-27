@@ -4,7 +4,7 @@ services:
     ports:
       - "1883:1883"
     volumes:
-      - ./tests/integration/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ../tests/integration/mosquitto.conf:/mosquitto/config/mosquitto.conf
     healthcheck:
       test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/#' -C 1 -W 3 || exit 1"]
       interval: 5s

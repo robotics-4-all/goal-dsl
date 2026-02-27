@@ -180,6 +180,50 @@ E2E_TEST_DATA: dict[str, dict] = {
             "RepeatedCheck": True,
         },
     },
+    "11_scenarios": {
+        "scenario": "ReactorVerification",
+        "messages": [
+            # TempNominal: 50 < temp < 200 ✓
+            # PressureNominal: 1 < value < 10 ✓
+            # SensorAlive: Watch on TempSensor — fires on any message ✓
+            # Overheating (antigoal): temp > 300 — NOT triggered (100 < 300) ✓
+            # SafetyValveTriggered (fatal): open is true — NOT triggered ✓
+            # Overpressure (fatal): value > 20 — NOT triggered (5 < 20) ✓
+            ("reactor.temperature", {"temp": 100.0}),
+            ("reactor.pressure", {"value": 5.0}),
+            ("reactor.safety_valve", {"open": False}),
+        ],
+        "expected_goals": {
+            "TempNominal": True,
+            "PressureNominal": True,
+            "SensorAlive": True,
+        },
+    },
+    "12_value_generators": {
+        "scenario": "ValueGenerators",
+        "messages": [
+            # Generators are not rendered in codegen — entities are plain
+            # subscribers.  We publish data manually.
+            # TempAboveBaseline: temperature > 25 ✓
+            # ConfigCheck: Watch on ConfiguredSensor — fires on any message ✓
+            (
+                "sim.weather",
+                {
+                    "temperature": 28.0,
+                    "altitude": 150.0,
+                    "pressure": 1013.0,
+                    "humidity": 55.0,
+                    "windDirection": 180,
+                    "condition": 1,
+                },
+            ),
+            ("sim.configured", {"temp": 22.0, "label": "default", "active": True, "count": 0}),
+        ],
+        "expected_goals": {
+            "TempAboveBaseline": True,
+            "ConfigCheck": True,
+        },
+    },
 }
 
 
@@ -458,6 +502,206 @@ class TestE2EComposition:
 
 
 @pytest.mark.integration
+class TestE2EAreaGoals:
+    """E2E test for 05_area_goals — spatial area goals.
+
+    Area goals (Rect, Circle, Poly, Shadow, Line) evaluate entity
+    positions against geometric regions.  goalee's AreaGoalTag enum
+    is missing STAY/CROSS/AVOID variants, so the generated code
+    crashes at import time.  This is a known goalee limitation.
+    """
+
+    MODEL = EXAMPLES_DIR / "05_area_goals" / "scenario.telos"
+
+    @pytest.mark.xfail(reason="goalee AreaGoalTag missing STAY/CROSS/AVOID variants")
+    def test_e2e_no_crash(self, broker_services, mqtt_client, gen_dir):
+        files = _generate_to_file(self.MODEL, gen_dir)
+        script = files["AreaGoals"]
+
+        env = {**os.environ, "U_ID": "test"}
+        proc = subprocess.Popen(
+            [sys.executable, str(script)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            env=env,
+        )
+
+        time.sleep(3)
+
+        publish_mqtt(
+            mqtt_client,
+            "factory.robot_1.pose",
+            {"position": {"x": 5, "y": 4, "z": 0}, "orientation": {"x": 0, "y": 0, "z": 0}},
+            settle=0.3,
+        )
+        publish_mqtt(
+            mqtt_client,
+            "factory.robot_2.pose",
+            {"position": {"x": 12, "y": 10, "z": 0}, "orientation": {"x": 0, "y": 0, "z": 0}},
+            settle=0.3,
+        )
+
+        try:
+            stdout, stderr = proc.communicate(timeout=15)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            stdout, stderr = proc.communicate()
+
+        combined = stdout + stderr
+        assert "Traceback" not in combined, f"Generated script crashed:\n{combined[-2000:]}"
+        assert "Started Entity" in combined, (
+            f"Script did not start properly.\nOutput:\n{combined[-2000:]}"
+        )
+
+        time.sleep(3)
+
+        # Robot1 at (5,4,0) — inside Rect(0,0 to 10,8), inside
+        # StayInPerimeter(center=10,10 r=25), inside Poly
+        publish_mqtt(
+            mqtt_client,
+            "factory.robot_1.pose",
+            {"position": {"x": 5, "y": 4, "z": 0}, "orientation": {"x": 0, "y": 0, "z": 0}},
+            settle=0.3,
+        )
+        # Robot2 at (12,10,0) — inside StayInPerimeter, far from Robot1 (>2 for Shadow)
+        publish_mqtt(
+            mqtt_client,
+            "factory.robot_2.pose",
+            {"position": {"x": 12, "y": 10, "z": 0}, "orientation": {"x": 0, "y": 0, "z": 0}},
+            settle=0.3,
+        )
+        # Publish varying positions to trigger state changes
+        for i in range(3):
+            publish_mqtt(
+                mqtt_client,
+                "factory.robot_1.pose",
+                {
+                    "position": {"x": 5 + i, "y": 4, "z": 0},
+                    "orientation": {"x": 0, "y": 0, "z": 0},
+                },
+                settle=0.3,
+            )
+
+        try:
+            stdout, stderr = proc.communicate(timeout=15)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            stdout, stderr = proc.communicate()
+
+        combined = stdout + stderr
+        assert "Traceback" not in combined, f"Generated script crashed:\n{combined[-2000:]}"
+        assert "Started Entity" in combined, (
+            f"Script did not start properly.\nOutput:\n{combined[-2000:]}"
+        )
+
+
+@pytest.mark.integration
+class TestE2EPoseGoals:
+    """E2E test for 06_pose_goals — position/orientation goals.
+
+    goalee's Orientation constructor doesn't accept x/y/z kwargs
+    from Orientation2D codegen, so the generated script crashes at
+    import time.  This is a known goalee limitation.
+    """
+
+    MODEL = EXAMPLES_DIR / "06_pose_goals" / "scenario.telos"
+
+    @pytest.mark.xfail(reason="goalee Orientation constructor API mismatch with codegen")
+    def test_e2e_no_crash(self, broker_services, mqtt_client, gen_dir):
+        files = _generate_to_file(self.MODEL, gen_dir)
+        script = files["PoseGoals"]
+
+        env = {**os.environ, "U_ID": "test"}
+        proc = subprocess.Popen(
+            [sys.executable, str(script)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            env=env,
+        )
+
+        time.sleep(3)
+
+        publish_mqtt(
+            mqtt_client,
+            "warehouse.agv_1.pose",
+            {
+                "position": {"x": 15.1, "y": 2.0, "z": 0},
+                "orientation": {"x": 0, "y": 0, "z": 0.05},
+            },
+            settle=0.3,
+        )
+        publish_mqtt(
+            mqtt_client,
+            "warehouse.drone_1.pose",
+            {
+                "position": {"x": 10.1, "y": 10.0, "z": 0.5},
+                "orientation": {"x": 0, "y": 0, "z": 1.57},
+            },
+            settle=0.3,
+        )
+
+        try:
+            stdout, stderr = proc.communicate(timeout=15)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            stdout, stderr = proc.communicate()
+
+        combined = stdout + stderr
+        assert "Traceback" not in combined, f"Generated script crashed:\n{combined[-2000:]}"
+        assert "Started Entity" in combined, (
+            f"Script did not start properly.\nOutput:\n{combined[-2000:]}"
+        )
+
+        time.sleep(3)
+
+        # Robot near loading dock target Point3D(15, 2, 0) within 0.5m
+        publish_mqtt(
+            mqtt_client,
+            "warehouse.agv_1.pose",
+            {
+                "position": {"x": 15.1, "y": 2.0, "z": 0},
+                "orientation": {"x": 0, "y": 0, "z": 0.05},
+            },
+            settle=0.3,
+        )
+        # Drone near landing pose Point3D(10, 10, 0.5), Orientation2D(1.57)
+        publish_mqtt(
+            mqtt_client,
+            "warehouse.drone_1.pose",
+            {
+                "position": {"x": 10.1, "y": 10.0, "z": 0.5},
+                "orientation": {"x": 0, "y": 0, "z": 1.57},
+            },
+            settle=0.3,
+        )
+        # Publish a few more varying poses
+        for i in range(3):
+            publish_mqtt(
+                mqtt_client,
+                "warehouse.agv_1.pose",
+                {
+                    "position": {"x": 15.0 + i * 0.1, "y": 2.0, "z": 0},
+                    "orientation": {"x": 0, "y": 0, "z": 0.02 * i},
+                },
+                settle=0.3,
+            )
+
+        try:
+            stdout, stderr = proc.communicate(timeout=15)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            stdout, stderr = proc.communicate()
+
+        combined = stdout + stderr
+        assert "Traceback" not in combined, f"Generated script crashed:\n{combined[-2000:]}"
+        assert "Started Entity" in combined, (
+            f"Script did not start properly.\nOutput:\n{combined[-2000:]}"
+        )
+
+
+@pytest.mark.integration
 class TestE2ETrajectory:
     """E2E test for 07_trajectory_goals — verify it doesn't crash."""
 
@@ -506,3 +750,236 @@ class TestE2ETrajectory:
         # The script should not have crashed with a Python exception
         combined = stdout + stderr
         assert "Traceback" not in combined, f"Generated script crashed:\n{combined[-2000:]}"
+
+
+@pytest.mark.integration
+class TestE2EAdvancedConditions:
+    """E2E test for 09_advanced_conditions — InRange, XOR, n-ary AND.
+
+    Scenario AdvancedConditions runs concurrently with 5 goals.
+    Aggregation goals (MeanTempHigh, StableReadings) depend on buffer
+    fill timing at runtime and may not reach in time.  We verify:
+    - TempInBounds: temp in range [18.0, 26.0]
+    - AllSensorsNominal: temp > 15 AND pressure > 1 AND co2 < 1000
+    - ExclusiveAlert: (temp > 50) XOR (pressure > 20)
+
+    We publish temp ~25.5, pressure=25 (>20 for XOR, >1 for n-ary),
+    co2=500 (<1000).
+    """
+
+    MODEL = EXAMPLES_DIR / "09_advanced_conditions" / "scenario.telos"
+
+    def test_e2e_run(self, broker_services, mqtt_client, gen_dir):
+        files = _generate_to_file(self.MODEL, gen_dir)
+        script = files["AdvancedConditions"]
+
+        env = {**os.environ, "U_ID": "test"}
+        proc = subprocess.Popen(
+            [sys.executable, str(script)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            env=env,
+        )
+
+        time.sleep(3)
+
+        # Publish pressure and air quality (non-aggregated conditions)
+        publish_mqtt(mqtt_client, "lab.sensor_b.pressure", {"value": 25.0}, settle=0.3)
+        publish_mqtt(mqtt_client, "lab.air_quality", {"co2": 500.0, "pm25": 10.0}, settle=0.3)
+
+        # Publish 25 temperature readings with small variance to fill
+        # aggregation buffers.  Values ~25.5: in [18,26] ✓, > 15 ✓
+        temps = [25.0 + (i % 5) * 0.2 for i in range(25)]
+        for t in temps:
+            publish_mqtt(
+                mqtt_client,
+                "lab.sensor_a.temperature",
+                {"temp": t, "humidity": 50.0},
+                settle=0.2,
+            )
+
+        try:
+            stdout, stderr = proc.communicate(timeout=30)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            stdout, stderr = proc.communicate()
+
+        combined = stdout + stderr
+        results = _parse_goal_results(combined)
+
+        # Verify non-aggregation goals.  Aggregation goals (MeanTempHigh,
+        # StableReadings) depend on goalee buffer fill timing and may not
+        # reach within the test window.
+        verified_goals = {
+            "TempInBounds": True,
+            "AllSensorsNominal": True,
+            "ExclusiveAlert": True,
+        }
+        for goal_name, expected_status in verified_goals.items():
+            assert goal_name in results, (
+                f"Goal '{goal_name}' not found in output. "
+                f"Got: {results}. Output:\n{combined[-2000:]}"
+            )
+            assert results[goal_name] == expected_status, (
+                f"Goal '{goal_name}': expected {'✓' if expected_status else '✗'}, "
+                f"got {'✓' if results[goal_name] else '✗'}"
+            )
+
+
+@pytest.mark.integration
+class TestE2ETimeConstraints:
+    """E2E test for 10_time_constraints — time-constrained goals.
+
+    The scenario runs sequentially with FOR_TIME constraints (30s+), which
+    makes full verification impractical.  We verify the script starts,
+    entities connect, and no Python errors occur.  We publish data to
+    trigger the first goal (QuickTempCheck: temp > 50 within 60s).
+    """
+
+    MODEL = EXAMPLES_DIR / "10_time_constraints" / "scenario.telos"
+
+    def test_e2e_no_crash(self, broker_services, mqtt_client, gen_dir):
+        files = _generate_to_file(self.MODEL, gen_dir)
+        script = files["TimeConstraints"]
+
+        env = {**os.environ, "U_ID": "test"}
+        proc = subprocess.Popen(
+            [sys.executable, str(script)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            env=env,
+        )
+
+        time.sleep(3)
+
+        # Publish data for all entities
+        publish_mqtt(mqtt_client, "process.temperature", {"temp": 55.0}, settle=0.3)
+        publish_mqtt(mqtt_client, "process.pressure", {"value": 8.0}, settle=0.3)
+        publish_mqtt(mqtt_client, "process.flow", {"rate": 5.0}, settle=0.3)
+        publish_mqtt(
+            mqtt_client,
+            "process.robot.pose",
+            {"position": {"x": 5, "y": 5, "z": 0}, "orientation": {"x": 0, "y": 0, "z": 0}},
+            settle=0.3,
+        )
+
+        try:
+            stdout, stderr = proc.communicate(timeout=10)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            stdout, stderr = proc.communicate()
+
+        combined = stdout + stderr
+        assert "Traceback" not in combined, f"Generated script crashed:\n{combined[-2000:]}"
+        assert "Started Entity" in combined, (
+            f"Script did not start properly.\nOutput:\n{combined[-2000:]}"
+        )
+
+
+@pytest.mark.integration
+class TestE2EScenarios:
+    """E2E test for 11_scenarios — weights, antigoals, fatals.
+
+    ReactorVerification scenario runs concurrently with:
+    - Goals: TempNominal (50<t<200), PressureNominal (1<v<10), SensorAlive (Watch)
+    - Antigoals: Overheating (temp>300) — must NOT be reached
+    - Fatals: SafetyValveTriggered, Overpressure — must NOT be reached
+
+    We publish safe values (temp=100, pressure=5, valve closed) to
+    satisfy all goals without triggering antigoals or fatals.
+    """
+
+    EXAMPLE = "11_scenarios"
+    MODEL = EXAMPLES_DIR / "11_scenarios" / "scenario.telos"
+
+    def test_e2e_run(self, broker_services, mqtt_client, gen_dir):
+        data = E2E_TEST_DATA[self.EXAMPLE]
+        files = _generate_to_file(self.MODEL, gen_dir)
+        script = files[data["scenario"]]
+
+        env = {**os.environ, "U_ID": "test"}
+        proc = subprocess.Popen(
+            [sys.executable, str(script)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            env=env,
+        )
+
+        time.sleep(3)
+
+        for topic, payload in data["messages"]:
+            publish_mqtt(mqtt_client, topic, payload)
+
+        try:
+            stdout, stderr = proc.communicate(timeout=20)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            stdout, stderr = proc.communicate()
+
+        combined = stdout + stderr
+        results = _parse_goal_results(combined)
+
+        for goal_name, expected in data["expected_goals"].items():
+            assert goal_name in results, (
+                f"Goal '{goal_name}' not found in output. "
+                f"Got: {results}. Output:\n{combined[-2000:]}"
+            )
+            assert results[goal_name] == expected, (
+                f"Goal '{goal_name}': expected {'✓' if expected else '✗'}, "
+                f"got {'✓' if results[goal_name] else '✗'}"
+            )
+
+
+@pytest.mark.integration
+class TestE2EValueGenerators:
+    """E2E test for 12_value_generators — virtual entities.
+
+    Generators are not rendered in codegen (entities are plain subscribers).
+    We publish data manually to satisfy goals:
+    - TempAboveBaseline: temperature > 25
+    - ConfigCheck: Watch on ConfiguredSensor (any message)
+    """
+
+    EXAMPLE = "12_value_generators"
+    MODEL = EXAMPLES_DIR / "12_value_generators" / "scenario.telos"
+
+    def test_e2e_run(self, broker_services, mqtt_client, gen_dir):
+        data = E2E_TEST_DATA[self.EXAMPLE]
+        files = _generate_to_file(self.MODEL, gen_dir)
+        script = files[data["scenario"]]
+
+        env = {**os.environ, "U_ID": "test"}
+        proc = subprocess.Popen(
+            [sys.executable, str(script)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            env=env,
+        )
+
+        time.sleep(3)
+
+        for topic, payload in data["messages"]:
+            publish_mqtt(mqtt_client, topic, payload)
+
+        try:
+            stdout, stderr = proc.communicate(timeout=15)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            stdout, stderr = proc.communicate()
+
+        combined = stdout + stderr
+        results = _parse_goal_results(combined)
+
+        for goal_name, expected in data["expected_goals"].items():
+            assert goal_name in results, (
+                f"Goal '{goal_name}' not found in output. "
+                f"Got: {results}. Output:\n{combined[-2000:]}"
+            )
+            assert results[goal_name] == expected, (
+                f"Goal '{goal_name}': expected {'✓' if expected else '✗'}, "
+                f"got {'✓' if results[goal_name] else '✗'}"
+            )
