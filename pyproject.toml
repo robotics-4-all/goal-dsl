@@ -38,8 +38,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+runtime = ["goalee"]
 dev = ["wheel", "twine", "ruff", "pre-commit"]
-test = ["pytest", "pytest-cov", "httpx"]
+test = ["pytest", "pytest-cov", "httpx", "goalee"]
 
 [project.urls]
 Repository = "https://github.com/robotics-4-all/goal-dsl"
