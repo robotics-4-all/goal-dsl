@@ -29,8 +29,8 @@ AMQPBroker:
         ('host:' host=STRING)
         ('port:' port=INT)
         ('vhost:' vhost=STRING)?
-        ('topicExchange:' topicE=STRING)?
-        ('rpcExchange:' rpcE=STRING)?
+        ('topicExchange:' topicExchange=STRING)?
+        ('rpcExchange:' rpcExchange=STRING)?
         ('ssl' ':' ssl=BOOL)?
         ('auth' ':' auth=Authentication)?
     )#

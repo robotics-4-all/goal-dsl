@@ -8,7 +8,6 @@ from textx import TextXSemanticError, TextXSyntaxError
 from telos.language import (
     build_model,
     build_model_str,
-    class_provider,
     get_metamodel,
     get_model_entities,
     get_model_goals,
@@ -119,17 +118,6 @@ end
         )
 
 
-def test_class_provider_known():
-    from telos.lib.entity import Entity
-
-    result = class_provider("Entity")
-    assert result is Entity
-
-
-def test_class_provider_unknown():
-    assert class_provider("NonExistentClass") is None
-
-
 def test_get_metamodel():
     mm = get_metamodel()
     assert mm is not None
@@ -165,37 +153,40 @@ def test_telos_language():
 
 
 def test_time_obj_processor_valid():
-    from telos.language import time_obj_processor
-    from telos.lib.types import Time
+    from types import SimpleNamespace
 
-    t = Time(hour=12, minute=30, second=45)
-    # Should not raise
+    from telos.language import time_obj_processor
+
+    t = SimpleNamespace(hour=12, minute=30, second=45)
     time_obj_processor(t)
 
 
 def test_time_obj_processor_invalid_hour():
-    from telos.language import time_obj_processor
-    from telos.lib.types import Time
+    from types import SimpleNamespace
 
-    t = Time(hour=25, minute=0, second=0)
+    from telos.language import time_obj_processor
+
+    t = SimpleNamespace(hour=25, minute=0, second=0)
     with pytest.raises(TextXSemanticError, match="Time.hours"):
         time_obj_processor(t)
 
 
 def test_time_obj_processor_invalid_minute():
-    from telos.language import time_obj_processor
-    from telos.lib.types import Time
+    from types import SimpleNamespace
 
-    t = Time(hour=0, minute=61, second=0)
+    from telos.language import time_obj_processor
+
+    t = SimpleNamespace(hour=0, minute=61, second=0)
     with pytest.raises(TextXSemanticError, match="Time.minutes"):
         time_obj_processor(t)
 
 
 def test_time_obj_processor_invalid_second():
-    from telos.language import time_obj_processor
-    from telos.lib.types import Time
+    from types import SimpleNamespace
 
-    t = Time(hour=0, minute=0, second=61)
+    from telos.language import time_obj_processor
+
+    t = SimpleNamespace(hour=0, minute=0, second=61)
     with pytest.raises(TextXSemanticError, match="Time.seconds"):
         time_obj_processor(t)
 

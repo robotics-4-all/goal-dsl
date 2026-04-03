@@ -157,27 +157,27 @@ AugmentedListAttr: SimpleListAttr;
 AugmentedDictAttr: SimpleDictAttr;
 
 SimpleNumericAttr:
-    attribute=[NumericAttribute:FQN|+m:entities.attributes]
+    attribute=[Attribute:FQN|+m:entities.attributes]
 ;
 
 SimpleStringAttr:
-    attribute=[StringAttribute:FQN|+m:entities.attributes]
+    attribute=[Attribute:FQN|+m:entities.attributes]
 ;
 
 SimpleBoolAttr:
-    attribute=[BoolAttribute:FQN|+m:entities.attributes]
+    attribute=[Attribute:FQN|+m:entities.attributes]
 ;
 
 SimpleListAttr:
-    attribute=[ListAttribute:FQN|+m:entities.attributes]
+    attribute=[Attribute:FQN|+m:entities.attributes]
 ;
 
 SimpleDictAttr:
-    attribute=[DictAttribute:FQN|+m:entities.attributes]
+    attribute=[Attribute:FQN|+m:entities.attributes]
 ;
 
 SimpleTimeAttr:
-    attribute=[TimeAttribute:FQN|+m:entities.attributes]
+    attribute=[Attribute:FQN|+m:entities.attributes]
 ;
 
 // Operators

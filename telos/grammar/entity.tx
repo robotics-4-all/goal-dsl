@@ -5,12 +5,12 @@ import utils
 Entity:
     'Entity' name=ID
         (
-			('type:' etype=EntityType)
-			('topic:' topic=STRING)
+		    ('type:' etype=EntityType)
+		    ('topic:' topic=STRING)
             ('description:' description=STRING)?
-			('freq:' freq=NUMBER)?
-			('source:' source=EntitySource)
-			('attributes:' '-' attributes*=Attribute['-'])
+		    ('freq:' freq=NUMBER)?
+		    ('source:' source=EntitySource)
+		    ('attributes:' '-' attributes*=Attribute['-'])
 		)#
     'end'
 ;
@@ -22,68 +22,36 @@ EntityType:
     'robot'
 ;
 
+// All valid primitive attribute data types — single source of truth in grammar
+PrimitiveDataType:
+    'int' | 'float' | 'str' | 'bool' | 'time' | 'list' | 'dict'
+;
+
 Attribute:
-    NumericAttribute    |
-    BoolAttribute       |
-    StringAttribute     |
-    TimeAttribute       |
-    ListAttribute       |
-    DictAttribute
+    name=ID ':' dtype=PrimitiveDataType
+    ('=' default=AttributeDefault)?
+    ('->' generator=ValueGen ('with noise' noise=Noise)?)?
 ;
 
-NumericAttribute:
-    IntAttribute | FloatAttribute
+// Time before FLOAT/INT to avoid INT greedily consuming HH in HH:MM
+AttributeDefault:
+    Time | List | DictDefault | FLOAT | INT | BOOL | STRING
 ;
 
-IntAttribute:
-    name=ID ':' 'int' ('=' default=INT)?
-        ('->' generator=NumericValueGen ('with noise' noise=Noise)?)?
+DictDefault:
+    '{' items*=Attribute[','] '}'
 ;
 
-FloatAttribute:
-    name=ID ':' 'float' ('=' default=FLOAT)?
-        ('->' generator=NumericValueGen ('with noise' noise=Noise)?)?
-;
-
-StringAttribute:
-    name=ID ':' 'str' ('=' default=STRING)?
-;
-
-BoolAttribute:
-    name=ID ':' 'bool' ('=' default=BOOL)?
-        ('->' generator=BooleanValueGen)?
-;
-
-ListAttribute:
-    name=ID ':' 'list' ('=' '[' default*=OBJECT[','] ']')?
-        ('->' generator=ListValueGen)?
-;
-
-DictAttribute:
-    name=ID ':' 'dict' ('=' '{' items*=Attribute[','] '}')?
-        ('->' generator=DictValueGen)?
-;
-
-TimeAttribute:
-    name=ID ':' 'time' ('=' default=Time)?
-;
-
-
-NumericValueGen:
+ValueGen:
     ConstantFun     |
     LinearFun       |
-    SawFun			|
+    SawFun          |
     GaussianFun     |
-    SinusFun		|
+    SinusFun        |
     ReplayFun       |
     ReplayFileFun
 ;
 
-BooleanValueGen: ReplayFun | ReplayFileFun;
-
-ListValueGen: ReplayFun | ReplayFileFun;
-
-DictValueGen: ReplayFun | ReplayFileFun;
 
 GaussianFun:
     'gaussian' '(' value=NUMBER ',' maxValue=NUMBER ',' sigma=NUMBER ')'

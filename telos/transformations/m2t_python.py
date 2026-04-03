@@ -10,6 +10,7 @@ from telos.language import (
     get_model_entities,
     get_model_scenarios,
 )
+from telos.language import build_condition
 from telos.logging import default_logger as logger
 
 THIS_DIR = path.abspath(path.dirname(__file__))
@@ -94,7 +95,7 @@ def process_goals(goals):
         goal_type = goal.__class__.__name__
         if goal_type == "EntityStateConditionGoal":
             if goal.condition is not None:
-                goal.condition.build()
+                build_condition(goal.condition)
                 cond_lambda = make_condition_lambda(goal.condition)
                 goal.condition.cond_lambda = cond_lambda
                 logger.info(f"[*] - Goal <{goal.name}> condition lambda: {cond_lambda}")
@@ -129,12 +130,12 @@ def process_goals(goals):
             )
         elif goal_type == "LatencyGoal":
             if goal.triggerCondition is not None:
-                goal.triggerCondition.build()
+                build_condition(goal.triggerCondition)
                 cond_lambda = make_condition_lambda(goal.triggerCondition)
                 goal.triggerCondition.cond_lambda = cond_lambda
                 logger.info(f"[*] - Goal <{goal.name}> trigger condition lambda: {cond_lambda}")
             if goal.responseCondition is not None:
-                goal.responseCondition.build()
+                build_condition(goal.responseCondition)
                 cond_lambda = make_condition_lambda(goal.responseCondition)
                 goal.responseCondition.cond_lambda = cond_lambda
                 logger.info(f"[*] - Goal <{goal.name}> response condition lambda: {cond_lambda}")
@@ -142,7 +143,7 @@ def process_goals(goals):
             logger.info(f"[*] - Goal <{goal.name}> ordering: {goal.sequence}")
         elif goal_type == "DeadlineGoal":
             if goal.condition is not None:
-                goal.condition.build()
+                build_condition(goal.condition)
                 cond_lambda = make_condition_lambda(goal.condition)
                 goal.condition.cond_lambda = cond_lambda
                 logger.info(f"[*] - Goal <{goal.name}> deadline condition lambda: {cond_lambda}")

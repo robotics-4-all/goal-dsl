@@ -107,14 +107,14 @@ end
 def test_parse_entity_all_attr_types():
     m = build_model_str(_model(ENTITY_ALL_TYPES))
     e = m.entities[0]
-    types = {a.name: a.__class__.__name__ for a in e.attributes}
-    assert types["i"] == "IntAttribute"
-    assert types["f"] == "FloatAttribute"
-    assert types["s"] == "StringAttribute"
-    assert types["b"] == "BoolAttribute"
-    assert types["l"] == "ListAttribute"
-    assert types["d"] == "DictAttribute"
-    assert types["t"] == "TimeAttribute"
+    dtypes = {a.name: a.dtype for a in e.attributes}
+    assert dtypes["i"] == "int"
+    assert dtypes["f"] == "float"
+    assert dtypes["s"] == "str"
+    assert dtypes["b"] == "bool"
+    assert dtypes["l"] == "list"
+    assert dtypes["d"] == "dict"
+    assert dtypes["t"] == "time"
 
 
 def test_parse_entity_source_ref():

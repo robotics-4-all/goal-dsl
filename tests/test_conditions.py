@@ -1,5 +1,6 @@
 """Tests for condition building and lambda generation."""
 
+from telos.language import OPERATORS, build_condition, transform_operand
 from telos.language import build_model_str
 from telos.transformations.m2t_python import make_condition_lambda
 
@@ -38,7 +39,7 @@ end
 def _build_and_get_lambda(condition_text):
     m = build_model_str(_cond_model(condition_text))
     g = m.goals[0]
-    g.condition.build()
+    build_condition(g.condition)
     return g.condition.cond_lambda
 
 
@@ -132,7 +133,7 @@ end
 """
     )
     g = m.goals[0]
-    g.condition.build()
+    build_condition(g.condition)
     lam = g.condition.cond_lambda
     assert "18.0" in lam
     assert "26.0" in lam
@@ -168,7 +169,7 @@ end
 """
     )
     g = next(g for g in m.goals if g.name == "G2")
-    g.condition.build()
+    build_condition(g.condition)
     lam = g.condition.cond_lambda
     assert "goals" in lam
     assert "G1" in lam
@@ -200,7 +201,7 @@ end
 """
     )
     g = m.goals[0]
-    g.condition.build()
+    build_condition(g.condition)
     result = make_condition_lambda(g.condition)
     assert result.startswith("lambda entities, goals={}")
     assert "True if" in result
@@ -208,8 +209,6 @@ end
 
 
 def test_operators_dict():
-    from telos.lib.condition import OPERATORS
-
     assert OPERATORS["=="](1, 2) == "(1 == 2)"
     assert OPERATORS["!="](1, 2) == "(1 != 2)"
     assert OPERATORS[">"](1, 2) == "(1 > 2)"
@@ -230,39 +229,37 @@ def test_operators_dict():
 
 
 def test_transform_operand_primitives():
-    from telos.lib.condition import Condition
-
-    assert Condition.transform_operand(42) == 42
-    assert Condition.transform_operand(3.14) == 3.14
-    result = Condition.transform_operand("hello")
+    assert transform_operand(42) == 42
+    assert transform_operand(3.14) == 3.14
+    result = transform_operand("hello")
     assert result == "'hello'"
-    assert Condition.transform_operand(True) is True
+    assert transform_operand(True) is True
 
 
 def test_transform_operand_list():
-    from telos.lib.condition import Condition
-    from telos.lib.types import List
-
-    lst = List(items=[1, 2, 3])
-    result = Condition.transform_operand(lst)
-    assert result is lst
+    List = type("List", (), {})
+    lst = List()
+    lst.items = [1, 2, 3]
+    result = transform_operand(lst)
+    assert result == "[1, 2, 3]"
 
 
 def test_transform_operand_dict():
-    from telos.lib.condition import Condition
-    from telos.lib.types import Dict
-
-    d = Dict(items=[])
-    result = Condition.transform_operand(d)
-    assert result is d
+    Dict = type("Dict", (), {})
+    d = Dict()
+    d.items = []
+    result = transform_operand(d)
+    assert result == "{}"
 
 
 def test_transform_operand_time():
-    from telos.lib.condition import Condition
-    from telos.lib.types import Time
-
-    t = Time(hour=1, minute=2, second=3)
-    result = Condition.transform_operand(t)
+    Time = type("Time", (), {})
+    t = Time()
+    t.hour = 1
+    t.minute = 2
+    t.second = 3
+    t.to_int = lambda: t.second + int(t.minute << 8) + int(t.hour << 16)
+    result = transform_operand(t)
     assert result == t.to_int()
 
 
